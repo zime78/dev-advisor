@@ -2,6 +2,129 @@
 
 `dev-advisor`는 앱 개발 과정에서 아키텍처, 알고리즘, 언어 선택, 보안, 소프트웨어 공학 원칙을 한 번에 참조할 수 있도록 정리한 멀티 에이전트용 개발 어드바이저 카탈로그입니다. 현재 저장소는 Codex용 스킬과 Claude용 스킬을 함께 제공하며, 두 환경에서 같은 개발 판단 기준을 재사용할 수 있도록 구성되어 있습니다.
 
+## 설치 방법
+
+가장 먼저 아래 설치 절차를 진행하면 됩니다. 자동 설치 스크립트는 Codex와 Claude Code 설치 여부를 확인한 뒤, 사용 가능한 환경에 `dev-advisor` 스킬을 복사합니다.
+
+### 자동 설치
+
+Codex 또는 Claude Code가 설치되어 있으면 아래 스크립트가 자동으로 감지해 `dev-advisor` 스킬을 각 홈 디렉터리로 복사합니다. 기존 스킬이 있으면 덮어쓰기 전에 `.backups/` 아래로 백업합니다.
+
+```bash
+git clone https://github.com/zime78/dev-advisor.git
+cd dev-advisor
+bash scripts/install-skills.sh
+```
+
+| 설치 대상 | 감지 기준 | 복사 위치 | 원본 경로 |
+|---|---|---|---|
+| Codex | `~/.codex` 존재 또는 `codex` 명령 존재 | `~/.codex/skills/dev-advisor` | `codex/skills/dev-advisor` |
+| Claude Code | `~/.claude` 존재 또는 `claude` 명령 존재 | `~/.claude/skills/dev-advisor` | `claude/skills/dev-advisor` |
+
+| 설치 옵션 | 명령 | 설명 |
+|---|---|---|
+| 전체 자동 설치 | `bash scripts/install-skills.sh` | Codex와 Claude Code를 감지해 가능한 대상에 모두 설치 |
+| 설치 전 확인 | `bash scripts/install-skills.sh --dry-run` | 복사하지 않고 대상 경로와 백업 경로만 확인 |
+| Codex만 설치 | `bash scripts/install-skills.sh --only codex` | Codex 스킬만 설치 |
+| Claude Code만 설치 | `bash scripts/install-skills.sh --only claude` | Claude Code 스킬만 설치 |
+| 설치 위치 변경 | `CODEX_HOME=/path/to/codex bash scripts/install-skills.sh --only codex` | 기본 홈 디렉터리 대신 지정 경로에 설치 |
+
+### 수동 설치
+
+자동 설치 대신 직접 복사할 수도 있습니다.
+
+```bash
+mkdir -p ~/.codex/skills ~/.claude/skills
+cp -R codex/skills/dev-advisor ~/.codex/skills/dev-advisor
+cp -R claude/skills/dev-advisor ~/.claude/skills/dev-advisor
+```
+
+## 스킬 옵션
+
+| 구분 | 옵션 / 명령 | 입력 | 출력 |
+|---|---|---|---|
+| 도움말 | `/dev-advisor --help` | 없음 | 모드, 카탈로그, 라우팅 사용법 |
+| 추천 | `/dev-advisor recommend <context>` | 만들 앱, 도메인, 제약 조건 | 후보 매트릭스, 선택 근거, 대안 비교 |
+| 검증 | `/dev-advisor validate <file\|module>` | 코드, 모듈, 파일 경로 | 위반 항목, 표준 인용, P1/P2/P3 우선순위 |
+| 리팩토링 | `/dev-advisor refactor <file\|function>` | 코드, 함수, 클래스 | 단계별 리팩토링, Before/After, 회귀 위험 |
+| 유지보수 | `/dev-advisor maintain <module\|project>` | 모듈, 프로젝트 구조 | 기술 부채, 코드 스멜, 우선순위 |
+| 보안 점검 | `/dev-advisor security-audit <module\|api>` | API, 모듈, 인증/인가 흐름 | STRIDE, DREAD, 통제 방안, 컴플라이언스 매핑 |
+| 전체 점검 | `/dev-advisor full <module\|path>` | 모듈, 경로, 프로젝트 | 5개 기본 모드 순차 통합 보고서 |
+| 병렬 심층 점검 | `/dev-advisor swarm <module\|path>` | 큰 모듈, 복합 프로젝트 | 다중 에이전트 병렬 분석과 reviewer 통합 |
+
+| 카탈로그 | 명령 형식 | 예시 | 용도 |
+|---|---|---|---|
+| Patterns | `/pattern <id\|list\|search>` | `/pattern singleton`, `/pattern search 캐싱` | 디자인/아키텍처 패턴 조회 |
+| Algorithms | `/algorithm <id\|list [category]\|search>` | `/algorithm quick-sort`, `/algorithm list graph` | 알고리즘/자료구조 조회 |
+| Languages | `/language <id\|list\|search>` | `/language python`, `/language search 모바일` | 언어 선택/비교 조회 |
+| Security | `/security <id\|list\|search>` | `/security oauth2-pkce`, `/security jwt` | 보안 패턴/통제 조회 |
+| Principles | `/principle <id\|list\|search>` | `/principle srp`, `/principle dry` | SW 공학 원칙 조회 |
+
+## 사용 방법
+
+`dev-advisor`는 크게 두 방식으로 사용합니다. 특정 개념을 바로 찾아보려면 카탈로그 조회 명령을 쓰고, 코드나 프로젝트를 평가받으려면 advisor 모드를 씁니다.
+
+### 1. 카탈로그에서 바로 찾아보기
+
+| 사용 목적 | 입력 예시 | 기대 결과 |
+|---|---|---|
+| 패턴 하나를 알고 싶을 때 | `/pattern singleton` | Singleton 패턴의 목적, 적용 조건, 장단점, 비추천 조건 |
+| 관련 패턴을 검색할 때 | `/pattern search 캐싱` | 캐싱 관련 패턴 후보 목록과 각 항목의 쓰임 |
+| 알고리즘을 확인할 때 | `/algorithm dijkstra` | Dijkstra 알고리즘 설명, 사용 조건, 복잡도, 적용 예 |
+| 알고리즘 카테고리를 볼 때 | `/algorithm list graph` | 그래프 알고리즘 목록 |
+| 언어 선택 기준을 볼 때 | `/language kotlin` | Kotlin의 사용처, 장점, 제약, 추천 상황 |
+| 특정 분야 언어를 찾을 때 | `/language search 모바일` | 모바일 개발에 관련된 언어 후보 |
+| 보안 통제를 찾을 때 | `/security oauth2-pkce` | OAuth2 + PKCE의 목적, 적용 조건, 주의점 |
+| 원칙을 찾을 때 | `/principle srp` | 단일 책임 원칙 설명, 위반 신호, 리팩토링 방향 |
+
+### 2. 프로젝트나 코드를 분석시키기
+
+| 사용 목적 | 입력 예시 | 기대 결과 |
+|---|---|---|
+| 아키텍처 추천 | `/dev-advisor recommend 실시간 채팅 앱을 만들 예정이고 모바일과 웹을 모두 지원해야 함` | 후보 아키텍처, 추천 이유, 대안 비교, 적용 조건 |
+| 코드 구조 검증 | `/dev-advisor validate src/modules/payment` | 위반 가능성이 있는 설계 원칙, 심각도, 수정 우선순위 |
+| 리팩토링 가이드 | `/dev-advisor refactor src/services/UserService.ts` | 단계별 리팩토링 계획, Before/After 방향, 회귀 위험 |
+| 유지보수 점검 | `/dev-advisor maintain backend/` | 기술 부채, 코드 스멜, 운영 리스크, 개선 우선순위 |
+| 보안 점검 | `/dev-advisor security-audit api/auth` | STRIDE/DREAD 기반 위협, 보안 통제, 컴플라이언스 매핑 |
+| 전체 점검 | `/dev-advisor full src/checkout` | 추천, 검증, 리팩토링, 유지보수, 보안 점검을 순차 통합 |
+| 병렬 심층 점검 | `/dev-advisor swarm src/checkout` | 여러 관점의 병렬 분석 결과와 통합 Top 10 개선안 |
+
+### 3. 자연어로도 요청하기
+
+명령어를 정확히 몰라도 자연어 요청이 가능합니다. 명시적인 ID나 파일 경로가 있으면 해당 카탈로그 또는 advisor 모드로 자동 라우팅합니다.
+
+| 자연어 입력 예시 | 자동 해석 |
+|---|---|
+| `싱글톤 패턴 설명해줘` | `/pattern singleton` |
+| `JWT 보안에서 주의할 점 알려줘` | `/security jwt` 또는 관련 보안 항목 검색 |
+| `이 결제 모듈 전체 점검해줘: src/payment` | `/dev-advisor full src/payment` |
+| `이 API 보안 점검해줘: api/login` | `/dev-advisor security-audit api/login` |
+| `Python이 이 프로젝트에 맞는지 검토해줘` | `/language python` + `recommend` 관점 |
+| `이 코드 SOLID 위반인지 봐줘` | `/dev-advisor validate <제공된 코드>` |
+| `기술 부채 높은 부분부터 정리해줘` | `/dev-advisor maintain <project>` |
+| `큰 모듈이라 병렬로 심층 분석해줘` | `/dev-advisor swarm <module>` |
+
+### 4. 추천 사용 흐름
+
+| 상황 | 추천 순서 |
+|---|---|
+| 새 기능 설계 전 | `/dev-advisor recommend` → 후보 비교 → `/pattern <id>`로 세부 확인 |
+| 기존 코드 품질 확인 | `/dev-advisor validate` → 위반 항목 확인 → `/dev-advisor refactor` |
+| 배포 전 보안 점검 | `/dev-advisor security-audit` → 취약점 조치 → 재검증 |
+| 레거시 모듈 개선 | `/dev-advisor maintain` → 부채 우선순위 결정 → 단계별 리팩토링 |
+| 큰 프로젝트 종합 점검 | `/dev-advisor full` 또는 `/dev-advisor swarm` → Top 10 개선안 실행 |
+
+### 5. 출력 결과를 읽는 기준
+
+| 출력 항목 | 의미 |
+|---|---|
+| 선택/판정 | 현재 입력에 대한 핵심 결론 |
+| 근거 | 왜 그렇게 판단했는지에 대한 코드/구조/표준 기반 이유 |
+| 대안 비교 | 다른 선택지와 trade-off |
+| 표준 인용 | SOLID, GRASP, ISO 25010, 12-Factor, OWASP, NIST, RFC 등 관련 기준 |
+| 적용 조건 | 해당 판단이 유효한 상황 |
+| 비추천/예외/수용 조건 | 이 결정을 쓰지 않거나 예외로 둘 수 있는 조건 |
+
 ## 1. 해당 프로젝트를 만든 이유
 
 | 항목 | 설명 |
@@ -22,6 +145,7 @@
 | Claude 스킬 | `claude/skills/dev-advisor/` | 204 | Claude 환경에서 사용할 dev-advisor 스킬 패키지 | `SKILL.md`, `references/`, `scripts/` 포함 |
 | Codex 스킬 | `codex/skills/dev-advisor/` | 202 | Codex 환경에서 사용할 dev-advisor 스킬 패키지 | `agents/openai.yaml` 포함 |
 | 루트 문서 | `README.md` | 1 | 프로젝트 개요, 구성, 출처 정리 | 현재 문서 |
+| 설치 스크립트 | `scripts/install-skills.sh` | 1 | Codex/Claude Code 스킬 자동 설치 | 기존 설치본은 `.backups/`로 백업 |
 | 로컬 런타임 | `.omx/` | 추적 제외 | oh-my-codex 실행 상태와 로그 | 저장소에는 포함하지 않음 |
 | macOS 메타파일 | `.DS_Store` | 추적 제외 | Finder 로컬 메타데이터 | 저장소에는 포함하지 않음 |
 
@@ -91,6 +215,7 @@
 | Enrich languages | `scripts/enrich-languages.py` | 언어 reference 확장/보강용 스크립트 |
 | Verify references | `scripts/verify-references.sh` | 전체 카탈로그, 링크, anchor, 카운트 검증 |
 | Verify anchors | `scripts/verify-anchors.sh` | deprecated wrapper, `verify-references.sh`로 위임 |
+| Skill installer | `scripts/install-skills.sh` | 루트 자동 설치 스크립트. Codex/Claude Code 설치 여부를 감지해 스킬을 복사 |
 
 ### 2.7 전체 세부 항목 인벤토리
 
@@ -238,6 +363,8 @@
 .
 ├── .gitignore
 ├── README.md
+├── scripts/
+│   └── install-skills.sh
 ├── claude/
 │   └── skills/
 │       └── dev-advisor/
@@ -288,6 +415,7 @@
 |---|---|---|
 | `.gitignore` | 추적 | 저장소 제외 규칙 |
 | `README.md` | 추적 | 루트 프로젝트 설명 문서 |
+| `scripts/install-skills.sh` | 추적 | Codex/Claude Code 스킬 자동 설치 스크립트 |
 | `claude/` | 추적 | Claude용 dev-advisor 스킬 패키지 |
 | `codex/` | 추적 | Codex용 dev-advisor 스킬 패키지 |
 | `.omx/` | 제외 | oh-my-codex 실행 상태, 세션, 로그 |

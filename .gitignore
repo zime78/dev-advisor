@@ -1,0 +1,7 @@
+.DS_Store
+.omx/
+.env
+.env.*
+__pycache__/
+*.py[cod]
+*.pyo

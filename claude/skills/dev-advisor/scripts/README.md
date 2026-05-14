@@ -1,0 +1,64 @@
+# scripts/
+
+dev-advisor 스킬 무결성 검증 도구.
+
+## verify-references.sh (권장)
+
+**5 도메인 reference 무결성 검증** — 패턴 / 알고리즘 / 언어 / 보안 / 원칙. 총 1,126 항목.
+
+```bash
+bash scripts/verify-references.sh
+```
+
+검증 항목 (12 블록 + languages 품질 서브게이트):
+
+1. 카테고리별 anchor 수 == 헤더 수 (algorithms base 22 파일)
+2. 전역 anchor unique
+3. index.md 알고리즘 ID 매핑 표 행 == 268
+4. SKILL.md progressive disclosure 구조 (31 카테고리 진입점, 필수 섹션 헤더, 별칭 표)
+5. languages reference 무결성 (≥60 언어 파일, 레거시 잔존 표현 0건)
+6. languages 표준 14 섹션 헤더 spot-check (python/kotlin/rust/go/swift 누락 ≥ 2 면 fail)
+   - languages 전체 품질 게이트: 75개 언어 파일 정확성, `## 관련 문서` 존재, Markdown 링크 3개 이상, 외부 공식 문서 후보 링크 2개 이상, `실사용 예제` 코드 블록 1개 이상, 예제 섹션 25단어 이상
+7. patterns base reference 무결성 (base 15 카테고리, base 합계 == 159; 전체 496은 10번과 합산)
+8. security base reference 무결성 (base 13 보안 파일, base 합계 == 97; 전체 106은 10번과 합산)
+9. **principles base reference 무결성** (base 5 원칙 파일, base 합계 == 56; 전체 163 + 18 부록은 10번과 합산)
+10. Phase 2 확장 신규 카탈로그 anchor/header 일관성
+11. SKILL.md 통합 모드 (`full` / `swarm`) 등록 검증
+12. 핵심 Markdown 내부 링크/anchor 검증
+
+5 도메인 항목 수:
+
+| 도메인 | 파일 수 | 항목 수 |
+|--------|--------:|--------:|
+| Patterns   | 47 + index           | 496 |
+| Algorithms | 31 + index           | 268 |
+| Languages  | ≥75 + index + domains | 75 |
+| Security   | 14 + index           | 106 |
+| Principles | 15 + index + micro appendix | 163 + 18 appendix |
+| **합계**   |                      | **1,126** |
+
+새 항목 추가 후 반드시 실행. CI 또는 pre-commit hook 통합 권장:
+
+```yaml
+# lefthook.yml 예시
+pre-commit:
+  commands:
+    verify-references:
+      run: bash scripts/verify-references.sh
+      glob: ["SKILL.md", "references/**/*.md"]
+```
+
+## verify-anchors.sh (deprecated wrapper)
+
+호환성을 위해 유지되는 wrapper. `verify-references.sh` 로 그대로 위임한다. 신규 사용처는 `verify-references.sh` 를 직접 호출한다.
+
+## 신규 항목 추가 시 절차
+
+1. 해당 도메인 카테고리 파일에 `## N. <영문명> (<한글명>)` 헤더 추가 (N 순차 증가, `^## [0-9]+\.` 패턴 준수)
+2. 알고리즘이면 추가로 `<a id="..."></a>` anchor 부여, 카테고리 목차 표 갱신, `algorithms/index.md` ID 매핑 표 행 추가
+3. 다른 도메인(패턴/보안/원칙)은 카테고리 파일 + `<domain>/index.md` 매핑 갱신
+4. SKILL.md 의 카운트 표 (`## 데이터 기반`, `## 호출 인터페이스`, `## 참조 문서`) 항목 수 +1
+5. `verify-references.sh` 의 해당 도메인 카운트 expected 값 +1
+6. 스크립트 재실행, 12 블록 모두 PASS 확인 후 커밋
+
+언어 항목을 추가하거나 수정할 때는 `references/languages/<id>.md`에 `## 관련 문서`를 반드시 포함하고, 공식 문서/스펙 또는 레퍼런스/패키지·툴링 문서 링크를 최소 3개 제공한다. 예제는 hello-world가 아니라 해당 언어의 주 사용처를 보여주는 코드 블록으로 작성한다.

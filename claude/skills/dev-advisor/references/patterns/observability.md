@@ -644,4 +644,6 @@ interface AuditStore {
 
 **관련 패턴**: Structured Logging, Event Sourcing, Correlation ID
 
+> **관련 (P1 신설)**: 사용자 측 관측은 [`web-performance.md#rum-monitoring`](web-performance.md#rum-monitoring) (Real User Monitoring) — 서버 측 RED/USE/Golden Signals 와 합쳐 end-to-end 가시성 확보.
+
 ---

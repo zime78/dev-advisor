@@ -833,4 +833,6 @@ fun main() {
 
 **관련 패턴**: SemVer (range 의미), Monorepo (단일 lockfile), Polyrepo (lockfile per repo), Build Caching
 
+> **관련 (P1 신설)**: 빌드·릴리스의 형상 관리 측면은 [`../principles/configuration-management.md#baseline-three-types`](../principles/configuration-management.md#baseline-three-types) (Functional / Allocated / Product Baseline 3종) 와 [`../principles/configuration-management.md#scmp-ieee-828`](../principles/configuration-management.md#scmp-ieee-828) (IEEE 828 SCMP) 참조 — CI 식별·Baseline 확립의 표준.
+
 ---

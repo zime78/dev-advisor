@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # verify-references.sh — dev-advisor 스킬의 5 도메인 reference 무결성 검증
 # 검증 항목:
-#   [1] 카테고리별 anchor 수 == 헤더 수 (algorithms base 22 파일)
+#   [1] 카테고리별 anchor 수 == 헤더 수 (algorithms base 23 파일 — db-query-optimizer 추가)
 #   [2] 전역 anchor unique
-#   [3] index.md 알고리즘 ID 매핑 표 행 == 268
-#   [4] SKILL.md progressive disclosure 구조 (31 카테고리 진입점)
+#   [3] index.md 알고리즘 ID 매핑 표 행 == EXPECTED_ALGORITHMS (273)
+#   [4] SKILL.md progressive disclosure 구조 (32 카테고리 진입점)
 #   [5] languages reference 무결성 (75+ 언어)
 #   [6] languages 표준 14 섹션 헤더 spot-check + 전체 언어 품질 게이트
-#   [7] patterns reference 무결성 (base 15 카테고리 파일 존재, 159 패턴 + Phase 2 확장 = 496)
+#   [7] patterns reference 무결성 (base 15 + P0 2 + P1 2 + P2 3 카테고리 파일 존재, 159 + Phase 2 확장 = 539)
 #   [8] security reference 무결성 (base 14 파일 — 별도 도메인, 97 보안 패턴 + Privacy/Compliance 확장 = 106)
 #   [9] principles reference 무결성 (6 base 파일 — 56 원칙 + Phase 2 확장 = 163 + 부록 micro-principles 18)
 #   [10] Phase 2 확장 신규 카탈로그 anchor/header 일관성
@@ -18,6 +18,25 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILL_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 ALGO_DIR="${SKILL_DIR}/references/algorithms"
+
+# Shared counts manifest — silent divergence 차단.
+# claude/codex 양쪽 verify 가 이 파일을 source 하여 expected 정수를 동일화한다.
+# 탐색 우선순위: (1) repo root (SCRIPT_DIR 4단계 상위 — scripts/dev-advisor/skills/<runtime>/repo)
+#                (2) skill root (SCRIPT_DIR 1단계 상위 — 배포 사본 fallback)
+MANIFEST_REPO="$(cd "${SCRIPT_DIR}/../../../../" && pwd)/.counts.manifest"
+MANIFEST_SKILL="$(cd "${SCRIPT_DIR}/../" && pwd)/.counts.manifest"
+if [ -f "${MANIFEST_REPO}" ]; then
+    # shellcheck disable=SC1090
+    source "${MANIFEST_REPO}"
+    MANIFEST="${MANIFEST_REPO}"
+elif [ -f "${MANIFEST_SKILL}" ]; then
+    # shellcheck disable=SC1090
+    source "${MANIFEST_SKILL}"
+    MANIFEST="${MANIFEST_SKILL}"
+else
+    echo "FATAL: .counts.manifest not found at ${MANIFEST_REPO} or ${MANIFEST_SKILL}" >&2
+    exit 1
+fi
 
 PASS=0
 FAIL=0
@@ -74,11 +93,12 @@ expected_count() {
     distributed)          echo 12 ;;
     concurrent)           echo 10 ;;
     parsing)              echo 10 ;;
+    db-query-optimizer)   echo 5  ;;
     *)                    echo 0  ;;
   esac
 }
 
-for cat in sorting searching graph dynamic-programming divide-conquer greedy backtracking string math data-structures geometry flow matching crypto compression game-ai ml probabilistic consensus distributed concurrent parsing; do
+for cat in sorting searching graph dynamic-programming divide-conquer greedy backtracking string math data-structures geometry flow matching crypto compression game-ai ml probabilistic consensus distributed concurrent parsing db-query-optimizer; do
   file="${ALGO_DIR}/${cat}.md"
   expected=$(expected_count "${cat}")
   actual=$(grep -c '<a id=' "${file}" 2>/dev/null || echo 0)
@@ -107,7 +127,7 @@ else
 fi
 
 # ─────────────────────────────────────────────
-# CHECK 3: index.md ID 매핑 표 링크 행 수 == 268
+# CHECK 3: index.md ID 매핑 표 링크 행 수 == EXPECTED_ALGORITHMS
 # ─────────────────────────────────────────────
 echo ""
 echo "[3] index.md 알고리즘 ID 매핑 표 행 수 검증"
@@ -115,10 +135,10 @@ echo "[3] index.md 알고리즘 ID 매핑 표 행 수 검증"
 INDEX_FILE="${ALGO_DIR}/index.md"
 index_count=$(awk '/## 알고리즘 ID 매핑/{found=1; next} found && /^\|.*\.md#/{count++} END{print count+0}' "${INDEX_FILE}")
 
-if [ "${index_count}" -eq 268 ]; then
+if [ "${index_count}" -eq "${EXPECTED_ALGORITHMS}" ]; then
   ok "index.md 링크 행: ${index_count}개"
 else
-  fail "index.md 링크 행: 기대=268, 실제=${index_count}"
+  fail "index.md 링크 행: 기대=${EXPECTED_ALGORITHMS}, 실제=${index_count}"
 fi
 
 # ─────────────────────────────────────────────
@@ -145,10 +165,10 @@ cat_rows=$(awk '
   END{print c+0}
 ' "${ALGO_INDEX}")
 
-if [ "${cat_rows}" -eq 31 ]; then
+if [ "${cat_rows}" -eq 32 ]; then
   ok "카테고리 진입점 표 행: ${cat_rows}개"
 else
-  fail "카테고리 진입점 표 행: 기대=31, 실제=${cat_rows}"
+  fail "카테고리 진입점 표 행: 기대=32, 실제=${cat_rows}"
 fi
 
 # 4-2. 필수 섹션 3개 헤더 존재 (algorithms/index.md 내)
@@ -303,17 +323,19 @@ done
 echo ""
 echo "[6B] languages 전체 품질 게이트"
 
-if python3 - "${LANG_DIR}" <<'PY'
+if EXPECTED_LANGUAGES="${EXPECTED_LANGUAGES}" python3 - "${LANG_DIR}" <<'PY'
+import os
 import re
 import sys
 from pathlib import Path
 
 lang_dir = Path(sys.argv[1])
+expected_langs = int(os.environ["EXPECTED_LANGUAGES"])
 files = sorted(p for p in lang_dir.glob("*.md") if p.name not in {"index.md", "domains.md"})
 issues = []
 
-if len(files) != 75:
-    issues.append(f"언어 파일 수 기대=75, 실제={len(files)}")
+if len(files) != expected_langs:
+    issues.append(f"언어 파일 수 기대={expected_langs}, 실제={len(files)}")
 
 section_re = re.compile(r"(?ms)^## 실사용 예제\n(.*?)(?=^## |\Z)")
 link_re = re.compile(r"\[[^\]\n]+\]\(([^)\n]+)\)")
@@ -351,7 +373,7 @@ if issues:
     for issue in issues:
         print(issue)
     sys.exit(1)
-print(f"75개 언어 파일 품질 기준 통과")
+print(f"{expected_langs}개 언어 파일 품질 기준 통과")
 PY
 then
   ok "languages 관련 문서/링크/예제 품질 기준 통과"
@@ -372,7 +394,7 @@ echo "[7] patterns reference 무결성 검증"
 
 PATTERNS_DIR="${SKILL_DIR}/references/patterns"
 
-for f in index.md creational.md structural.md behavioral.md architectural.md distributed.md reliability.md concurrency.md integration.md ddd-tactical.md data-access.md testing.md observability.md ai-llm.md deployment.md caching.md; do
+for f in index.md creational.md structural.md behavioral.md architectural.md distributed.md reliability.md concurrency.md integration.md ddd-tactical.md data-access.md testing.md observability.md ai-llm.md deployment.md caching.md master-data-management.md data-quality-governance.md web-performance.md data-warehousing-bi.md graphics-rendering.md ar-vr-xr.md serverless-faas.md hpc-scientific.md; do
   if [ -f "${PATTERNS_DIR}/${f}" ]; then
     ok "파일 존재: references/patterns/${f}"
   else
@@ -399,7 +421,19 @@ pat_observ=$(count_pat observability)
 pat_aillm=$(count_pat ai-llm)
 pat_deploy=$(count_pat deployment)
 pat_caching=$(count_pat caching)
-pat_total=$((pat_creational + pat_structural + pat_behavioral + pat_architectural + pat_distributed + pat_reliability + pat_concurrency + pat_integration + pat_ddd + pat_data + pat_testing + pat_observ + pat_aillm + pat_deploy + pat_caching))
+# P0 신설 2 카테고리
+pat_mdm=$(count_pat master-data-management)
+pat_dq=$(count_pat data-quality-governance)
+# P1 신설 2 카테고리
+pat_webperf=$(count_pat web-performance)
+pat_dwh=$(count_pat data-warehousing-bi)
+# P2 신설 3 카테고리
+pat_gfx=$(count_pat graphics-rendering)
+pat_xr=$(count_pat ar-vr-xr)
+pat_faas=$(count_pat serverless-faas)
+# P3 신설 1 카테고리
+pat_hpc=$(count_pat hpc-scientific)
+pat_total=$((pat_creational + pat_structural + pat_behavioral + pat_architectural + pat_distributed + pat_reliability + pat_concurrency + pat_integration + pat_ddd + pat_data + pat_testing + pat_observ + pat_aillm + pat_deploy + pat_caching + pat_mdm + pat_dq + pat_webperf + pat_dwh + pat_gfx + pat_xr + pat_faas + pat_hpc))
 
 check_pat() {
   if [ "$2" -eq "$3" ]; then
@@ -412,11 +446,11 @@ check_pat() {
 check_pat creational                     "${pat_creational}"     5
 check_pat structural                     "${pat_structural}"     7
 check_pat behavioral                     "${pat_behavioral}"     11
-check_pat architectural                  "${pat_architectural}"  16
-check_pat distributed                    "${pat_distributed}"    9
+check_pat architectural                  "${pat_architectural}"  17
+check_pat distributed                    "${pat_distributed}"    11
 check_pat reliability                    "${pat_reliability}"    9
 check_pat concurrency                    "${pat_concurrency}"    14
-check_pat integration                    "${pat_integration}"    16
+check_pat integration                    "${pat_integration}"    17
 check_pat ddd-tactical                   "${pat_ddd}"            11
 check_pat data-access                    "${pat_data}"           10
 check_pat testing                        "${pat_testing}"        11
@@ -424,11 +458,24 @@ check_pat observability                  "${pat_observ}"         10
 check_pat ai-llm                         "${pat_aillm}"          12
 check_pat deployment                     "${pat_deploy}"         9
 check_pat caching                        "${pat_caching}"        9
+# P0 신설 2 카테고리
+check_pat master-data-management         "${pat_mdm}"            6
+check_pat data-quality-governance        "${pat_dq}"             6
+# P1 신설 2 카테고리
+check_pat web-performance                "${pat_webperf}"        6
+check_pat data-warehousing-bi            "${pat_dwh}"            6
+# P2 신설 3 카테고리
+check_pat graphics-rendering             "${pat_gfx}"            5
+check_pat ar-vr-xr                       "${pat_xr}"             5
+check_pat serverless-faas                "${pat_faas}"           5
+# P3 신설 1 카테고리
+check_pat hpc-scientific                 "${pat_hpc}"            6
 
-if [ "${pat_total}" -eq 159 ]; then
-  ok "base 패턴 합계: ${pat_total}개"
+# 15 base + 2 P0 신설 + 2 P1 신설 + 3 P2 신설 + 1 P3 신설 + P2 확장 (architectural +1, integration +1, distributed +2) = 159 + 12 + 12 + 15 + 6 + 4 = 208
+if [ "${pat_total}" -eq 208 ]; then
+  ok "base+P0+P1+P2+P3 패턴 합계: ${pat_total}개"
 else
-  fail "base 패턴 합계: 기대=159, 실제=${pat_total}"
+  fail "base+P0+P1+P2+P3 패턴 합계: 기대=208, 실제=${pat_total}"
 fi
 
 # ─────────────────────────────────────────────
@@ -519,7 +566,7 @@ else
   fail "디렉토리 누락: references/principles/"
 fi
 
-for f in index.md solid.md grasp.md iso25010.md 12-factor.md code-smells.md; do
+for f in index.md solid.md grasp.md iso25010.md 12-factor.md code-smells.md database-fundamentals.md sdlc-models.md scaled-agile.md professional-ethics.md standards-mapping.md configuration-management.md hci-methodology.md formal-methods.md; do
   if [ -f "${PRINCIPLES_DIR}/${f}" ]; then
     ok "파일 존재: references/principles/${f}"
   else
@@ -536,7 +583,18 @@ pri_grasp=$(count_pri grasp)
 pri_iso=$(count_pri iso25010)
 pri_12f=$(count_pri 12-factor)
 pri_smells=$(count_pri code-smells)
-pri_total=$((pri_solid + pri_grasp + pri_iso + pri_12f + pri_smells))
+# P0 신설 4
+pri_db=$(count_pri database-fundamentals)
+pri_sdlc=$(count_pri sdlc-models)
+pri_scaled=$(count_pri scaled-agile)
+pri_ethics=$(count_pri professional-ethics)
+# P1 신설 2
+pri_standards=$(count_pri standards-mapping)
+pri_config=$(count_pri configuration-management)
+# P3 신설 2
+pri_hci=$(count_pri hci-methodology)
+pri_formal=$(count_pri formal-methods)
+pri_total=$((pri_solid + pri_grasp + pri_iso + pri_12f + pri_smells + pri_db + pri_sdlc + pri_scaled + pri_ethics + pri_standards + pri_config + pri_hci + pri_formal))
 
 check_pri() {
   if [ "$2" -eq "$3" ]; then
@@ -546,16 +604,28 @@ check_pri() {
   fi
 }
 
-check_pri solid       "${pri_solid}"   5
-check_pri grasp       "${pri_grasp}"   9
-check_pri iso25010    "${pri_iso}"     8
-check_pri 12-factor   "${pri_12f}"    12
-check_pri code-smells "${pri_smells}" 22
+check_pri solid                  "${pri_solid}"   5
+check_pri grasp                  "${pri_grasp}"   9
+check_pri iso25010               "${pri_iso}"     8
+check_pri 12-factor              "${pri_12f}"    12
+check_pri code-smells            "${pri_smells}" 22
+# P0 신설 4 카테고리
+check_pri database-fundamentals  "${pri_db}"      8
+check_pri sdlc-models            "${pri_sdlc}"    7
+check_pri scaled-agile           "${pri_scaled}"  6
+check_pri professional-ethics    "${pri_ethics}"  6
+# P1 신설 2 카테고리
+check_pri standards-mapping        "${pri_standards}"  5
+check_pri configuration-management "${pri_config}"     6
+# P3 신설 2 카테고리
+check_pri hci-methodology          "${pri_hci}"        6
+check_pri formal-methods           "${pri_formal}"     5
 
-if [ "${pri_total}" -eq 56 ]; then
-  ok "base 원칙 합계: ${pri_total}개"
+# 5 base + 4 P0 신설 + 2 P1 신설 + 2 P3 신설 = 56 + 27 + 11 + 11 = 105
+if [ "${pri_total}" -eq 105 ]; then
+  ok "base+P0+P1+P3 원칙 합계: ${pri_total}개"
 else
-  fail "base 원칙 합계: 기대=56, 실제=${pri_total}"
+  fail "base+P0+P1+P3 원칙 합계: 기대=105, 실제=${pri_total}"
 fi
 
 # 미시 원칙 부록 검증 (Phase 2 확장: 8 → 18 항목)
@@ -566,10 +636,10 @@ if [ -f "${PRINCIPLES_DIR}/micro-principles.md" ]; then
   ok "파일 존재 (부록): references/principles/micro-principles.md"
   # anchor 기반 검증 (헤더 카운트는 거시 섹션 변동에 약함)
   micro_anchors=$(/usr/bin/grep -c '<a id=' "${PRINCIPLES_DIR}/micro-principles.md" 2>/dev/null || echo 0)
-  if [ "${micro_anchors}" -eq 18 ]; then
+  if [ "${micro_anchors}" -eq "${EXPECTED_MICRO_PRINCIPLES}" ]; then
     ok "미시 원칙 부록: ${micro_anchors}개 (기존 8 + Conway/Hyrum/Postel/Brooks 등 확장 10)"
   else
-    fail "미시 원칙 부록: 기대=18, 실제=${micro_anchors} anchors"
+    fail "미시 원칙 부록: 기대=${EXPECTED_MICRO_PRINCIPLES}, 실제=${micro_anchors} anchors"
   fi
 else
   fail "파일 누락 (부록): references/principles/micro-principles.md"
@@ -585,7 +655,7 @@ echo "[10] Phase 2 확장 신규 카탈로그 검증"
 PHASE2_FILES=(
   # patterns/ (확장 카테고리 32개)
   "patterns/anti-patterns.md:18"
-  "patterns/mobile-app.md:13"
+  "patterns/mobile-app.md:15"
   "patterns/embedded.md:10"
   "patterns/game-dev.md:12"
   "patterns/networking.md:12"
@@ -663,12 +733,12 @@ done
 phase2_count=${#PHASE2_FILES[@]}
 echo "  → Phase 2 신규 카탈로그 ${phase2_count} 파일 검증 완료"
 
-# micro-principles 부록 확장 검증 (8 → 18)
+# micro-principles 부록 확장 검증 (8 → EXPECTED_MICRO_PRINCIPLES)
 mp_anchors=$(grep -c '<a id=' "${SKILL_DIR}/references/principles/micro-principles.md" 2>/dev/null || echo 0)
-if [ "${mp_anchors}" -ge 18 ]; then
-  ok "micro-principles.md: ${mp_anchors} anchors (확장 8→18 반영)"
+if [ "${mp_anchors}" -ge "${EXPECTED_MICRO_PRINCIPLES}" ]; then
+  ok "micro-principles.md: ${mp_anchors} anchors (확장 8→${EXPECTED_MICRO_PRINCIPLES} 반영)"
 else
-  fail "micro-principles.md: ${mp_anchors} anchors (확장 미반영 — 18 기대)"
+  fail "micro-principles.md: ${mp_anchors} anchors (확장 미반영 — ${EXPECTED_MICRO_PRINCIPLES} 기대)"
 fi
 
 # ─────────────────────────────────────────────
@@ -851,7 +921,7 @@ fi
 echo ""
 echo "======================================"
 if [ "${FAIL}" -eq 0 ]; then
-  echo "✓ All integrity checks passed (496 patterns / 268 algorithms / 106 security / 75 languages / 163 principles + 18 부록 — 5 domains, 1,108 items + 18 부록 = 1,126 total)"
+  echo "✓ All integrity checks passed (${EXPECTED_PATTERNS} patterns / ${EXPECTED_ALGORITHMS} algorithms / ${EXPECTED_SECURITY} security / ${EXPECTED_LANGUAGES} languages / ${EXPECTED_PRINCIPLES} principles + ${EXPECTED_MICRO_PRINCIPLES} 부록 — 5 domains, ${EXPECTED_TOTAL} items + ${EXPECTED_MICRO_PRINCIPLES} 부록 = ${EXPECTED_TOTAL_WITH_MICRO} total)"
   exit 0
 else
   echo "✗ ${FAIL}개 검사 실패, ${PASS}개 통과"

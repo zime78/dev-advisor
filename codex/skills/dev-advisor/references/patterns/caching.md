@@ -686,4 +686,6 @@ class MultiTierCache(
 
 **관련 패턴**: Cache-Aside, Cache Stampede 방지, TTL/LRU/LFU 정책
 
+> **관련 (P1 신설)**: 브라우저 측 캐싱·preload/preconnect 는 [`web-performance.md#resource-hints`](web-performance.md#resource-hints) 참조 — HTTP 캐시 정책과 함께 LCP/TBT 최적화에 직접 영향.
+
 ---

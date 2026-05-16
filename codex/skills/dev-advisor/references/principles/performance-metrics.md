@@ -894,3 +894,4 @@ println(apdex.score())  // (1 + 0.5) / 4 = 0.375 — Unacceptable
   - [`../patterns/testing-strategies.md`](../patterns/testing-strategies.md) — Load / Stress / Soak / Spike
   - [`../algorithms/`](../algorithms/) — Big-O 별 알고리즘 분류
   - [code-smells.md](code-smells.md) — Long Method, Large Class (간접 — 측정 결과의 신호)
+  - [`../patterns/web-performance.md`](../patterns/web-performance.md) (P1 신설) — Core Web Vitals / RUM / Lighthouse 로 클라이언트 성능 메트릭의 사용자 체감 신호와 합치

@@ -418,3 +418,172 @@ class OrderClient(private val http: HttpClient) {
 ```
 
 **관련 패턴**: API Gateway, Microservices, Proxy
+
+---
+
+<a id="tcc-try-confirm-cancel"></a>
+
+## 10. TCC (Try-Confirm-Cancel)
+
+**목적**: 분산 트랜잭션을 3단계(Try / Confirm / Cancel)로 분리하여 리소스를 사전 예약하고, 모든 참가자의 Try 가 성공하면 Confirm, 하나라도 실패하면 Cancel 하여 원자성을 달성합니다.
+
+**3 Phase**:
+- **Try**: 비즈니스 리소스를 예약(reserve) — 재고 차감 대신 "예약 상태" 로 잠금, 잔액 차감 대신 "동결(freeze)"
+- **Confirm**: Try 에서 예약된 자원을 실제 차감/확정. 멱등성 필수, 재시도해도 동일 결과
+- **Cancel**: Try 에서 예약된 자원을 해제(release). 멱등성 필수, Try 실패 시에도 안전 호출
+
+**Saga 와의 차이**:
+- **Saga**: 즉시 commit → 실패 시 **보상(compensation) 트랜잭션** 으로 역효과 발행. 중간 상태가 외부에 노출됨
+- **TCC**: Try 단계에서 **예약(reservation)** 만 잠금 → 외부에 미공개 상태로 격리. Cancel 은 보상이 아니라 "예약 해제"
+- Saga 는 단순/장기 워크플로, TCC 는 짧고 강한 격리가 필요한 결제/재고에 적합
+
+**Reservation 패턴 (핵심)**:
+- 자원 상태를 `available / reserved / confirmed / cancelled` 4가지로 모델링
+- Try 는 `available → reserved` 전이만, Confirm 은 `reserved → confirmed`, Cancel 은 `reserved → available`
+- 외부 조회는 `confirmed` 만 노출 → 중간 상태 누출 차단
+
+**특징 / 요구사항**:
+- **Idempotency**: Confirm/Cancel 은 네트워크 재시도로 중복 호출 가능 → 트랜잭션 ID 로 멱등 처리
+- **Timeout & Recovery**: Try 후 Confirm/Cancel 누락 시 타임아웃 → 자동 Cancel 보장 (TCC 코디네이터가 주기적 sweep)
+- **비즈니스 잠금**: DB row lock 이 아니라 "예약" 이라는 비즈니스 상태로 잠금 → 장기 트랜잭션도 DB 리소스 점유 없음
+- **Null Compensation 방지**: Try 가 도착 전 Cancel 이 먼저 도착하는 경우 → "공허한 보상(empty compensation)" 처리, Cancel 기록을 남겨 후행 Try 차단
+
+**장점**:
+- 강한 일관성에 가까운 격리 (중간 상태 미노출)
+- 보상 트랜잭션의 부작용 우려 해소 (재고 환불 시점차 등)
+- 짧은 트랜잭션 → 높은 처리량
+- DB lock 없이 비즈니스 수준 잠금
+
+**단점**:
+- 모든 참가 서비스가 Try/Confirm/Cancel 3 API 제공해야 함 → 침투적
+- 비즈니스 로직에 예약 상태 모델링 강제
+- 멱등성/타임아웃/null compensation 처리 복잡
+- 레거시 시스템 적용 어려움 (3 API 강제 불가)
+
+**활용 예시**:
+- 결제 (잔액 동결 → 확정 / 환불)
+- 항공/호텔 예약 (좌석 hold → confirm / release)
+- 쿠폰 사용 (선점 → 확정 / 반환)
+- 본 프로젝트 클라이언트→서버 결제 흐름의 예약/확정 분리
+
+**구현 비교**:
+- **Seata TCC mode**: Alibaba 의 분산 트랜잭션 프레임워크. `@TwoPhaseBusinessAction` 어노테이션으로 Try/Confirm/Cancel 메서드 지정. Transaction Coordinator(TC) 가 글로벌 트랜잭션 ID 관리, 멱등/타임아웃/null compensation 내장
+- **EventuateTram**: Saga 중심. TCC 는 Saga 의 한 형태로 표현 가능하나 native TCC 지원은 약함. Saga orchestration + reservation 패턴 직접 구현 권장
+- **선택 기준**: 강한 격리 + 짧은 트랜잭션 → Seata TCC. 장기 워크플로 + 느슨한 일관성 → EventuateTram Saga
+
+**난이도**: 매우 높음 | **사용 빈도**: ★★☆☆☆
+
+**Kotlin 예제**:
+```kotlin
+// Try / Confirm / Cancel 3 API 를 가진 결제 서비스
+interface PaymentTcc {
+    fun tryFreeze(txId: String, userId: String, amount: Int): Boolean  // 잔액 동결
+    fun confirm(txId: String): Boolean                                  // 동결 → 차감
+    fun cancel(txId: String): Boolean                                   // 동결 해제
+}
+
+class PaymentTccImpl(private val repo: PaymentRepo) : PaymentTcc {
+    override fun tryFreeze(txId: String, userId: String, amount: Int): Boolean = transaction {
+        // 멱등성: 동일 txId 재호출 시 기존 결과 반환
+        repo.findReservation(txId)?.let { return@transaction it.status == "RESERVED" }
+        val bal = repo.balance(userId)
+        if (bal < amount) return@transaction false
+        repo.insertReservation(txId, userId, amount, status = "RESERVED")
+        repo.freezeBalance(userId, amount)
+        true
+    }
+
+    override fun confirm(txId: String): Boolean = transaction {
+        val r = repo.findReservation(txId) ?: return@transaction false  // null comp 방지
+        if (r.status == "CONFIRMED") return@transaction true             // 멱등
+        if (r.status == "CANCELLED") return@transaction false
+        repo.deductFrozen(r.userId, r.amount)
+        repo.updateStatus(txId, "CONFIRMED")
+        true
+    }
+
+    override fun cancel(txId: String): Boolean = transaction {
+        val r = repo.findReservation(txId)
+        if (r == null) {
+            // 공허한 보상: Try 가 아직 안 옴 → cancel 기록만 남겨 후행 Try 차단
+            repo.insertReservation(txId, userId = "", amount = 0, status = "CANCELLED")
+            return@transaction true
+        }
+        if (r.status == "CANCELLED") return@transaction true            // 멱등
+        if (r.status == "CONFIRMED") return@transaction false           // 이미 확정
+        repo.releaseFrozen(r.userId, r.amount)
+        repo.updateStatus(txId, "CANCELLED")
+        true
+    }
+}
+
+// Coordinator: 모든 참가자 Try → 전체 성공 시 Confirm, 아니면 Cancel
+class TccCoordinator(private val participants: List<PaymentTcc>) {
+    fun execute(txId: String, ops: List<() -> Boolean>): Boolean {
+        val results = ops.map { runCatching { it() }.getOrDefault(false) }
+        return if (results.all { it }) {
+            participants.forEach { it.confirm(txId) }; true
+        } else {
+            participants.forEach { it.cancel(txId) }; false
+        }
+    }
+}
+```
+
+**관련 패턴**: Saga, Outbox, Idempotency Key, Reservation, 2PC
+
+**Cross-link**:
+- 메시지 전달 보장: [`patterns/integration.md#message-broker-selection-matrix`](../patterns/integration.md#message-broker-selection-matrix)
+- 합의 알고리즘 (코디네이터 가용성): [`algorithms/consensus.md`](../algorithms/consensus.md)
+- ACID vs BASE 절충: [`principles/database-fundamentals.md#acid-vs-base`](../principles/database-fundamentals.md#acid-vs-base)
+- 예약 상태 데이터 모델링: [`patterns/data-modeling.md`](../patterns/data-modeling.md)
+
+---
+
+<a id="distributed-transaction-selection-matrix"></a>
+
+## 11. Distributed Transaction Selection Matrix
+
+**목적**: 분산 트랜잭션 패턴 선택 시 일관성/가용성/운영 복잡도/실패 처리/성능 트레이드오프를 한눈에 비교하여 시스템 요구사항에 맞는 패턴을 선택합니다.
+
+**패턴 개요**:
+
+- **2PC (Two-Phase Commit)**: Prepare → Commit 2단계. 코디네이터가 모든 참가자에게 Prepare 요청 → 모두 "yes" 응답 시 Commit, 하나라도 실패 시 Abort. **동기/Blocking** — 모든 참가자가 응답할 때까지 대기. **Coordinator 단일 실패** — 코디네이터 장애 시 참가자가 "in-doubt" 상태로 무한 대기. XA 표준이 대표적
+- **3PC (Three-Phase Commit)**: Prepare → PreCommit → Commit 3단계. 2PC 의 blocking 문제 완화 위해 PreCommit 단계 추가, 타임아웃 시 참가자가 자율 결정 가능. **여전히 네트워크 분할 취약** — split-brain 시 일관성 깨질 수 있음. 실제 운영에서 거의 사용 안 됨
+- **Saga (Orchestration / Choreography)**: 즉시 commit, 실패 시 **보상 트랜잭션** 으로 역효과 발행. 중간 상태가 외부에 노출됨. Eventually consistent. 장기 워크플로에 적합 ([§3, §4](#3-saga-choreography) 참조)
+- **TCC (Try-Confirm-Cancel)**: 3단계 **예약 기반**. Try 에서 자원 예약 → Confirm/Cancel. 강한 격리, 중간 상태 미노출. 모든 참가자가 3 API 제공 필요 ([§10](#tcc-try-confirm-cancel) 참조)
+- **Outbox Pattern**: **메시지 보장 + DB 트랜잭션** 결합. DB write 와 이벤트 기록을 원자적으로 처리, publisher 가 비동기 발행. 분산 트랜잭션 자체보다 "DB ↔ 메시지 브로커 일관성" 해결책 ([§5](#5-outbox-pattern) 참조)
+
+**비교 매트릭스**:
+
+| 패턴 | Consistency | Availability | Operational Complexity | Failure Handling | Performance | 적합 시나리오 |
+|------|-------------|--------------|------------------------|------------------|-------------|---------------|
+| 2PC | Strong (ACID) | Low (Coordinator SPOF) | 높음 (XA 인프라) | Blocking, in-doubt | 낮음 (동기 대기) | 단일 DC 내 동종 RDB, 짧은 트랜잭션 |
+| 3PC | Strong (이론) | Medium | 매우 높음 | Non-blocking, split-brain 취약 | 매우 낮음 (3 round) | 거의 미사용 |
+| Saga Choreography | Eventual | High | 중간 (이벤트 추적 난이도) | 보상 트랜잭션, 부분 노출 | 높음 (비동기) | 마이크로서비스 장기 워크플로 |
+| Saga Orchestration | Eventual | Medium (Orchestrator) | 중간 (워크플로 엔진) | 보상 + 명시적 상태 추적 | 중간 | 복잡한 분기 워크플로 |
+| TCC | Strong (격리) | Medium | 매우 높음 (3 API 강제) | 멱등 + 타임아웃 sweep | 중간 (3 round, 짧음) | 결제/예약, 강한 격리 필요 |
+| Outbox | Eventual | High | 낮음 (CDC 인프라) | At-least-once + 멱등 | 높음 | DB ↔ 메시지 브로커 일관성 |
+
+**선택 가이드 (의사결정 트리)**:
+
+- **단일 DC, 동종 RDB, 짧은 트랜잭션, ACID 필수** → 2PC (XA)
+- **마이크로서비스, 장기 워크플로, eventual OK, 단순 흐름** → Saga Choreography
+- **마이크로서비스, 복잡한 분기/조건, 상태 추적 필요** → Saga Orchestration (Camunda/Temporal)
+- **결제/재고/예약, 중간 상태 미노출 필수, 짧은 트랜잭션** → TCC
+- **DB ↔ Kafka 일관성, 메시지 손실 방지** → Outbox Pattern
+- **여러 패턴 조합**: Saga + Outbox (이벤트 보장) / TCC + Idempotency Key (안전 재시도) 가 실무 표준
+
+**Anti-patterns**:
+- 마이크로서비스 + 2PC: 서비스 자율성/가용성 파괴, 안티패턴
+- 단순 CRUD + TCC: 과잉 설계, 3 API 강제로 개발 비용 폭증
+- Saga + 중간 상태 노출 허용 안 되는 도메인 (결제 잔액 등): TCC 로 전환
+- Outbox 없이 "DB commit 후 메시지 발행": 메시지 손실 위험
+
+**Cross-link**:
+- 메시지 전달 보장 / 브로커 선택: [`patterns/integration.md#message-broker-selection-matrix`](../patterns/integration.md#message-broker-selection-matrix)
+- 코디네이터 가용성 / 합의: [`algorithms/consensus.md`](../algorithms/consensus.md)
+- ACID vs BASE 절충 기초: [`principles/database-fundamentals.md#acid-vs-base`](../principles/database-fundamentals.md#acid-vs-base)
+- 예약/이벤트 데이터 모델링: [`patterns/data-modeling.md`](../patterns/data-modeling.md)
+
+**관련 패턴**: 2PC, Saga, TCC, Outbox, Idempotency Key

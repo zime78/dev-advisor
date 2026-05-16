@@ -2,6 +2,9 @@
 
 동시성 패턴([`../patterns/concurrency.md`](../patterns/concurrency.md))·알고리즘([`../algorithms/concurrent.md`](../algorithms/concurrent.md)) 의 **이론적 기반** 10 항목. *증명·정합성 모델·formal property*.
 
+**관련 카탈로그**:
+- [`formal-methods.md#formal-tla-plus`](formal-methods.md#formal-tla-plus) — TLA+ (Temporal Logic of Actions) 로 동시성/분산 시스템의 안전성·생존성 명세 (Linearizability·Happens-Before 의 형식 증명 도구)
+
 **원전 참고**:
 - Maurice Herlihy, Nir Shavit — *The Art of Multiprocessor Programming* (2008, 2nd ed. 2020)
 - Maurice Herlihy & Jeannette Wing — "Linearizability: A Correctness Condition for Concurrent Objects", TOPLAS 12(3), 1990
@@ -99,7 +102,7 @@ class SafeCounter {
 }
 ```
 
-**관련 항목**: [serializability](#serializability) (다중 객체 트랜잭션), [sequential-consistency](#sequential-consistency) (실시간 순서 미보장), [happens-before](#happens-before), [`../algorithms/concurrent.md#cas`](../algorithms/concurrent.md#cas)
+**관련 항목**: [serializability](#serializability) (다중 객체 트랜잭션), [sequential-consistency](#sequential-consistency) (실시간 순서 미보장), [happens-before](#happens-before), [`../algorithms/concurrent.md#cas`](../algorithms/concurrent.md#cas), [`database-fundamentals.md#tx-isolation-levels`](database-fundamentals.md#tx-isolation-levels) (DB 격리 4 수준의 실무 구현)
 
 ---
 
@@ -140,6 +143,8 @@ Schedule S 가 serializable 이다
 - *순서* 가 자유롭기 때문에 클라이언트가 자기가 방금 commit 한 트랜잭션이 다른 트랜잭션보다 *늦게* 일어난 것처럼 보일 수 있음 → 외부 일관성을 원하면 Strict Serializability 필요
 
 **실무 적용 예**: PostgreSQL `SERIALIZABLE` (SSI 기반), CockroachDB (Strict Serializability 표방), FoundationDB, Google Spanner (TrueTime + Strict Serializability). MySQL InnoDB `SERIALIZABLE` 은 2PL 기반.
+
+**관련 항목**: [`database-fundamentals.md#tx-isolation-levels`](database-fundamentals.md#tx-isolation-levels) (ANSI SQL 4 격리 수준 — Read Uncommitted/Committed/Repeatable Read/Serializable 의 실무 anomaly 매트릭스), [`database-fundamentals.md#ansi-sql-anomaly`](database-fundamentals.md#ansi-sql-anomaly) (Dirty Read/Non-Repeatable/Phantom/Lost Update/Write Skew 정형 정의)
 
 **난이도**: 높음
 

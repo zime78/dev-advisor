@@ -818,3 +818,129 @@ fun main() {
 **관련 패턴**: Content-Based Router, Process Manager, Pipes & Filters
 
 **관련 패턴**: Producer-Consumer, Message Broker
+
+---
+
+<a id="message-broker-selection-matrix"></a>
+## 17. Message Broker Selection Matrix (메시지 브로커 선택 매트릭스)
+
+**목적**: 메시지/이벤트 기반 아키텍처에서 5종 대표 브로커(Kafka / RabbitMQ / NATS / Pulsar / Redis Streams)를 12 차원으로 비교하여 워크로드 특성에 맞는 선택 기준을 제공합니다.
+
+**언제 사용하는가**:
+- 신규 서비스의 메시지 백본 선정 단계
+- 단일 브로커로 처리량/지연/내구성을 동시에 만족하지 못해 전환을 검토할 때
+- Polyglot 메시징 (브로커 혼용) 전략 수립 시
+
+**난이도**: 중간 | **사용 빈도**: ★★★★★
+
+### 17.1 브로커 개요
+
+#### Apache Kafka
+**핵심 모델**: 분산 영구 로그(Distributed Commit Log) + Partitioned Topic + Consumer Group.
+
+**특징**:
+- 메시지를 토픽-파티션의 append-only 로그에 영구 저장 (retention 정책 단위: 시간/크기/compaction)
+- Consumer 가 offset 을 직접 관리 (replay 가능)
+- Idempotent Producer + Transactional Producer 로 exactly-once 지원 (Kafka Streams 한정)
+- ZooKeeper / KRaft 메타데이터 관리
+
+**강점**: 초고처리량(수백만 msg/sec), 영구 보관, 스트림 재생, Geo-replication (MirrorMaker 2).
+**약점**: 운영 복잡도 높음, 단건 RPC 부적합, 토픽 수 폭증 시 메타데이터 부하.
+
+#### RabbitMQ
+**핵심 모델**: AMQP 0.9.1 기반 Broker. Exchange → Binding → Queue 경로로 라우팅.
+
+**Exchange 타입**:
+- `direct` — Routing Key 완전 일치
+- `topic` — Routing Key 와일드카드 (`order.*.created`)
+- `fanout` — 모든 바인딩 큐로 브로드캐스트
+- `headers` — 헤더 매칭 (Routing Key 무시)
+
+**기능**: DLX (Dead Letter Exchange), TTL, Priority Queue, Lazy Queue, Publisher Confirms, Quorum Queue (Raft 기반 복제).
+**강점**: 유연한 라우팅, 낮은 진입장벽, 트랜잭션·확인 응답.
+**약점**: 영구 로그 미지원 (소비 후 삭제), 단일 큐 처리량 한계, 클러스터 split-brain 위험 (classic mirroring).
+
+#### NATS (with JetStream)
+**핵심 모델**: 경량 Subject 기반 Pub/Sub + 선택적 JetStream(영구 스트림 + Consumer + KV/Object Store).
+
+**Subject 와일드카드**:
+- `*` — 한 토큰 매칭 (`orders.*.created`)
+- `>` — 다중 토큰 매칭 (`orders.>`)
+
+**특징**: 단일 바이너리 (Go), 마이크로초 단위 지연, NATS Core 는 fire-and-forget, JetStream 으로 at-least-once / exactly-once (per-message) 보장.
+**강점**: 초저지연, 운영 단순성, Edge / IoT 친화, Leaf Node 토폴로지.
+**약점**: 생태계 Kafka 대비 좁음, JetStream 영속성 옵션 학습 필요.
+
+#### Apache Pulsar
+**핵심 모델**: Compute(Broker)와 Storage(BookKeeper) 분리 + 멀티테넌시(Tenant / Namespace / Topic).
+
+**특징**:
+- Geo-replication 네이티브 (토픽 단위)
+- Tiered Storage (오래된 세그먼트를 S3/GCS 로 오프로드)
+- Pulsar Functions (Lightweight Stream Processing)
+- 구독 모드: Exclusive / Shared / Failover / Key_Shared
+
+**강점**: 수평 확장(브로커 stateless), 멀티 DC, 토픽 수 수백만 지원.
+**약점**: BookKeeper 운영 추가, 한국어 자료 부족, 학습 곡선.
+
+#### Redis Streams
+**핵심 모델**: Redis 5.0+ 의 append-only 자료구조. `XADD` / `XREAD` / `XGROUP` / `XACK`.
+
+**특징**: Consumer Group + Pending Entries List (PEL) 로 at-least-once, 메모리 기반(AOF/RDB 영속화 옵션), `MAXLEN ~` 으로 길이 제한.
+**강점**: 기존 Redis 인프라 재사용, 초저지연, 단순 API.
+**약점**: 메모리 비용, 수평 확장 한계 (Cluster 모드에서도 단일 키 shard), 대용량 retention 부적합.
+
+### 17.2 비교 매트릭스 (12 차원)
+
+| 차원 | Kafka | RabbitMQ | NATS (JetStream) | Pulsar | Redis Streams |
+|------|-------|----------|------------------|--------|---------------|
+| 전달 보장 | At-least-once / Exactly-once (txn) | At-most/least-once + Confirms | At-most(Core) / At-least/Exactly(JS, per-msg) | At-least-once / Exactly-once (txn) | At-least-once |
+| 순서 보장 | 파티션 내 FIFO | 큐 내 FIFO (Consumer 1) | Stream 내 FIFO | Key_Shared 키 내 FIFO | Stream 내 FIFO |
+| 영속성 vs 메모리 | 디스크 영구 (retention) | 디스크/메모리 혼합 | 메모리 / JS 디스크 | BookKeeper + Tiered S3 | 메모리 + AOF |
+| 처리량 (msg/sec) | 1M+ (파티션 다수) | 50K~100K/큐 | 1M+ (Core), 200K+ (JS) | 1M+ | 100K~1M |
+| 지연 (latency) | 5~50ms | 1~10ms | < 1ms (Core), 1~5ms (JS) | 5~20ms | < 1ms |
+| 파티셔닝 | Topic Partition (Hash) | Sharded Plugin / Consistent Hash | JetStream Stream Partition | Partitioned Topic | Cluster Slot (수동) |
+| 컨슈머 모델 | Pull (Long-poll) | Push (Prefetch) | Push / Pull (JS) | Push / Pull | Pull (Blocking XREAD) |
+| 운영 복잡도 | 높음 (KRaft/ZK, 파티션 관리) | 중간 (Erlang, Quorum Queue) | 낮음 (단일 바이너리) | 매우 높음 (Broker+BookKeeper+ZK) | 낮음 (기존 Redis) |
+| 라이선스 | Apache 2.0 | MPL 2.0 | Apache 2.0 | Apache 2.0 | RSALv2 / SSPLv1 (7.4+) |
+| 백프레셔 | Consumer Lag + Pause/Resume | Prefetch QoS + Flow Control | JS MaxAckPending + Pull Batch | Receiver Queue Size | XREADGROUP COUNT |
+| 트랜잭션 | Producer Txn (멀티 파티션) | Channel Txn (성능 저하) | JS Atomic Publish | Producer/Consumer Txn | MULTI/EXEC (제한적) |
+| 사용 시나리오 | 이벤트 소싱, 로그 파이프라인, CDC, Stream Processing | RPC, Work Queue, 라우팅 복잡 워크플로 | 마이크로서비스 메시징, IoT/Edge, Request-Reply | 멀티 테넌시 SaaS, Geo-replication, 장기 보관 | 작업 큐, 실시간 알림, 캐시 동반 |
+
+### 17.3 선택 가이드 (시나리오 기반)
+
+**이벤트 소싱 / CDC / Replay 필요**: Kafka 또는 Pulsar.
+- 단일 리전 → Kafka. 멀티 리전 + 장기 보관 → Pulsar (Tiered Storage).
+
+**복잡한 라우팅 (Topic Exchange, DLQ, Priority)**: RabbitMQ.
+- 메시지 양 < 100K/sec, 비즈니스 워크플로 중심.
+
+**마이크로서비스 Request-Reply / 초저지연**: NATS Core.
+- 영속성 필요 시 JetStream 으로 부분 전환.
+
+**기존 Redis 인프라 활용 + 단순 작업 큐**: Redis Streams.
+- 메모리 비용 감내 가능 + retention 수 시간 이내.
+
+**멀티 테넌시 SaaS + 토픽 수 폭증**: Pulsar.
+- Namespace 단위 격리, 토픽당 메타데이터 비용 낮음.
+
+### 17.4 안티패턴
+
+- **Kafka 로 RPC 구현**: 응답 토픽 + correlationId 패턴은 가능하나 지연·운영 부담 크다 → NATS Request-Reply 권장.
+- **RabbitMQ 로 이벤트 로그**: 소비 후 삭제 모델이라 replay 불가. Stream Queue (3.9+) 가 있으나 Kafka 대비 미성숙.
+- **NATS Core 로 결제/주문 영구 이벤트**: at-most-once → JetStream 필수.
+- **Redis Streams 로 대용량 장기 보관**: 메모리 폭증 → Kafka/Pulsar 로 마이그레이션.
+- **Pulsar 를 단일 노드 PoC 로 운영 판단**: BookKeeper 운영 부담은 클러스터에서 비로소 나타남.
+
+### 17.5 운영 체크리스트
+
+- [ ] **백프레셔** 전략 정의 (Consumer Lag 임계, Prefetch, MaxAckPending)
+- [ ] **DLQ / Retry** 정책 (재시도 횟수, 백오프, Poison Message 격리)
+- [ ] **모니터링 지표**: Consumer Lag (Kafka), Queue Depth (RabbitMQ), Pending Count (NATS JS), Backlog (Pulsar), XLEN (Redis)
+- [ ] **순서 의존성** 분석 → 파티션 키 설계
+- [ ] **멱등성** (Producer/Consumer 양쪽) — exactly-once 의 본질은 중복 전송 + 중복 처리 무효화
+- [ ] **스키마 진화** (Schema Registry, Protobuf/Avro)
+- [ ] **재해 복구** (Geo-replication / MirrorMaker / 백업 정책)
+
+**관련 패턴**: Message Broker, Event-Driven Architecture, Pub/Sub, Competing Consumers, Dead Letter Channel
+**Cross-link**: [patterns/distributed.md](./distributed.md), [patterns/reactive-streams.md](./reactive-streams.md), [algorithms/consensus.md](../algorithms/consensus.md), [patterns/streaming-semantics.md](./streaming-semantics.md)

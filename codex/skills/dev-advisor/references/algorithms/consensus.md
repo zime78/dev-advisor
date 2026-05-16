@@ -2,6 +2,9 @@
 
 여러 노드가 단일 결정에 합의(agreement)하도록 하는 분산 시스템 알고리즘입니다. 실제 구현은 etcd, Zookeeper, Consul, TiKV 등 검증된 시스템을 사용해야 하며, 본 카테고리는 의사코드 + 핵심 상태/메시지 타입 학습용입니다.
 
+**관련 카탈로그**:
+- [`../principles/formal-methods.md#model-checking`](../principles/formal-methods.md#model-checking) — Model Checking (Spin/NuSMV/TLC) — 2PC/Paxos/Raft 의 안전성·생존성 정합성 형식 증명 (반례 자동 탐색·구현 회귀 검증)
+
 ## 알고리즘 목차
 
 | ID | 영문명 | 한글명 | 난이도 |

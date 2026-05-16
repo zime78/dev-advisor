@@ -2,6 +2,10 @@
 
 iOS/Android 앱 고유의 위협 모델 (장치 압수, MITM, 변조, 디바이스 무결성 실패) 에 대응하는 보안 패턴. OWASP MASVS (Mobile Application Security Verification Standard) 기반. Apple Platform Security Guide / Android Security Bulletins / OWASP Mobile Top 10 도 참조.
 
+**관련 카탈로그**:
+- [`../patterns/mobile-app.md#app-store-compliance`](../patterns/mobile-app.md#app-store-compliance) — 앱 스토어 심사 거부 사유 사전 점검 (Privacy Nutrition Label / ATT / Permissions / Target API Level — 보안 통제와 심사 정책의 교집합)
+- [`../patterns/mobile-app.md#mobile-advertising-attribution`](../patterns/mobile-app.md#mobile-advertising-attribution) — 모바일 광고·어트리뷰션 (IDFA / AAID / ATT / Data Safety Form / SKAdNetwork 4 — PII 수집 통제·동의 기반 추적)
+
 ---
 
 ## 1. Certificate Pinning (인증서 핀닝)

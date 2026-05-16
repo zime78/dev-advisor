@@ -821,4 +821,6 @@ export default {
 
 **관련 패턴**: [ISR](#isr), [SSR](#ssr), [Serverless Architecture](architectural.md)
 
+> **관련 (P1 신설)**: 렌더링 전략은 측정으로 검증한다 — [`web-performance.md#core-web-vitals`](web-performance.md#core-web-vitals) (LCP/INP/CLS 게이트 기준) / [`web-performance.md#rum-monitoring`](web-performance.md#rum-monitoring) (실사용자 측정으로 SSR vs CSR 선택 검증).
+
 ---

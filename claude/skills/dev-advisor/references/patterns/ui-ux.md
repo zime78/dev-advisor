@@ -2,6 +2,9 @@
 
 프론트엔드·앱 UI/UX 의 정평 있는 11 패턴. 컴포넌트 설계 (Atomic Design / Compound) + 로딩/오류 상태 (Skeleton / Empty State) + i18n / a11y 표준.
 
+**관련 카탈로그**:
+- [`../principles/hci-methodology.md`](../principles/hci-methodology.md) — HCI 연구 방법론 (Persona / Journey Map / Card Sort / Think-Aloud / Heuristic Eval / Cognitive Walkthrough — 본 UI/UX 결과물을 도출·검증하는 절차)
+
 **원전·표준 참고**:
 - Brad Frost — *Atomic Design* (https://atomicdesign.bradfrost.com/, 2013)
 - Dan Abramov — "Presentational and Container Components" (2015, blog)

@@ -4,6 +4,8 @@ AI/ML 모델 자체를 대상으로 하는 공격 분류학(Attack Taxonomy). `a
 
 참조 프레임워크: MITRE ATLAS (Adversarial Threat Landscape for AI Systems), OWASP LLM Top 10 2025, NIST AI RMF 1.0.
 
+**관련 원칙·규제 (P0 신설)**: [`../principles/professional-ethics.md#eu-ai-act-2024`](../principles/professional-ethics.md#eu-ai-act-2024) — EU AI Act 2024 의 위험 분류 (Unacceptable / High / Limited / Minimal) · 고위험 시스템 의무 (적합성 평가 · 데이터 거버넌스 · 인적 감시 · 로그 보존) — AI 모델 보안 통제의 규제·법적 근거. [`../principles/professional-ethics.md#acm-code-ethics-2018`](../principles/professional-ethics.md#acm-code-ethics-2018) — ACM 윤리 코드 (2018) 의 AI 책임 원칙도 함께 참조.
+
 ---
 
 ## 1. Model Extraction / Theft (모델 복제 공격)

@@ -217,6 +217,8 @@ approved_at: 2026-04-12
 
 **목적**: 정보주체가 자신의 개인정보에 대해 행사하는 **접근 · 정정 · 삭제 · 이동 · 처리 제한 · 자동의사결정 거부** 권리를 운영 가능한 워크플로우로 처리합니다. GDPR Art 15-22 가 정의한 6 권리를 SLA 내에 회신해야 합니다.
 
+**관련 원칙 (P0 신설)**: [`../principles/professional-ethics.md#gdpr-article-22`](../principles/professional-ethics.md#gdpr-article-22) — GDPR 22조 자동의사결정 거부권의 법적 정의·기준·실무 매핑 (DSAR 의 자동의사결정 거부 채널의 규범 근거)
+
 **메커니즘**:
 - 7 요청 타입: **Access(Art 15)** · **Rectification(Art 16)** · **Erasure / Right to be Forgotten(Art 17)** · **Restriction(Art 18)** · **Portability(Art 20)** · **Object(Art 21)** · **Automated Decision-Making(Art 22)**
 - **신원 확인 게이트** — 무차별 요청 방어. 본인 인증 후 토큰 발급 → 요청 진행

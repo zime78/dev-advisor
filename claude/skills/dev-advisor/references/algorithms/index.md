@@ -4,7 +4,7 @@
 
 소프트웨어 개발에서 자주 사용되는 알고리즘 모음입니다.
 
-## 알고리즘 카테고리 (총 268개, 31 카테고리)
+## 알고리즘 카테고리 (총 273개, 32 카테고리)
 
 | 카테고리 | 알고리즘 수 | 파일 |
 |---------|-----------|------|
@@ -39,12 +39,13 @@
 | [이미지 처리](image-processing.md) | 8개 | Convolution, Edge Detection, Hough, Morphology, Histogram Equalization, Segmentation, Feature Detection, Optical Flow |
 | [코덱·미디어](codecs.md) | 8개 | JPEG, PNG, WebP/AVIF/HEIC, H.264, H.265/H.266/AV1, MP3/AAC, Opus, Entropy Coding |
 | [신호 처리](signal-processing.md) | 8개 | FIR Filter, IIR Filter, STFT, Wavelet, Resampling, Kalman, EKF/UKF, Auto/Cross-correlation |
+| [DB 쿼리 최적화](db-query-optimizer.md) | 5개 | Join Algorithms (NLJ/SMJ/Hash), CBO vs Heuristic, Plan Cache, Cardinality Estimation, EXPLAIN ANALYZE |
 
 ---
 
 ## 알고리즘 ID 매핑
 
-전체 268개 알고리즘의 ID → 파일 매핑.
+전체 273개 알고리즘의 ID → 파일 매핑.
 
 | ID | 영문명 | 한글명 | 카테고리 | 링크 |
 |----|--------|--------|---------|------|
@@ -316,6 +317,11 @@
 | kalman-filter | Kalman Filter | 칼만 필터 | 신호 처리 | [signal-processing.md#kalman-filter](signal-processing.md#kalman-filter) |
 | extended-kalman | Extended / Unscented Kalman | EKF / UKF | 신호 처리 | [signal-processing.md#extended-kalman](signal-processing.md#extended-kalman) |
 | autocorrelation | Auto/Cross-correlation | 자기/교차 상관 | 신호 처리 | [signal-processing.md#autocorrelation](signal-processing.md#autocorrelation) |
+| join-algorithms-hash-sortmerge-nestedloop | Join Algorithms (NLJ/SMJ/Hash/Grace) | Join 알고리즘 비교 | DB 쿼리 최적화 | [db-query-optimizer.md#join-algorithms-hash-sortmerge-nestedloop](db-query-optimizer.md#join-algorithms-hash-sortmerge-nestedloop) |
+| cbo-vs-heuristic-optimizer | CBO vs Heuristic Optimizer | 비용기반/규칙기반 옵티마이저 | DB 쿼리 최적화 | [db-query-optimizer.md#cbo-vs-heuristic-optimizer](db-query-optimizer.md#cbo-vs-heuristic-optimizer) |
+| plan-cache | Plan Cache / Prepared Statement | 플랜 캐시 / Prepared Statement | DB 쿼리 최적화 | [db-query-optimizer.md#plan-cache](db-query-optimizer.md#plan-cache) |
+| cardinality-estimation-statistics | Cardinality Estimation / Statistics | 카디널리티 추정 / 통계 | DB 쿼리 최적화 | [db-query-optimizer.md#cardinality-estimation-statistics](db-query-optimizer.md#cardinality-estimation-statistics) |
+| explain-analyze-guide | EXPLAIN ANALYZE 해석 가이드 | EXPLAIN ANALYZE 해석 | DB 쿼리 최적화 | [db-query-optimizer.md#explain-analyze-guide](db-query-optimizer.md#explain-analyze-guide) |
 
 ---
 
@@ -469,7 +475,7 @@
 
 ## 알고리즘 ID 인덱스
 
-268개 알고리즘의 전체 ID → 파일 매핑은 [#알고리즘-id-매핑](#알고리즘-id-매핑) 참조.
+273개 알고리즘의 전체 ID → 파일 매핑은 [#알고리즘-id-매핑](#알고리즘-id-매핑) 참조.
 프로그래밍 언어 reference 는 [`../languages/`](../languages/) 별도 카탈로그 참조.
 
 카테고리 진입점:
@@ -507,6 +513,7 @@
 | 이미지 처리 | 8 | [./image-processing.md](./image-processing.md) |
 | 코덱·미디어 | 8 | [./codecs.md](./codecs.md) |
 | 신호 처리 | 8 | [./signal-processing.md](./signal-processing.md) |
+| DB 쿼리 최적화 | 5 | [./db-query-optimizer.md](./db-query-optimizer.md) |
 
 각 카테고리 md 의 `## 알고리즘 목차` 표에서 알고리즘별 anchor 점프 가능.
 
@@ -549,3 +556,10 @@
 | lru-cache | lru | data-structures.md |
 | breadth-first-search | bfs | graph.md |
 | depth-first-search | dfs | graph.md |
+| query-optimizer | cbo-vs-heuristic-optimizer | db-query-optimizer.md |
+| join | join-algorithms-hash-sortmerge-nestedloop | db-query-optimizer.md |
+| hash-join | join-algorithms-hash-sortmerge-nestedloop | db-query-optimizer.md |
+| sort-merge-join | join-algorithms-hash-sortmerge-nestedloop | db-query-optimizer.md |
+| nested-loop-join | join-algorithms-hash-sortmerge-nestedloop | db-query-optimizer.md |
+| prepared-statement | plan-cache | db-query-optimizer.md |
+| explain-analyze | explain-analyze-guide | db-query-optimizer.md |

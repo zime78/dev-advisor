@@ -817,3 +817,369 @@ class VideoEncoder(ctx: Context) {
 ```
 
 **관련 패턴**: App Startup (StartupTimingMetric), Background Task (radio tail 최적화), Crash & ANR (jank 누적 → ANR 위험)
+
+---
+
+<a id="app-store-compliance"></a>
+## 14. App Store Compliance (앱 스토어 심사 준수)
+
+**문제**: iOS App Store / Google Play 심사 거부는 출시 일정을 1~4주 지연시키며, 재거부 누적은 개발자 계정 정지로 이어진다. 거부 사유 Top 10 중 70%는 **사전 체크리스트로 회피 가능**한 항목 (메타데이터 / 결제 / 개인정보 / 권한 설명 누락).
+
+**Apple App Store Review Guidelines 핵심 조항**:
+
+| 조항 | 제목 | 핵심 요구사항 | 거부 빈도 |
+|------|------|---------------|-----------|
+| 2.1 | App Completeness | 크래시·플레이스홀더·placeholder 텍스트 금지 | High |
+| 2.5.1 | Software Requirements | 공개 API만 사용 (private API 호출 시 즉시 거부) | High |
+| 2.5.13 | App Tracking | ATT 프롬프트 없이 IDFA 수집 금지 | Very High |
+| 3.1.1 | In-App Purchase | 디지털 콘텐츠는 IAP 의무 (외부 결제 링크 금지, EU DMA 예외) | Very High |
+| 3.1.2 | Subscriptions | 자동갱신 명시 / 가격·기간·갱신정책 표시 | High |
+| 4.3 | Spam | 동일 기능 반복 앱 / 템플릿 앱 거부 | Medium |
+| 5.1.1 | Privacy — Data Collection | Privacy Policy URL 필수 / Privacy Nutrition Label 정확성 | Very High |
+| 5.1.2 | Data Use and Sharing | 사용자 동의 없는 데이터 전송 금지 | High |
+| 5.1.5 | Location Services | 위치 사용 사유 (NSLocationWhenInUseUsageDescription) 명시 | Medium |
+
+**Google Play Console 정책 핵심 카테고리**:
+
+| 정책 | 핵심 요구사항 | 거부 빈도 |
+|------|---------------|-----------|
+| Restricted Content | 폭력·성인·도박·증오·약물 제한 | Medium |
+| Privacy, Deception, Device Abuse | Data Safety Form 정확성 / 권한 최소화 | Very High |
+| Permissions and APIs that Access Sensitive Information | SMS·CALL_LOG·MANAGE_EXTERNAL_STORAGE 정당화 필수 | Very High |
+| Subscriptions | Play Billing Library 5+ 의무 / 외부 결제 금지 (EU DMA 예외) | High |
+| Spam and Minimum Functionality | 단순 웹뷰·기능 부족 앱 거부 | High |
+| Families Policy | 13세 미만 대상 앱 별도 정책 (COPPA / GDPR-K) | High |
+| Mobile Unwanted Software (MUwS) | 백그라운드 광고 / 알림 스팸 금지 | Medium |
+| Target API Level | 최신 Android API level - 1 이상 필수 (2025: API 34) | Hard Block |
+
+**거부 사유 Top 10 (Apple, 2024 통계)**:
+
+1. **Guideline 2.1 — App Completeness (Crashes/Bugs)**: 심사 중 크래시 — 빌드 전 TestFlight 외부 베타 필수
+2. **Guideline 5.1.1 — Privacy/Data Collection**: Privacy Nutrition Label 누락·부정확
+3. **Guideline 4.3 — Design Spam**: 템플릿 기반 앱 / 동일 개발자 유사 앱 다수
+4. **Guideline 2.3 — Accurate Metadata**: 스크린샷·설명이 실제 기능과 불일치
+5. **Guideline 3.1.1 — In-App Purchase**: 디지털 콘텐츠를 외부 결제로 우회
+6. **Guideline 2.5.1 — Software Requirements**: Private API 사용 (예: `_UIApplicationLoadWebKit`)
+7. **Guideline 5.1.2 — Data Use and Sharing**: 사용자 동의 없는 제3자 SDK 데이터 전송
+8. **Guideline 2.5.13 — App Tracking Transparency**: ATT 프롬프트 누락 또는 거부 시에도 IDFA 사용
+9. **Guideline 4.0 — Design**: 비표준 UI / Human Interface Guidelines 위반
+10. **Guideline 1.1 — Objectionable Content**: 폭력·차별·괴롭힘 콘텐츠
+
+**거부 사유 Top 10 (Google Play, 2024 통계)**:
+
+1. **Permissions Policy**: 핵심 기능과 무관한 권한 요청 (예: 손전등 앱이 연락처 요청)
+2. **User Data Policy / Data Safety**: Data Safety Form과 실제 SDK 행동 불일치
+3. **Target API Level**: 신규 앱 / 업데이트가 target API 요구사항 미달
+4. **Subscriptions**: Play Billing 외부 우회 / 자동갱신 정책 누락
+5. **Deceptive Behavior**: 가짜 리뷰 유도 / 기능 과장 설명
+6. **Families Policy**: 13세 미만 대상 앱에서 광고 SDK 위반
+7. **Intellectual Property Infringement**: 상표권·저작권 침해
+8. **Restricted Content (Inappropriate Content)**: 폭력·성인 콘텐츠 등급 미스매치
+9. **Mobile Unwanted Software (MUwS)**: 백그라운드 풀스크린 광고 / 잠금화면 광고
+10. **Background Location**: 백그라운드 위치 정당화 비디오 누락
+
+**Pre-submission 체크리스트 (필수)**:
+
+```text
+# iOS App Store
+[ ] TestFlight 외부 베타 24시간 이상 무크래시 검증
+[ ] Privacy Nutrition Label — 모든 SDK의 데이터 수집 항목 검토
+[ ] PrivacyInfo.xcprivacy 파일 추가 (Required Reason API 사용 시)
+[ ] ATT 프롬프트 — IDFA 수집 SDK 있을 시 의무
+[ ] NSXxxUsageDescription — 권한 사용 사유 한국어/영어 명시
+[ ] Export Compliance — 암호화 사용 시 ITSAppUsesNonExemptEncryption
+[ ] Sign in with Apple — 제3자 로그인 제공 시 함께 제공 의무 (4.8)
+[ ] Demo 계정 정보 — App Review Information에 로그인 정보 제공
+[ ] Age Rating — 콘텐츠 실제와 일치
+[ ] In-App Purchase 상품 — 메타데이터·스크린샷 사전 등록
+
+# Google Play
+[ ] Data Safety Form — 모든 SDK 데이터 수집·공유·전송 정확히 신고
+[ ] Target API Level — Android 14 (API 34) 이상 (2025년 기준)
+[ ] Permissions Declaration — SMS·CALL_LOG·MANAGE_EXTERNAL_STORAGE 사용 정당화 영상
+[ ] Background Location Justification Video — 1분 이내 사용 사례 영상
+[ ] Play Billing Library 7+ — 결제 사용 시
+[ ] App Bundle (AAB) — APK 직접 업로드 불가 (2021년 8월~)
+[ ] Content Rating — IARC 등급 설문 완료
+[ ] Privacy Policy URL — 모든 앱 필수 (2023년 정책 강화)
+[ ] Families Policy — 대상 연령 13세 미만 시 별도 광고 SDK 인증
+[ ] Closed Testing — 신규 개발자 계정 12명 이상 14일 비공개 테스트 (2024년 신규 정책)
+```
+
+**App Privacy Manifest (PrivacyInfo.xcprivacy) — iOS 17.5+ 필수**:
+
+Apple은 2024년 5월부터 **Required Reason API** 사용 시 `PrivacyInfo.xcprivacy` 파일을 통해 사용 이유를 명시하도록 의무화. 누락 시 빌드 거부.
+
+```xml
+<!-- ios/App/PrivacyInfo.xcprivacy -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- 1. 추적 도메인 명시 (ATT 프롬프트 거부 시 자동 차단) -->
+    <key>NSPrivacyTrackingDomains</key>
+    <array>
+        <string>analytics.example.com</string>
+        <string>ads.adjust.com</string>
+    </array>
+
+    <!-- 2. 추적 사용 여부 -->
+    <key>NSPrivacyTracking</key>
+    <true/>
+
+    <!-- 3. 수집 데이터 카테고리 -->
+    <key>NSPrivacyCollectedDataTypes</key>
+    <array>
+        <dict>
+            <key>NSPrivacyCollectedDataType</key>
+            <string>NSPrivacyCollectedDataTypeDeviceID</string>
+            <key>NSPrivacyCollectedDataTypeLinked</key>
+            <true/>
+            <key>NSPrivacyCollectedDataTypeTracking</key>
+            <true/>
+            <key>NSPrivacyCollectedDataTypePurposes</key>
+            <array>
+                <string>NSPrivacyCollectedDataTypePurposeThirdPartyAdvertising</string>
+            </array>
+        </dict>
+    </array>
+
+    <!-- 4. Required Reason API 사용 이유 -->
+    <key>NSPrivacyAccessedAPITypes</key>
+    <array>
+        <dict>
+            <!-- UserDefaults 접근 -->
+            <key>NSPrivacyAccessedAPIType</key>
+            <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+            <key>NSPrivacyAccessedAPITypeReasons</key>
+            <array>
+                <string>CA92.1</string><!-- 앱 자체 설정 저장 -->
+            </array>
+        </dict>
+        <dict>
+            <!-- File Timestamp 접근 -->
+            <key>NSPrivacyAccessedAPIType</key>
+            <string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+            <key>NSPrivacyAccessedAPITypeReasons</key>
+            <array>
+                <string>C617.1</string><!-- 앱 내 파일 처리 -->
+            </array>
+        </dict>
+    </array>
+</dict>
+</plist>
+```
+
+**Data Safety Form (Google Play, 2022~) — Kotlin 검증 코드**:
+
+```kotlin
+// Data Safety Form 신고 항목과 실제 SDK 데이터 수집 일치 검증
+data class DataSafetyDeclaration(
+    val dataType: DataType,                  // Location / Contacts / Financial info...
+    val collected: Boolean,
+    val shared: Boolean,
+    val processedEphemerally: Boolean,       // 일시적 처리 (서버 미전송)
+    val optional: Boolean,                    // 사용자 선택 가능
+    val purposes: Set<Purpose>                // Analytics / Advertising / Personalization...
+)
+
+enum class DataType {
+    LOCATION_APPROXIMATE, LOCATION_PRECISE,
+    PERSONAL_NAME, PERSONAL_EMAIL, PERSONAL_PHONE,
+    FINANCIAL_PAYMENT_INFO, FINANCIAL_PURCHASE_HISTORY,
+    HEALTH_FITNESS, MESSAGES_SMS_OR_MMS,
+    PHOTOS_VIDEOS, AUDIO_VOICE_RECORDINGS,
+    FILES_DOCS, APP_INFO_INTERACTIONS,
+    DEVICE_OR_OTHER_IDS;
+}
+
+// CI 검증: 신고된 항목 외 SDK가 데이터를 수집하면 빌드 실패
+class DataSafetyAuditor {
+    fun audit(declarations: List<DataSafetyDeclaration>, sdkBehaviors: Map<String, Set<DataType>>) {
+        val declaredTypes = declarations.filter { it.collected }.map { it.dataType }.toSet()
+        sdkBehaviors.forEach { (sdkName, types) ->
+            val undeclared = types - declaredTypes
+            check(undeclared.isEmpty()) {
+                "SDK '$sdkName' collects undeclared data: $undeclared. Update Data Safety Form."
+            }
+        }
+    }
+}
+```
+
+**관련 패턴**:
+- 8장 In-App Purchase (Apple 3.1.1 / Google Play Billing 의무)
+- 12장 Permission Request UX (Apple 5.1.1 / Google Permissions Policy)
+- [security/security-mobile.md](../security/security-mobile.md) (Privacy Manifest, Data Safety)
+- [security/privacy-engineering.md](../security/privacy-engineering.md) (GDPR / CCPA / 개인정보보호법 매핑)
+- [principles/professional-ethics.md#gdpr-article-22](../principles/professional-ethics.md#gdpr-article-22) (자동화 의사결정 거부권)
+- [principles/professional-ethics.md#dark-pattern-classification](../principles/professional-ethics.md#dark-pattern-classification) (DMA / FTC 다크패턴 분류)
+
+---
+
+<a id="mobile-advertising-attribution"></a>
+## 15. Mobile Advertising & Attribution (모바일 광고·어트리뷰션)
+
+**문제**: 광고 ID 수집은 ATT (iOS 14.5+) / Privacy Sandbox (Android 14+) 도입으로 **opt-in 비율 25% 수준**까지 떨어졌다. 어트리뷰션 정확도 손실은 ROAS (Return on Ad Spend) 측정 불가 → 광고 예산 최적화 실패로 이어진다. 비추적 식별자 (IDFV / App-set ID) + 집계 측정 (SKAdNetwork / Attribution Reporting API) 조합이 표준.
+
+**광고 식별자 비교 매트릭스**:
+
+| 식별자 | 플랫폼 | 추적 가능 | 사용자 리셋 | opt-in 필요 | 용도 |
+|--------|--------|-----------|-------------|-------------|------|
+| **IDFA** (Identifier for Advertisers) | iOS | Yes (cross-app) | Yes | **ATT 동의 시만** | 광고 어트리뷰션·리타게팅 |
+| **AAID** (Google Advertising ID) | Android | Yes (cross-app) | Yes | Android 13+ AD_ID 권한 | 광고 어트리뷰션 (deprecation 예정) |
+| **IDFV** (Identifier for Vendor) | iOS | No (vendor-scoped) | 앱 삭제 시 | 불필요 | 동일 개발자 앱 그룹 식별 |
+| **App-set ID** | Android | No (developer-scoped) | 13개월마다 자동 | 불필요 | 동일 개발자 앱 분석·사기 방지 |
+| **SKAdNetwork ID** | iOS | 집계 (개인 식별 불가) | - | 불필요 | iOS 광고 어트리뷰션 (Apple Postback) |
+| **Attribution Reporting API** | Android (Privacy Sandbox) | 집계 + 노이즈 | - | 불필요 | Android 광고 어트리뷰션 (Google 신표준) |
+| **Topics API** | Android (Privacy Sandbox) | 주제 카테고리만 | 매월 갱신 | 사용자 차단 가능 | 관심사 기반 광고 (FLoC 후속) |
+| **Protected Audience API** | Android (Privacy Sandbox) | 온디바이스 경매 | - | - | 리마케팅 (FLEDGE 후속) |
+
+**ATT (AppTrackingTransparency) — iOS 14.5+ 의무**:
+
+```swift
+// ios/AppDelegate+ATT.swift
+import AppTrackingTransparency
+import AdSupport
+
+extension AppDelegate {
+    func requestTrackingAuthorization() {
+        // [필수] Info.plist 에 NSUserTrackingUsageDescription 한국어/영어 명시
+        // 예: "맞춤 광고 제공 및 광고 효과 측정에 사용됩니다."
+        ATTrackingManager.requestTrackingAuthorization { status in
+            switch status {
+            case .authorized:
+                // IDFA 사용 가능
+                let idfa = ASIdentifierManager.shared().advertisingIdentifier.uuidString
+                AdjustSDK.shared.setIdfa(idfa)
+            case .denied, .restricted, .notDetermined:
+                // IDFA = 00000000-0000-0000-0000-000000000000 (zero)
+                // SKAdNetwork 어트리뷰션으로 대체
+                SKAdNetworkAttribution.enable()
+            @unknown default:
+                break
+            }
+        }
+    }
+}
+```
+
+**SKAdNetwork 4.0 (Apple Postback, 2023~) — Android Attribution Reporting API 와 동등 메커니즘**:
+
+```text
+[광고 노출] → [클릭] → [앱 설치] → [전환 이벤트]
+                                          ↓
+                            [Apple/Google 서버 집계]
+                                          ↓
+                  [노이즈 추가 + 24~48시간 지연]
+                                          ↓
+              [광고 네트워크 Postback URL 호출]
+                                          ↓
+          전환 값 (coarse / fine) + 캠페인 ID 만 전달
+          (개별 사용자 식별 정보 없음)
+```
+
+**SKAdNetwork 4.0 핵심 특징**:
+- **3차 전환 윈도우**: 0~2일 / 3~7일 / 8~35일 (Lifetime Value 측정)
+- **Hierarchical Source ID**: 2자리 → 3자리 → 4자리 캠페인 ID (전환 임계값 충족 시 확장)
+- **Coarse / Fine Conversion Values**: 노이즈 임계값에 따라 단계적 정확도
+- **Web-to-App**: Safari 광고 클릭 → 앱 설치 어트리뷰션 지원
+
+**Privacy Sandbox on Android — Topics API 사용 예**:
+
+```kotlin
+// Android 13+ Privacy Sandbox API
+import android.adservices.topics.TopicsManager
+import android.adservices.topics.GetTopicsRequest
+
+class TopicsApiClient(private val context: Context) {
+    fun fetchTopics(callback: (List<Int>) -> Unit) {
+        val tm = context.getSystemService(TopicsManager::class.java) ?: return
+        val request = GetTopicsRequest.Builder()
+            .setAdsSdkName("com.example.adsdk")
+            .setShouldRecordObservation(true)
+            .build()
+
+        tm.getTopics(request, context.mainExecutor) { response ->
+            // 최대 3개의 관심사 topic ID 반환 (예: 10004 = News/Sports, 10009 = Travel)
+            // 매월 갱신, 사용자가 Settings 에서 차단 가능
+            val topicIds = response.topics.map { it.topicId }
+            callback(topicIds)
+        }
+    }
+}
+```
+
+**App-set ID (Google Play 2022+) — 비추적 식별자**:
+
+```kotlin
+// Android: 동일 개발자 앱 그룹 식별 (cross-app 추적 불가)
+import com.google.android.gms.appset.AppSet
+
+class AppSetIdProvider(private val context: Context) {
+    suspend fun getAppSetId(): String = suspendCoroutine { cont ->
+        AppSet.getClient(context).appSetIdInfo
+            .addOnSuccessListener { info ->
+                // scope: SCOPE_APP (앱별) / SCOPE_DEVELOPER (개발자 그룹)
+                cont.resume(info.id)
+            }
+            .addOnFailureListener { cont.resumeWithException(it) }
+    }
+}
+
+// iOS 대응: IDFV (벤더 스코프, 동일 Team ID 앱 간 공유)
+// let idfv = UIDevice.current.identifierForVendor?.uuidString
+```
+
+**MMP (Mobile Measurement Partner) 비교**:
+
+| MMP | 강점 | 약점 | 가격대 | 적합 |
+|-----|------|------|--------|------|
+| **Adjust** | SKAdNetwork 4.0 완성도 / 사기 방지 (Fraud Prevention Suite) | 가격 높음 / 한국어 지원 약함 | $$$$ | 대형 퍼블리셔 |
+| **AppsFlyer** | 시장 점유율 1위 / 통합 SDK 다양 (200+) / 한국 지사 | UI 복잡 / 학습곡선 | $$$ | 중대형 앱 |
+| **Branch** | Deep Linking 강점 / Universal Links 최적화 | 어트리뷰션 정확도 평균 | $$ | 딥링크 중심 앱 |
+| **Singular** | 비용·수익 통합 분석 (ROAS Dashboard) | 한국 시장 점유율 낮음 | $$$ | 데이터 중심 운영팀 |
+
+**MMP 통합 추상화 (Kotlin)**:
+
+```kotlin
+// MMP 교체 가능 설계 — DIP 적용
+interface AttributionTracker {
+    fun trackInstall()
+    fun trackEvent(name: String, params: Map<String, Any> = emptyMap())
+    fun trackRevenue(amount: Double, currency: String, productId: String)
+    fun setUserId(userId: String)
+}
+
+class AdjustAttributionTracker(private val context: Context) : AttributionTracker {
+    override fun trackInstall() {
+        val config = AdjustConfig(context, BuildConfig.ADJUST_TOKEN, AdjustConfig.ENVIRONMENT_PRODUCTION)
+        Adjust.onCreate(config)
+    }
+    override fun trackEvent(name: String, params: Map<String, Any>) {
+        val event = AdjustEvent(name)
+        params.forEach { (k, v) -> event.addCallbackParameter(k, v.toString()) }
+        Adjust.trackEvent(event)
+    }
+    override fun trackRevenue(amount: Double, currency: String, productId: String) {
+        val event = AdjustEvent(BuildConfig.ADJUST_PURCHASE_TOKEN)
+        event.setRevenue(amount, currency)
+        event.setOrderId(productId)
+        Adjust.trackEvent(event)
+    }
+    override fun setUserId(userId: String) {
+        Adjust.addSessionCallbackParameter("user_id", userId)
+    }
+}
+
+// AppsFlyer 교체 시 AppsFlyerAttributionTracker 구현만 추가
+// 비즈니스 로직 변경 불필요 (OCP 원칙)
+```
+
+**관련 패턴**:
+- 12장 Permission Request UX (ATT / AD_ID 권한 요청 타이밍)
+- 14장 App Store Compliance (Privacy Manifest 추적 도메인 명시)
+- [security/security-mobile.md](../security/security-mobile.md) (광고 SDK 데이터 유출 방지)
+- [security/privacy-engineering.md](../security/privacy-engineering.md) (Privacy Sandbox / ATT 컴플라이언스)
+- [principles/professional-ethics.md#gdpr-article-22](../principles/professional-ethics.md#gdpr-article-22) (광고 프로파일링과 자동화 의사결정)
+- [principles/professional-ethics.md#dark-pattern-classification](../principles/professional-ethics.md#dark-pattern-classification) (ATT 프롬프트 다크패턴 금지)

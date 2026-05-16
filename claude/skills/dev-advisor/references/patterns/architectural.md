@@ -711,3 +711,231 @@ class OrderHandler : RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxy
 ```
 
 **관련 패턴**: Microservices, Event-Driven, BFF
+
+---
+
+<a id="micro-frontend"></a>
+
+## 17. Micro Frontend
+
+**정의**: 백엔드의 Microservices 개념을 프론트엔드로 확장한 아키텍처로, 단일 웹 애플리케이션을 도메인/팀 단위로 독립 배포 가능한 작은 프런트엔드(MFE)들로 분할하고, 런타임 또는 빌드타임에 통합 셸(Container/Host)이 이를 조립해 사용자에게 하나의 화면처럼 제공합니다.
+
+**동기 (왜 쓰는가)**:
+- 거대 monolith SPA 의 빌드 시간 폭증 / 코드 오너십 모호 해소
+- 팀 단위 독립 배포 + 기술 스택 자율성 (React/Vue/Svelte 혼용)
+- 도메인 경계(DDD Bounded Context) 를 UI 계층까지 일관되게 정렬
+- 점진적 마이그레이션 (Strangler Fig — 레거시 화면을 모듈 단위로 교체)
+
+**특징**:
+- 각 MFE 는 독립 레포지토리 + 독립 CI/CD + 독립 런타임 번들
+- Container(Shell) 가 라우팅, 인증, 공통 디자인 토큰을 책임
+- 통신은 Custom Event / pub-sub / URL 상태로 느슨하게 결합
+
+---
+
+### 17.1 Module Federation (Webpack 5+ / Rspack)
+
+Webpack 5 에서 도입된 런타임 코드 공유 메커니즘. 각 MFE 는 `remoteEntry.js` 매니페스트를 발행하고, Host 는 이를 동적 `import()` 로 로드합니다.
+
+**Host (Shell) 설정 — Webpack 5**:
+```javascript
+// webpack.config.js (Host)
+const { ModuleFederationPlugin } = require("webpack").container;
+
+module.exports = {
+  plugins: [
+    new ModuleFederationPlugin({
+      name: "shell",
+      remotes: {
+        // 런타임에 remoteEntry.js 가 가리키는 번들에서 노출 모듈을 동적 로드
+        cart: "cart@https://cdn.example.com/cart/remoteEntry.js",
+        checkout: "checkout@https://cdn.example.com/checkout/remoteEntry.js",
+      },
+      shared: {
+        react: { singleton: true, requiredVersion: "^18.0.0" },
+        "react-dom": { singleton: true, requiredVersion: "^18.0.0" },
+      },
+    }),
+  ],
+};
+```
+
+**Remote (MFE) 설정**:
+```javascript
+// webpack.config.js (Remote — cart)
+new ModuleFederationPlugin({
+  name: "cart",
+  filename: "remoteEntry.js",
+  exposes: {
+    "./CartWidget": "./src/CartWidget", // Host 에서 import("cart/CartWidget") 로 접근
+  },
+  shared: { react: { singleton: true }, "react-dom": { singleton: true } },
+});
+```
+
+**Host 에서 동적 로드 (React + Suspense)**:
+```jsx
+// 1. 런타임에만 존재하는 remote 모듈이므로 React.lazy + dynamic import 조합
+const CartWidget = React.lazy(() => import("cart/CartWidget"));
+
+export function ShellApp() {
+  return (
+    <React.Suspense fallback={<div>Loading cart...</div>}>
+      <CartWidget userId="u-123" />
+    </React.Suspense>
+  );
+}
+```
+
+**장점**: 런타임 통합 / 의존성 singleton 공유 / 독립 배포
+**단점**: 버전 정렬 어려움(특히 React 등 singleton) / 디버깅 복잡 / 초기 학습 곡선
+
+---
+
+### 17.2 Single-SPA (Lifecycle 기반)
+
+여러 SPA 를 하나의 페이지에서 라이프사이클(`bootstrap → mount → unmount`) 로 오케스트레이션하는 메타 프레임워크.
+
+**Root Config (Shell)**:
+```javascript
+// root-config.js
+import { registerApplication, start } from "single-spa";
+
+registerApplication({
+  name: "@org/navbar",
+  app: () => System.import("@org/navbar"),
+  activeWhen: ["/"], // 모든 라우트에서 활성
+});
+
+registerApplication({
+  name: "@org/checkout",
+  app: () => System.import("@org/checkout"),
+  activeWhen: ["/checkout"], // /checkout 경로에서만 mount
+});
+
+start();
+```
+
+**MFE 측 Lifecycle 구현 (React parcel)**:
+```javascript
+// checkout/src/main.js
+import React from "react";
+import ReactDOM from "react-dom";
+import singleSpaReact from "single-spa-react";
+import CheckoutRoot from "./CheckoutRoot";
+
+const lifecycles = singleSpaReact({
+  React,
+  ReactDOM,
+  rootComponent: CheckoutRoot,
+  errorBoundary: (err) => <div>Checkout 로드 실패: {err.message}</div>,
+});
+
+// single-spa 가 호출하는 3개 라이프사이클 export
+export const bootstrap = lifecycles.bootstrap; // 1회: 초기화
+export const mount = lifecycles.mount;         // 라우트 진입: DOM mount
+export const unmount = lifecycles.unmount;     // 라우트 이탈: cleanup
+```
+
+**장점**: 명확한 라이프사이클 / 라우팅 통합 / 다양한 프레임워크 혼용
+**단점**: SystemJS 의존 / 빌드 설정 복잡 / 공유 의존성 관리는 별도(import map)
+
+---
+
+### 17.3 iframe 기반
+
+가장 오래된 통합 방식. 각 MFE 를 `<iframe src="...">` 로 격리.
+
+**격리(장점)**:
+- CSS / JS 전역 충돌 0 (Browsing Context 자체가 분리)
+- 보안 sandbox (`sandbox` 속성, CSP) 적용 쉬움
+- 레거시 앱(다른 도메인) 통합에 즉시 사용
+
+**한계(단점)**:
+- 통신은 `postMessage` 만 가능 — 타입 안전성 낮음
+- 라우팅 동기화 / 깊은 링크(deep link) 처리 번거로움
+- SEO 어려움(검색엔진이 iframe 콘텐츠를 본문으로 인덱싱하지 않는 경향)
+- 중첩 시 성능 저하 (각 iframe 마다 별도 렌더링 트리)
+- 모바일 UX (scroll, viewport) 제약
+
+**활용 예시**: 결제 모듈 (PG 사 호스팅) / 외부 차트 위젯 / Embed 형 SaaS 위젯
+
+---
+
+### 17.4 Web Components (Custom Elements) 기반
+
+브라우저 표준 Custom Elements + Shadow DOM 으로 프레임워크 중립 컴포넌트를 만들어 MFE 단위로 사용.
+
+**Custom Element 정의 (Remote)**:
+```javascript
+// cart-widget.js — 프레임워크 독립적 배포 단위
+class CartWidget extends HTMLElement {
+  // 1. Shadow DOM 으로 스타일 캡슐화 (외부 CSS 영향 차단)
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+  }
+
+  // 2. 속성 변경 관찰
+  static get observedAttributes() {
+    return ["user-id"];
+  }
+
+  connectedCallback() {
+    const userId = this.getAttribute("user-id");
+    this.shadowRoot.innerHTML = `
+      <style>.cart { padding: 8px; }</style>
+      <div class="cart">Cart for ${userId}</div>
+    `;
+  }
+}
+
+customElements.define("cart-widget", CartWidget);
+```
+
+**Host 에서 사용 (프레임워크 무관)**:
+```html
+<!-- Shell 이 React/Vue/순수 HTML 어느 것이든 동일하게 사용 -->
+<script type="module" src="https://cdn.example.com/cart/cart-widget.js"></script>
+<cart-widget user-id="u-123"></cart-widget>
+```
+
+**장점**: W3C 표준 / 프레임워크 락인 없음 / Shadow DOM 으로 스타일 격리
+**단점**: SSR 어려움 / 폼 통합 한계(form-associated custom elements 로 보완) / 일부 프레임워크와의 props/event 매핑 보일러플레이트
+
+---
+
+### 17.5 비교 매트릭스
+
+| 방식 | 격리 | 통신 | SEO | 빌드 복잡도 | 런타임 성능 | 대표 사례 |
+|------|------|------|-----|------------|------------|----------|
+| Module Federation | 중간 (singleton 공유) | Direct import + 이벤트 | 양호 (SSR 가능, Next.js MF) | 높음 | 높음 (의존성 dedupe) | Shopify, IKEA |
+| Single-SPA | 중간 (SystemJS) | Custom Event / props | 양호 (SSR 별도 구성) | 높음 | 중간 (parcel 추가 비용) | EU 정부 포털 다수 |
+| iframe | 높음 (Browsing Context) | postMessage 만 | 낮음 (인덱싱 제약) | 매우 낮음 | 낮음 (다중 렌더링 트리) | 결제, 외부 위젯 |
+| Web Components | 높음 (Shadow DOM) | Attribute / CustomEvent | 중간 (light DOM slot 활용) | 낮음 | 높음 (브라우저 네이티브) | Salesforce LWC |
+
+**선택 기준 요약**:
+- 동일 조직 + React 단일 스택 + 의존성 공유 → **Module Federation**
+- 다양한 프레임워크 + 라우팅 중심 통합 → **Single-SPA**
+- 보안/완전 격리 + 외부 시스템 통합 → **iframe**
+- 장기적 표준 호환 + 프레임워크 중립 위젯 → **Web Components**
+
+---
+
+### 17.6 안티패턴
+
+- **Cross-MFE 직접 import 의존**: A MFE 가 B MFE 의 내부 모듈을 직접 import → 독립 배포의 이점 소실. 반드시 공개 계약(이벤트/공유 라이브러리) 만 사용.
+- **공유 전역 상태 남용**: window.__APP_STATE__ 같은 글로벌 store 에 모든 MFE 가 쓰기 → Microservices 의 공유 DB 안티패턴과 동일. 도메인 이벤트 + 자체 store 로 분리.
+- **공유 의존성 미정렬 (Module Federation)**: React singleton 미설정 시 두 버전이 동시 mount → Hook 규칙 위반/잘못된 컨텍스트.
+- **MFE 가 라우팅을 자체 점유**: 각 MFE 가 `history.pushState` 를 무차별 호출 → URL 충돌. 라우팅은 Shell 책임.
+- **디자인 시스템 비공유**: 각 MFE 가 자체 버튼/폼 컴포넌트 보유 → 시각적 일관성 붕괴. 디자인 토큰 + 공유 UI kit 필수.
+- **빌드타임 통합으로 회귀**: 결국 monorepo + npm publish 만 사용해 런타임 독립 배포를 포기 → "이름만 MFE".
+
+**난이도**: 높음 | **사용 빈도**: ★★★☆☆
+
+**관련 패턴**: [Microservices](#13-microservices), [Modular Monolith](#12-modular-monolith), [Event-Driven](#15-event-driven-architecture), BFF (Backend-for-Frontend)
+
+**Cross-link**:
+- [patterns/web-rendering.md](./web-rendering.md) — SSR/CSR/Streaming 과 MFE 통합 시 렌더링 전략
+- [patterns/integration.md](./integration.md) — Strangler Fig / API Gateway 와 MFE 통합 경로
+- [patterns/web-performance.md](./web-performance.md) — Module Federation singleton, 코드 스플리팅, 런타임 의존성 비용 최적화

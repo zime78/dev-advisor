@@ -606,4 +606,6 @@ class UserRepository {
 
 **관련 패턴**: Blue-Green Deployment, Rolling Update, Strangler Fig
 
+> **관련 (P1 신설)**: 릴리스 의사결정의 거버넌스 측면은 [`../principles/configuration-management.md#change-control-board`](../principles/configuration-management.md#change-control-board) (CCB — 변경 통제 위원회) 참조 — 어떤 변경이 어느 baseline 으로 release 가능한지 의결.
+
 ---

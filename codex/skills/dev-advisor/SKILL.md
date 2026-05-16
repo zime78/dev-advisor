@@ -1,7 +1,6 @@
 ---
 name: dev-advisor
-description: 5중 카탈로그(496 패턴 / 268 알고리즘 / 75 언어 / 106 보안 / 163 원칙 + 18 부록)로 앱 개발을 안내하는 Codex용 어드바이저. 7 advisor 모드 (5 기본 + 2 통합) — recommend / validate / refactor / maintain / security-audit / full / swarm + lookup. 트리거 — '/dev-advisor recommend|validate|refactor|maintain|security-audit|full|swarm', '/pattern singleton|mvvm|clean-architecture', '/algorithm quick-sort|dijkstra|bfs', '/language python|kotlin|rust', '/security oauth2-pkce|jwt|rbac', '/principle srp|grasp|iso25010', '아키텍처 추천', '코드 검증', '리팩토링 가이드', '기술 부채 점검', '보안 점검', '전체 점검', '종합 분석', '병렬 점검', '심층 분석', 'swarm', 'dev-advisor'.
-argument-hint: "<recommend|validate|refactor|maintain|security-audit|full|swarm|--help|pattern|algorithm|language|security|principle> [input]"
+description: 5중 카탈로그(547 패턴 / 273 알고리즘 / 75 언어 / 106 보안 / 212 원칙 + 18 부록)로 앱 개발을 안내하는 Codex용 어드바이저. 7 advisor 모드 (5 기본 + 2 통합) — recommend / validate / refactor / maintain / security-audit / full / swarm + lookup. 트리거 — '/dev-advisor recommend|validate|refactor|maintain|security-audit|full|swarm', '/pattern singleton|mvvm|clean-architecture', '/algorithm quick-sort|dijkstra|bfs', '/language python|kotlin|rust', '/security oauth2-pkce|jwt|rbac', '/principle srp|grasp|iso25010', '아키텍처 추천', '코드 검증', '리팩토링 가이드', '기술 부채 점검', '보안 점검', '전체 점검', '종합 분석', '병렬 점검', '심층 분석', 'swarm', 'dev-advisor'.
 ---
 
 # Dev Advisor — Patterns, Algorithms, Languages, Security
@@ -32,13 +31,13 @@ argument-hint: "<recommend|validate|refactor|maintain|security-audit|full|swarm|
 
 | 도메인 | 디렉토리 | 항목 수 | 용도 | 구조 |
 |---|---|--:|---|---|
-| Patterns   | `references/patterns/`   | 496 | 디자인·아키텍처 의사결정 (산업 도메인 포함) | 47 카테고리, `patterns/<category>.md` + `patterns/domains/<industry>.md` 평면 inline + 카테고리당 `## N.` 헤더 |
-| Algorithms | `references/algorithms/` | 268 | 자료구조·연산·분산·동시성·파싱·DB·OS·미디어 | 31 카테고리, `<a id>` anchor + 카테고리 목차 + `algorithms/index.md` 전역 ID 매핑 (4중 lookup) |
+| Patterns   | `references/patterns/`   | 547 | 디자인·아키텍처 의사결정 (산업 도메인 포함, MDM·DQ 거버넌스 + Web Performance / Data Warehousing & BI / HPC-Scientific 신설) | 55 카테고리, `patterns/<category>.md` + `patterns/domains/<industry>.md` 평면 inline + 카테고리당 `## N.` 헤더 |
+| Algorithms | `references/algorithms/` | 273 | 자료구조·연산·분산·동시성·파싱·DB·OS·미디어 | 32 카테고리, `<a id>` anchor + 카테고리 목차 + `algorithms/index.md` 전역 ID 매핑 (4중 lookup) |
 | Languages  | `references/languages/`  |  75 | 언어 선택·비교·분야별 추천 | 분야 매트릭스, `languages/<lang>.md` 평탄 + 우선순위 `index.md` + 분야별 `domains.md` |
 | Security   | `references/security/`   | 106 | 인증·인가·암호 운영·데이터 보호·API/Web·공급망·플랫폼·SDLC·탐지·모바일·AI 모델·프라이버시·규제 | 15 파일 (메타 4 + 12 sub-카테고리 + Privacy Engineering 9 + 컴플라이언스 5), `security/index.md` ID→파일 + cross-link 매트릭스 |
-| **Principles** | `references/principles/` | **163 + 18 부록** | **SOLID / GRASP / ISO 25010 / 12-Factor / Code Smells + 타입 시스템 / 동시성 이론 / Refactoring 기법 / SW 경제·추정 / 진화적 아키텍처 / 탄력성 / 문서화 / DORA / 성능 / Green Software** | 13 파일 + 부록 [`micro-principles.md`](references/principles/micro-principles.md) (DRY/KISS/YAGNI/LoD/SoC/Tell-Don't-Ask/Composition/SSoT + Conway/Hyrum/Postel/Brooks/Hollywood/Boy Scout/Pareto/Goodhart/Cunningham/Inverse Conway, verify 카운트 외, `/principle <id>` 호출 가능). advisor 7 모드의 핵심 표준 인용 source |
+| **Principles** | `references/principles/` | **212 + 18 부록** | **SOLID / GRASP / ISO 25010 / 12-Factor / Code Smells + 타입 시스템 / 동시성 이론 / Refactoring 기법 / SW 경제·추정 / 진화적 아키텍처 / 탄력성 / 문서화 / DORA / 성능 / Green Software + DB 기초 / SDLC 모델 / Scaled Agile / 직업 윤리 + Standards Mapping (SWEBOK/CS2023/DMBOK/OWASP/NIST-ISO) / Configuration Management (IEEE 828 SCMP) + HCI Methodology (ISO 9241 / Persona / Journey Map / Heuristic Eval) / Formal Methods (TLA+ / Alloy / Hoare / Model Checking)** | 21 파일 + 부록 [`micro-principles.md`](references/principles/micro-principles.md) (DRY/KISS/YAGNI/LoD/SoC/Tell-Don't-Ask/Composition/SSoT + Conway/Hyrum/Postel/Brooks/Hollywood/Boy Scout/Pareto/Goodhart/Cunningham/Inverse Conway, verify 카운트 외, `/principle <id>` 호출 가능). advisor 7 모드의 핵심 표준 인용 source |
 
-합계 **1,108 항목 + 18 부록** (verify 카운트 기준).
+합계 **1,213 항목 + 18 부록** (verify 카운트 기준).
 
 ### 언어 지원 범위
 
@@ -60,7 +59,7 @@ argument-hint: "<recommend|validate|refactor|maintain|security-audit|full|swarm|
 
 ### 1. 카탈로그 lookup (5 도메인)
 
-| 명령        | 패턴 (496)           | 알고리즘 (268)                  | 언어 (75)          | 보안 (106)             | 원칙 (163 + 18 부록)   |
+| 명령        | 패턴 (547)           | 알고리즘 (273)                  | 언어 (75)          | 보안 (106)             | 원칙 (212 + 18 부록)   |
 |-------------|---------------------|--------------------------------|--------------------|-----------------------|-----------------------|
 | `list`      | `/pattern list`     | `/algorithm list [category]`   | `/language list`   | `/security list`      | `/principle list`     |
 | `search <kw>` | `/pattern search 생성` | `/algorithm search 정렬`      | `/language search 웹` | `/security search 인증` | `/principle search 결합도` |
@@ -83,14 +82,14 @@ argument-hint: "<recommend|validate|refactor|maintain|security-audit|full|swarm|
 
 ### list / search / `<id>` 동작
 
-- **list**: 도메인 카테고리 진입점 표 응답. 패턴/보안/원칙은 `<domain>/index.md` 카테고리 매핑, 알고리즘은 `references/algorithms/index.md` 31 카테고리 표, 언어는 `references/languages/index.md` 우선순위 + 분야 매트릭스. **list <category>**: 카테고리 파일 `## 목차` 응답 (알고리즘만 카테고리 인자).
+- **list**: 도메인 카테고리 진입점 표 응답. 패턴/보안/원칙은 `<domain>/index.md` 카테고리 매핑, 알고리즘은 `references/algorithms/index.md` 32 카테고리 표, 언어는 `references/languages/index.md` 우선순위 + 분야 매트릭스. **list <category>**: 카테고리 파일 `## 목차` 응답 (알고리즘만 카테고리 인자).
 - **search**: 키워드를 각 도메인 `index.md` 의 **별칭 표·영문명·한글명·태그 4 컬럼**과 매칭하여 상위 ID 목록 반환. 매칭 우선순위: 별칭 표 > 영문명 > 한글명 > 태그.
 - **`<id>` 동작 (도메인별)**:
   - `/pattern <id>` → `references/patterns/index.md` ID→file → `<category>.md#<id>` 본문
   - `/algorithm <id>` → 별칭 / ID 매핑 / 명명 규칙 / 호출 동작 (4중 lookup) 모두 [`references/algorithms/index.md`](references/algorithms/index.md)
   - `/language <id>` → 언어 별칭 / 명명 규칙 / 호출 동작 / 분야 추천 모두 [`references/languages/index.md`](references/languages/index.md)
   - `/security <id>` → `references/security/index.md` ID→file → `<file>.md#<id>` 본문
-  - `/principle <id>` → `references/principles/index.md` 별칭 표 → primary ID → `<file>.md#<anchor>`. 별칭 예: `single-responsibility→srp`, `god-class→code-smell-large-class`, `12factor`/`twelve-factor→12-factor`. **미시 원칙 18 항목** (`dry`, `kiss`, `yagni`, `lod`, `soc`, `tell-dont-ask`, `composition-over-inheritance`, `ssot`, `conway-law`, `hyrum-law` 등) 도 같은 경로로 [`micro-principles.md`](references/principles/micro-principles.md) (core 163 외 부록).
+  - `/principle <id>` → `references/principles/index.md` 별칭 표 → primary ID → `<file>.md#<anchor>`. 별칭 예: `single-responsibility→srp`, `god-class→code-smell-large-class`, `12factor`/`twelve-factor→12-factor`. **미시 원칙 18 항목** (`dry`, `kiss`, `yagni`, `lod`, `soc`, `tell-dont-ask`, `composition-over-inheritance`, `ssot`, `conway-law`, `hyrum-law` 등) 도 같은 경로로 [`micro-principles.md`](references/principles/micro-principles.md) (주 카탈로그 212 외 부록).
 
 자연어 호출 (예: "싱글톤 적용해줘", "퀵 정렬 구현해줘", "OAuth2 PKCE 어떻게?", "SOLID 위반 사례") 도 동일 lookup. 모호 시 search 결과 우선 제시.
 
@@ -117,19 +116,19 @@ argument-hint: "<recommend|validate|refactor|maintain|security-audit|full|swarm|
 | OMX ultrawork 또는 Codex 서브에이전트 사용 불가 환경 | `full` fallback (병렬 위임 불가 → 순차 직렬 실행) |
 | 5 도메인 중 1~2 모드만 필요 | 개별 advisor 모드 단독 호출 권장 |
 
-## 알고리즘 (268개, 31 카테고리)
+## 알고리즘 (273개, 32 카테고리)
 
-31 카테고리 진입점 표 + 268 알고리즘 ID → 파일 매핑 + ID 명명 규칙 + `/algorithm <id>` 호출 동작 + 별칭 표 (`knn`, `bit`, `rb-tree`, `disjoint-set`, `a-star-search`, `lru-cache`, `breadth-first-search`, `depth-first-search` 등 8개) 는 [`references/algorithms/index.md`](references/algorithms/index.md) 참조.
+32 카테고리 진입점 표 + 273 알고리즘 ID → 파일 매핑 + ID 명명 규칙 + `/algorithm <id>` 호출 동작 + 별칭 표 (`knn`, `bit`, `rb-tree`, `disjoint-set`, `a-star-search`, `lru-cache`, `breadth-first-search`, `depth-first-search` 등 8개) 는 [`references/algorithms/index.md`](references/algorithms/index.md) 참조.
 
 ## 프로그래밍 언어 (75개)
 
 75 언어 reference (사용처/특징/장점/제약/실사용 예제/관련 문서) + 분야별 진입점(웹/AI/모바일/게임/시스템/DevOps) + `/language <id>` 호출 동작 + 명명 규칙 (kebab-case + 특수 기호 ASCII 정규화) + 별칭 표 (`js→javascript`, `ts→typescript`, `py→python`, `c++→cplusplus`, `c#→csharp`, `f#→fsharp`, `objc→objective-c`, `vb`/`vb.net→visual-basic-dotnet`, `ps→powershell`, `sh`/`shell→bash-shell` 등 12개) 는 [`references/languages/index.md`](references/languages/index.md) 참조.
 
-## 지원 패턴 (496개, 47 카테고리)
+## 지원 패턴 (547개, 55 카테고리)
 
-GoF 23 + 아키텍처/분산/신뢰성/동시성/통합/DDD 전술·전략/데이터 접근/테스트/Observability/AI-LLM/배포/캐싱/안티패턴/모바일/임베디드/게임/네트워크/크로스플랫폼/Offline-First/에러 처리/API 설계·스타일/Web 렌더링/상태 관리/FP/Reactive/레거시 코드/워크플로우/스트리밍/데이터 모델링/UI-UX/FinOps/테스트 전략/빌드·버전/MLOps/DX/블록체인/요구공학/도메인 5종.
+GoF 23 + 아키텍처/분산/신뢰성/동시성/통합/DDD 전술·전략/데이터 접근/테스트/Observability/AI-LLM/배포/캐싱/안티패턴/모바일/임베디드/게임/네트워크/크로스플랫폼/Offline-First/에러 처리/API 설계·스타일/Web 렌더링/상태 관리/FP/Reactive/레거시 코드/워크플로우/스트리밍/데이터 모델링/UI-UX/FinOps/테스트 전략/빌드·버전/MLOps/DX/블록체인/요구공학/MDM/DQ 거버넌스/Web Performance/Data Warehousing & BI/도메인 5종.
 
-**카테고리 진입점 + 496 패턴 ID → 파일 매핑**: [`references/patterns/index.md`](references/patterns/index.md) 참조.
+**카테고리 진입점 + 547 패턴 ID → 파일 매핑**: [`references/patterns/index.md`](references/patterns/index.md) 참조.
 
 **보안 영역(106개)은 4번째 도메인으로 분리**: [`references/security/index.md`](references/security/index.md) 참조.
 
@@ -156,13 +155,16 @@ Advisor 모드 (옵션) — 5 기본 + 2 통합:
   swarm            5 Codex 서브에이전트 병렬 → reviewer 통합 (OMX ultrawork) + Top 10
 
 카탈로그 lookup (기존 보존):
-  /pattern   <id|list|search>             496 패턴 (47 카테고리 — GoF + 아키텍처/분산/신뢰성/동시성/통합/DDD 전술·전략/데이터 접근/테스트/Observability/AI-LLM/배포/캐싱/안티패턴/모바일/임베디드/게임/네트워크/크로스플랫폼/Offline-First/에러 처리/API 설계·스타일/Web 렌더링/상태 관리/FP/Reactive/레거시 코드/워크플로우/스트리밍/데이터 모델링/UI-UX/FinOps/테스트 전략/빌드·버전/MLOps/DX/블록체인/요구공학/도메인 5종(Fintech·Healthcare·eCommerce·Logistics·IoT))
-  /algorithm <id|list [category]|search>  268 알고리즘 (31 카테고리 — 정렬/탐색/그래프/DP/문자열/수학/자료구조/계산기하/플로우/매칭/암호/압축/게임AI/ML/확률/분산합의/분산알고/동시성/파싱 + DB 인덱스/DB 스토리지 엔진/공간 인덱싱/검색·랭킹/부하 분산/OS 기초/이미지/신호/코덱)
+  /pattern   <id|list|search>             547 패턴 (55 카테고리 — GoF + 아키텍처/분산/신뢰성/동시성/통합/DDD 전술·전략/데이터 접근/테스트/Observability/AI-LLM/배포/캐싱/안티패턴/모바일/임베디드/게임/네트워크/크로스플랫폼/Offline-First/에러 처리/API 설계·스타일/Web 렌더링/상태 관리/FP/Reactive/레거시 코드/워크플로우/스트리밍/데이터 모델링/UI-UX/FinOps/테스트 전략/빌드·버전/MLOps/DX/블록체인/요구공학/MDM/DQ 거버넌스/Web Performance/Data Warehousing & BI/Graphics Rendering/AR-VR-XR/Serverless-FaaS/HPC-Scientific/도메인 5종(Fintech·Healthcare·eCommerce·Logistics·IoT))
+  /algorithm <id|list [category]|search>  273 알고리즘 (32 카테고리 — 정렬/탐색/그래프/DP/문자열/수학/자료구조/계산기하/플로우/매칭/암호/압축/게임AI/ML/확률/분산합의/분산알고/동시성/파싱 + DB 인덱스/DB 스토리지 엔진/DB 쿼리 옵티마이저/공간 인덱싱/검색·랭킹/부하 분산/OS 기초/이미지/신호/코덱)
   /language  <id|list|search>             75 언어
   /security  <id|list|search>             106 보안 항목 (15 파일 — 인증/인가/암호 운영/데이터 보호/API·Web/공급망/플랫폼/SDLC/탐지/모바일/AI 모델/Privacy Engineering/규제 컴플라이언스)
-  /principle <id|list|search>             163 + 18 부록 SW 공학 원칙
+  /principle <id|list|search>             212 + 18 부록 SW 공학 원칙
                                           기본 5: SOLID 5 / GRASP 9 / ISO 25010 8 / 12-Factor 12 / Code Smells 22
                                           확장 10: Type Systems 10 / Concurrency Theory 10 / Refactoring Techniques 25 / SW Economics 10 / Evolutionary Arch 8 / Resilience Theory 8 / Documentation 8 / Process Metrics (DORA) 10 / Performance Metrics 10 / Sustainable SW (Green) 8
+                                          P0 신설 4: Database Fundamentals 8 / SDLC Models 7 / Scaled Agile 6 / Professional Ethics 6
+                                          P1 신설 2: Standards Mapping (SWEBOK/CS2023/DMBOK/OWASP/NIST-ISO) 5 / Configuration Management (IEEE 828) 6
+                                          P3 신설 2: HCI Methodology (ISO 9241 / Persona / Journey Map / Heuristic Eval) 6 / Formal Methods (TLA+ / Alloy / Hoare / Model Checking) 5
                                           부록 18: DRY/KISS/YAGNI/LoD/SoC/Tell-Don't-Ask/Composition/SSoT + Conway/Inverse Conway/Hyrum/Postel/Brooks/Hollywood/Boy Scout/Pareto/Goodhart/Cunningham
 
 라우팅 우선순위:
@@ -331,11 +333,11 @@ advisor 7 모드의 트리거 조건 도달 시 Codex 전문 서브에이전트 
 
 5 도메인 진입점 (항목 수·구조·용도는 위 **## 데이터 기반 — 5중 카탈로그** 표 참조):
 
-- 패턴 (496) — [`references/patterns/index.md`](references/patterns/index.md)
-- 알고리즘 (268) — [`references/algorithms/index.md`](references/algorithms/index.md)
+- 패턴 (547) — [`references/patterns/index.md`](references/patterns/index.md)
+- 알고리즘 (273) — [`references/algorithms/index.md`](references/algorithms/index.md)
 - 언어 (75) — [`references/languages/index.md`](references/languages/index.md) · 분야별: [`domains.md`](references/languages/domains.md)
 - 보안 (106) — [`references/security/index.md`](references/security/index.md)
-- 원칙 (163 + 18 부록) — [`references/principles/index.md`](references/principles/index.md) · 미시 부록: [`micro-principles.md`](references/principles/micro-principles.md)
+- 원칙 (212 + 18 부록) — [`references/principles/index.md`](references/principles/index.md) · 미시 부록: [`micro-principles.md`](references/principles/micro-principles.md)
 
 부가 자산:
 - [`references/code_templates.md`](references/code_templates.md) — 자동 코드 생성 4 언어 템플릿 (Kotlin/Java/Swift/Python)

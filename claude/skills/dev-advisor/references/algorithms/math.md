@@ -2,6 +2,9 @@
 
 수학적 연산과 수론 문제를 해결하는 알고리즘입니다.
 
+**관련 카탈로그**:
+- [`../patterns/hpc-scientific.md#blas-lapack-scalapack`](../patterns/hpc-scientific.md#blas-lapack-scalapack) — BLAS / LAPACK / ScaLAPACK (선형대수 라이브러리 — GEMM/LU/QR/SVD 의 HPC 표준 구현, 본 카테고리의 수치 알고리즘 운영 인터페이스)
+
 ## 알고리즘 목차
 
 | ID | 영문명 | 한글명 | 난이도 |

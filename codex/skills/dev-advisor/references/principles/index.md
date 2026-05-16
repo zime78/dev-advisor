@@ -33,7 +33,36 @@
 
 **소계**: 107 항목 (10 + 10 + 25 + 10 + 8 + 8 + 8 + 10 + 10 + 8)
 
-**총합**: **163 항목** (56 + 107)
+### P0 신설 4 카테고리 (DB 기초 · 개발 방법론 · 직업 윤리)
+
+| # | 파일 | 항목 수 | 표준 / 저자 | 주요 용도 |
+|---|------|--------:|------------|----------|
+| 16 | [database-fundamentals.md](database-fundamentals.md) |  8 | ANSI/ISO SQL-92; Codd — *Relational Model*; Brewer — CAP; Abadi — PACELC; Kleppmann — *Designing Data-Intensive Applications* | 트랜잭션 격리·정규화·ACID/BASE·CAP/PACELC·복제·일관성·파티셔닝 (validate / refactor / security-audit 기준) |
+| 17 | [sdlc-models.md](sdlc-models.md)                     |  7 | Royce — Waterfall (1970); IEEE 1012 V-Model; Boehm — Spiral (1986); Jacobson — RUP; AXELOS — PRINCE2; PMI — PMBOK | 전통적 SDLC 7 모델 (recommend / maintain 기준 — 프로세스 선택) |
+| 18 | [scaled-agile.md](scaled-agile.md)                   |  6 | Dean Leffingwell — SAFe; Larman — LeSS; Ken Schwaber — Nexus; Marty Cagan — Spotify model; Disciplined Agile (PMI); Skelton & Pais — Team Topologies | 대규모 애자일·팀 토폴로지 (recommend / maintain 기준) |
+| 19 | [professional-ethics.md](professional-ethics.md)     |  6 | ACM Code of Ethics (2018); IEEE Code; ACM/IEEE-CS SE Code (1999); EU AI Act (2024); GDPR Art.22; Brignull — Dark Patterns | 직업 윤리·AI 규제·다크패턴 (security-audit / maintain 기준 — 윤리/규제) |
+
+**P0 소계**: 27 항목 (8 + 7 + 6 + 6)
+
+### P1 신설 2 카테고리 (표준 매핑 · 형상 관리)
+
+| # | 파일 | 항목 수 | 표준 / 저자 | 주요 용도 |
+|---|------|--------:|------------|----------|
+| 20 | [standards-mapping.md](standards-mapping.md)         |  5 | IEEE/ACM SWEBOK V4 (2024); ACM/IEEE-CS CS2023; DAMA-DMBOK 2; OWASP Top 10 (Web/API/Mobile/LLM); NIST 800-series + ISO 27001/27017/27018 | 외부 표준 ↔ dev-advisor 카탈로그 매핑 (recommend / validate / security-audit / maintain 표준 인용 strengthening) |
+| 21 | [configuration-management.md](configuration-management.md) |  6 | IEEE Std 828-2012 (SCMP); MIL-STD-973 / ISO 10007 (CM); Conradi & Westfechtel (variant management); Krueger / Clements & Northrop (SPL) | 형상 관리·Baseline 3종·CCB·FCA/PCA·Variant 관리 (planner / architect / code-reviewer / maintain 기준) |
+
+### P3 신설 2 카테고리 (HCI 방법론 · 형식 기법)
+
+| # | 파일 | 항목 수 | 표준 / 저자 | 주요 용도 |
+|---|------|--------:|------------|----------|
+| 22 | [hci-methodology.md](hci-methodology.md) |  6 | ISO 9241-210:2019 / ISO 9241-11:2018; Alan Cooper (Persona); Adaptive Path (Journey Map); Donna Spencer (Card Sort); Jakob Nielsen (Heuristic Eval); Wharton et al. (Cognitive Walkthrough) | 사용자 중심 설계 절차·방법론 (designer / writer 기준 — UX research / requirements / usability eval) |
+| 23 | [formal-methods.md](formal-methods.md)   |  5 | Leslie Lamport — TLA+; Daniel Jackson — Alloy; C.A.R. Hoare — Hoare Logic; Clarke et al. — Model Checking; J.M. Spivey — Z Notation; Spin / NuSMV 도구 | 형식 명세·검증 (architect / verifier 기준 — 분산·동시성·안전 critical 시스템 정합성 증명) |
+
+**P3 소계**: 11 항목 (6 + 5)
+
+**P1 소계**: 11 항목 (5 + 6)
+
+**총합**: **212 항목** (56 + 107 + 27 + 11 + 11)
 
 ### 부록: 미시 원칙
 
@@ -66,6 +95,14 @@
 | 성능 수치 감각·복잡도 측정·Tail latency | [performance-metrics.md](performance-metrics.md) — Dean numbers / McCabe / Flame Graph |
 | 탄소 효율·에너지·하드웨어 효율 운영 | [sustainable-sw.md](sustainable-sw.md) — GSF / SCI (ISO 21031) |
 | 일상 코딩 격언 (DRY/KISS/YAGNI/Conway/Hyrum 등) | [micro-principles.md](micro-principles.md) — 18 미시 원칙 |
+| RDB 격리/정규화/ACID/CAP/PACELC/복제·파티셔닝 | [database-fundamentals.md](database-fundamentals.md) — Codd / Brewer / Abadi / Kleppmann |
+| SDLC 모델 선택 (Waterfall/V/Spiral/RUP/PRINCE2/PMBOK) | [sdlc-models.md](sdlc-models.md) — Royce / Boehm / Jacobson / AXELOS / PMI |
+| 대규모 애자일 프레임워크·팀 토폴로지 | [scaled-agile.md](scaled-agile.md) — SAFe / LeSS / Nexus / Spotify / DA / Team Topologies |
+| 윤리·AI 규제 (EU AI Act, GDPR 22조)·다크패턴 | [professional-ethics.md](professional-ethics.md) — ACM/IEEE 코드 / EU AI Act / Brignull |
+| 외부 표준 (SWEBOK/CS2023/DMBOK/OWASP/NIST/ISO) ↔ dev-advisor 매핑 검증 | [standards-mapping.md](standards-mapping.md) — IEEE-CS / ACM / DAMA / OWASP / NIST / ISO |
+| 형상 관리·Baseline·CCB·FCA/PCA·Variant 관리 (SCMP·SPL) | [configuration-management.md](configuration-management.md) — IEEE 828 / ISO 10007 / Clements-Northrop |
+| 사용자 중심 설계·페르소나·여정맵·휴리스틱 평가·인지적 워크스루 (UX research) | [hci-methodology.md](hci-methodology.md) — ISO 9241-210 / Cooper / Adaptive Path / Nielsen / Wharton |
+| 형식 명세·동시성·분산 합의 증명·모델 검사 (TLA+/Alloy/Hoare/Spin/NuSMV/Z) | [formal-methods.md](formal-methods.md) — Lamport / Jackson / Hoare / Clarke / Spivey |
 
 ## 호출 인터페이스
 
@@ -190,6 +227,95 @@ dev-advisor SKILL.md `## 호출 인터페이스` 와 동일하게 `list / search
 | green                           | sustainable-sw                   | 도메인 단축 |
 | sci                             | green-sci                        | 지속가능 SW (ISO 21031) |
 | carbon-aware                    | green-carbon-aware               | 지속가능 SW |
+| relational-database             | database-fundamentals            | P0 DB 도메인 단축 |
+| rdbms                           | database-fundamentals            | P0 DB 도메인 단축 |
+| db-fundamentals                 | database-fundamentals            | P0 DB 도메인 단축 |
+| acid                            | acid-vs-base                     | P0 DB (격리·트랜잭션) |
+| base                            | acid-vs-base                     | P0 DB (eventual consistency) |
+| cap                             | cap-pacelc                       | P0 DB (Brewer CAP) |
+| pacelc                          | cap-pacelc                       | P0 DB (Abadi PACELC) |
+| normalization                   | normalization-1nf-bcnf           | P0 DB (정규화) |
+| isolation-levels                | tx-isolation-levels              | P0 DB (격리 수준) |
+| read-uncommitted                | tx-isolation-levels              | P0 DB |
+| read-committed                  | tx-isolation-levels              | P0 DB |
+| repeatable-read                 | tx-isolation-levels              | P0 DB |
+| serializable                    | tx-isolation-levels              | P0 DB |
+| sharding                        | db-partitioning                  | P0 DB |
+| db-sharding                     | db-partitioning                  | P0 DB |
+| sdlc                            | sdlc-models                      | P0 SDLC 도메인 단축 |
+| waterfall                       | sdlc-waterfall                   | P0 SDLC |
+| v-model                         | sdlc-v-model                     | P0 SDLC |
+| spiral                          | sdlc-spiral                      | P0 SDLC (Boehm) |
+| rup                             | sdlc-rup                         | P0 SDLC (Rational Unified Process) |
+| prince2                         | sdlc-prince2                     | P0 SDLC (AXELOS) |
+| pmbok                           | sdlc-pmbok                       | P0 SDLC (PMI) |
+| safe                            | safe-framework                   | P0 Scaled Agile (Leffingwell) |
+| scaled-agile-framework          | safe-framework                   | P0 Scaled Agile (정식) |
+| less                            | less-large-scale-scrum           | P0 Scaled Agile (Larman) |
+| nexus                           | nexus-scrum-at-scale             | P0 Scaled Agile (Schwaber) |
+| spotify                         | spotify-model                    | P0 Scaled Agile |
+| disciplined-agile               | disciplined-agile                | P0 Scaled Agile (PMI) |
+| team-topologies                 | team-topologies                  | P0 Scaled Agile (Skelton-Pais) |
+| acm-ethics                      | acm-code-ethics-2018             | P0 직업 윤리 (ACM 2018) |
+| acm-code-of-ethics              | acm-code-ethics-2018             | P0 직업 윤리 (정식) |
+| ieee-ethics                     | ieee-code-ethics                 | P0 직업 윤리 (IEEE) |
+| se-code-of-ethics               | se-code-ethics-1999              | P0 직업 윤리 (ACM/IEEE-CS 1999) |
+| eu-ai-act                       | eu-ai-act-2024                   | P0 직업 윤리 (EU AI Act 2024) |
+| gdpr-22                         | gdpr-article-22                  | P0 직업 윤리 (GDPR 자동의사결정) |
+| dark-pattern                    | dark-pattern-classification      | P0 직업 윤리 (Brignull) |
+| dark-patterns                   | dark-pattern-classification      | P0 직업 윤리 |
+| swebok                          | swebok-v4-mapping                | P1 표준 매핑 (SWEBOK V4) |
+| swebok-v4                       | swebok-v4-mapping                | P1 표준 매핑 (정식) |
+| cs2023                          | cs2023-mapping                   | P1 표준 매핑 (ACM/IEEE-CS CS2023) |
+| computing-curricula             | cs2023-mapping                   | P1 표준 매핑 (정식) |
+| dmbok                           | dmbok-mapping                    | P1 표준 매핑 (DAMA-DMBOK 2) |
+| dama-dmbok                      | dmbok-mapping                    | P1 표준 매핑 (정식) |
+| owasp                           | owasp-top10-mapping              | P1 표준 매핑 (OWASP Top 10) |
+| owasp-top-10                    | owasp-top10-mapping              | P1 표준 매핑 (정식) |
+| nist-iso                        | nist-iso-mapping                 | P1 표준 매핑 (NIST 800 + ISO 27001/27017/27018) |
+| nist-800                        | nist-iso-mapping                 | P1 표준 매핑 (NIST 단축) |
+| iso-27001                       | nist-iso-mapping                 | P1 표준 매핑 (ISO ISMS) |
+| standards                       | standards-mapping                | P1 표준 매핑 (도메인 단축) |
+| ieee-828                        | scmp-ieee-828                    | P1 형상 관리 (SCMP) |
+| scmp                            | scmp-ieee-828                    | P1 형상 관리 (SCMP 단축) |
+| baseline                        | baseline-three-types             | P1 형상 관리 (Baseline 3종) |
+| functional-baseline             | baseline-three-types             | P1 형상 관리 (FCB) |
+| product-baseline                | baseline-three-types             | P1 형상 관리 (PBL) |
+| ccb                             | change-control-board             | P1 형상 관리 (CCB) |
+| change-control                  | change-control-board             | P1 형상 관리 (변경 통제) |
+| fca                             | fca-functional-audit             | P1 형상 관리 (Functional Audit) |
+| pca                             | pca-physical-audit               | P1 형상 관리 (Physical Audit) |
+| variant-management              | variant-management-product-line  | P1 형상 관리 (Variant) |
+| product-line                    | variant-management-product-line  | P1 형상 관리 (SPL) |
+| spl                             | variant-management-product-line  | P1 형상 관리 (Software Product Line) |
+| sw-config-management            | configuration-management         | P1 형상 관리 (도메인 단축) |
+| hci                             | persona-method                   | P3 HCI 방법론 (Persona 단축) |
+| persona                         | persona-method                   | P3 HCI 방법론 (Persona 정식) |
+| buyer-persona                   | persona-method                   | P3 HCI 방법론 (Buyer/User Persona) |
+| anti-persona                    | persona-method                   | P3 HCI 방법론 (Anti-Persona) |
+| journey-map                     | journey-map                      | P3 HCI 방법론 (Customer Journey Map primary) |
+| customer-journey                | journey-map                      | P3 HCI 방법론 (Adaptive Path) |
+| user-journey                    | journey-map                      | P3 HCI 방법론 (User Journey 단축) |
+| card-sort                       | card-sort                        | P3 HCI 방법론 (Card Sorting primary) |
+| card-sorting                    | card-sort                        | P3 HCI 방법론 (정식) |
+| think-aloud                     | think-aloud-protocol             | P3 HCI 방법론 (Think-Aloud 단축) |
+| nielsen                         | heuristic-evaluation             | P3 HCI 방법론 (Nielsen 10 휴리스틱) |
+| nielsen-heuristics              | heuristic-evaluation             | P3 HCI 방법론 (Nielsen 10) |
+| heuristic-eval                  | heuristic-evaluation             | P3 HCI 방법론 (단축) |
+| cognitive-walkthrough           | cognitive-walkthrough            | P3 HCI 방법론 (Wharton primary) |
+| ucd                             | hci-methodology                  | P3 HCI 도메인 단축 (User-Centered Design) |
+| ux-research                     | hci-methodology                  | P3 HCI 도메인 단축 (UX Research) |
+| tla                             | formal-tla-plus                  | P3 형식 기법 (TLA+ 단축, Lamport) |
+| tla-plus                        | formal-tla-plus                  | P3 형식 기법 (TLA+ 정식) |
+| alloy                           | formal-alloy                     | P3 형식 기법 (Alloy primary, Jackson) |
+| hoare                           | hoare-logic                      | P3 형식 기법 (Hoare Logic 단축) |
+| hoare-triple                    | hoare-logic                      | P3 형식 기법 (Hoare Logic 정식) |
+| model-checking                  | model-checking                   | P3 형식 기법 (Model Checking primary) |
+| spin                            | z-notation-spin-nusmv            | P3 형식 기법 (Spin 도구) |
+| nusmv                           | z-notation-spin-nusmv            | P3 형식 기법 (NuSMV 도구) |
+| z-notation                      | z-notation-spin-nusmv            | P3 형식 기법 (Z Notation) |
+| formal-verification             | formal-methods                   | P3 형식 기법 도메인 단축 |
+| formal-spec                     | formal-methods                   | P3 형식 기법 도메인 단축 |
 
 ## 표준 인용 매트릭스
 
@@ -242,6 +368,16 @@ dev-advisor SKILL.md `## 호출 인터페이스` 와 동일하게 `list / search
 | Brendan Gregg — *Systems Performance* 2nd ed. (2020) | Pearson | performance-metrics.md (Profiling / Flame Graph) |
 | Green Software Foundation — *Principles of Green Software Engineering* | learn.greensoftware.foundation | sustainable-sw.md (원전) |
 | ISO/IEC 21031:2024 — *Software Carbon Intensity Specification* | ISO | sustainable-sw.md (SCI) |
+| IEEE/ACM — *Software Engineering Body of Knowledge V4* (SWEBOK V4, 2024) | IEEE CS | standards-mapping.md (SWEBOK V4) |
+| ACM / IEEE-CS — *Computing Curricula 2023* (CS2023) | ACM/IEEE-CS | standards-mapping.md (CS2023) |
+| DAMA International — *DAMA-DMBOK 2: Data Management Body of Knowledge*, 2nd ed. (2017) | DAMA | standards-mapping.md (DMBOK) |
+| OWASP Foundation — *Top 10 Web / API / Mobile / LLM* (2021/2023/2024/2025) | OWASP | standards-mapping.md (OWASP) |
+| NIST — *SP 800-53 Rev.5* / *SP 800-63* / *SP 800-218 SSDF* | NIST | standards-mapping.md (NIST) |
+| ISO/IEC 27001:2022 + 27017 / 27018 | ISO/IEC | standards-mapping.md (ISO ISMS / Cloud / PII) |
+| IEEE Std 828-2012 — *Configuration Management in Systems and Software Engineering* | IEEE | configuration-management.md (SCMP) |
+| ISO 10007:2017 — *Quality management — Guidelines for configuration management* | ISO | configuration-management.md (CM 일반) |
+| Paul Clements & Linda Northrop — *Software Product Lines: Practices and Patterns* (2002) | Addison-Wesley | configuration-management.md (SPL / Variant) |
+| Reidar Conradi & Bernhard Westfechtel — "Version Models for Software Configuration Management" (ACM CSUR 1998) | ACM | configuration-management.md (Variant 모델) |
 
 ## Cross-link 규약
 
@@ -253,7 +389,7 @@ dev-advisor SKILL.md `## 호출 인터페이스` 와 동일하게 `list / search
 ## 무결성 검증
 
 `scripts/verify-references.sh` 의 CHECK 9 블록이 이 도메인을 검증:
-- **16 파일 존재** (`index.md` + 15 카테고리 md: solid / grasp / iso25010 / 12-factor / code-smells / type-systems / concurrency-theory / refactoring-techniques / sw-economics / evolutionary-arch / resilience-theory / documentation / process-metrics / performance-metrics / sustainable-sw)
-- 항목 합계 **163** (`^## [0-9]+\.` 헤더 카운트)
-- 도메인별 카운트: solid=5, grasp=9, iso25010=8, 12-factor=12, code-smells=22, type-systems=10, concurrency-theory=10, refactoring-techniques=25, sw-economics=10, evolutionary-arch=8, resilience-theory=8, documentation=8, process-metrics=10, performance-metrics=10, sustainable-sw=8
-- **부록 검증** (별도 검사): `micro-principles.md` 존재 + **18** 항목 카운트 (`^## ` 헤더 — 표준 인용·매트릭스·분류 섹션 3 제외). 163 합계에는 포함되지 않음.
+- **24 파일 존재** (`index.md` + 23 카테고리 md: solid / grasp / iso25010 / 12-factor / code-smells / type-systems / concurrency-theory / refactoring-techniques / sw-economics / evolutionary-arch / resilience-theory / documentation / process-metrics / performance-metrics / sustainable-sw / database-fundamentals / sdlc-models / scaled-agile / professional-ethics / standards-mapping / configuration-management / hci-methodology / formal-methods)
+- 항목 합계 **212** (`^## [0-9]+\.` 헤더 카운트)
+- 도메인별 카운트: solid=5, grasp=9, iso25010=8, 12-factor=12, code-smells=22, type-systems=10, concurrency-theory=10, refactoring-techniques=25, sw-economics=10, evolutionary-arch=8, resilience-theory=8, documentation=8, process-metrics=10, performance-metrics=10, sustainable-sw=8, database-fundamentals=8, sdlc-models=7, scaled-agile=6, professional-ethics=6, standards-mapping=5, configuration-management=6
+- **부록 검증** (별도 검사): `micro-principles.md` 존재 + **18** 항목 카운트 (`^## ` 헤더 — 표준 인용·매트릭스·분류 섹션 3 제외). 201 합계에는 포함되지 않음.

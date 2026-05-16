@@ -1,6 +1,6 @@
 # Standards Mapping — 국제 표준 ↔ dev-advisor 카탈로그 매핑
 
-> **목적**: SWEBOK V4 / ACM·IEEE CS2023 / DAMA-DMBOK 2 / OWASP Top 10 / NIST 800-series + ISO 27001 등 권위 표준의 지식 영역(KA, Knowledge Area)이 dev-advisor 5중 카탈로그(patterns / algorithms / languages / security / principles)의 어느 파일·anchor 에 대응하는지 빠르게 lookup 하기 위한 **메타 인덱스**입니다.
+> **목적**: SWEBOK V4 / ACM·IEEE CS2023 / DAMA-DMBOK 2 / OWASP Top 10 / NIST 800-series + ISO 27001 등 권위 표준의 지식 영역(KA, Knowledge Area)이 dev-advisor 6중 카탈로그(patterns / algorithms / languages / security / principles / quality)의 어느 파일·anchor 에 대응하는지 빠르게 lookup 하기 위한 **메타 인덱스**입니다.
 >
 > **사용법**: "OWASP API Top 10 의 API3:2023 가 dev-advisor 어디에 있는가?" / "SWEBOK V4 의 Software Construction KA 가 다루는 항목이 어디에 매핑되는가?" 같은 질문에 대한 단일 참조 지점.
 >
@@ -255,7 +255,7 @@ OWASP Foundation 의 4 종 Top 10 — [Web 2021](https://owasp.org/Top10/) / [AP
 
 ## 변경 추적
 
-- 2026-05-16 (Step 2 t07) 초안 — 5 표준(SWEBOK V4 / CS2023 / DMBOK 2 / OWASP / NIST·ISO) × dev-advisor 5중 카탈로그 매핑 메타 인덱스 신설
+- 2026-05-16 (Step 2 t07) 초안 — 5 표준(SWEBOK V4 / CS2023 / DMBOK 2 / OWASP / NIST·ISO) × dev-advisor 6중 카탈로그 매핑 메타 인덱스 신설
 - 신규 anchor 5개 (`swebok-v4-mapping`, `cs2023-mapping`, `dmbok-mapping`, `owasp-top10-mapping`, `nist-iso-mapping`)
 - 사전 anchor 충돌 검사: 0 충돌 확인 (`grep -r '<a id='` 전체 카탈로그 대비)
 - P0 신설 카탈로그(`database-fundamentals.md` / `sdlc-models.md` / `scaled-agile.md` / `master-data-management.md` / `data-quality-governance.md` / `professional-ethics.md`) 반영

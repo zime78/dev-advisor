@@ -13,9 +13,9 @@
 | 알고리즘 32 카테고리 표 | [references/algorithms/index.md](algorithms/index.md) |
 | 언어 자동 감지 13 패턴 표 | [references/languages/index.md](languages/index.md) |
 | OMX 에이전트 hand-off 상세 계약 | [references/handoff.md](handoff.md) |
-| advisor 7 모드 + lookup 예시 8 (A~H) | [references/examples.md](examples.md) |
+| advisor 9 모드 + lookup 예시 10 (A~J) | [references/examples.md](examples.md) |
 | 언어별 코드 템플릿 | [references/code_templates.md](code_templates.md) |
-| advisor 7 모드 산출물 마크다운 스켈레톤 | [references/output_templates.md](output_templates.md) |
+| advisor 9 모드 산출물 마크다운 스켈레톤 | [references/output_templates.md](output_templates.md) |
 | 미시 원칙 18 부록 (DRY/KISS/YAGNI/LoD/SoC/Tell-Don't-Ask/Composition/SSoT + Conway/Hyrum/Postel/Brooks 등) | [references/principles/micro-principles.md](principles/micro-principles.md) |
 
 ## 디렉토리
@@ -25,5 +25,6 @@
 - `languages/` — 75 프로그래밍 언어
 - `security/` — 106 보안 항목 (15 파일)
 - `principles/` — 212 SW 공학 원칙 + 18 미시 부록
+- `quality/` — 20 QA/QC 품질 항목 (QA 10 + QC 10)
 
 자세한 카탈로그 진입점은 SKILL.md `## 데이터 기반` 표 참조.

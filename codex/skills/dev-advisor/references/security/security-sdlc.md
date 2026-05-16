@@ -17,6 +17,11 @@
   - **D**enial of Service (서비스 거부): 가용성 침해 → 대응: Rate limiting, Circuit Breaker
   - **E**levation of Privilege (권한 상승): 불법 권한 획득 → 대응: 인가(Authorization), RBAC
 - **DREAD**: 위험도 점수화 (Damage / Reproducibility / Exploitability / Affected users / Discoverability 각 1~10 점수)
+- **CVSS v4**: 취약점 자체의 기술적 심각도. 네트워크 노출, 공격 복잡도, 권한, 사용자 상호작용, 기밀성/무결성/가용성 영향을 정량화
+- **EPSS**: 실제 악용 가능성 예측 점수. CVSS가 높아도 EPSS가 낮으면 우선순위 조정 가능하지만, 인터넷 노출·민감 데이터·권한 상승이 있으면 보수적으로 상향
+- **CISA KEV**: 이미 실제 악용된 취약점 목록. KEV 등재 항목은 기본 P1 release blocker로 취급
+- **OWASP Risk Rating**: threat agent, vulnerability, technical impact, business impact를 분리해 제품 맥락을 반영
+- **보정 축**: 데이터 민감도, blast radius, exploitability, compensating control, risk acceptance 만료일을 함께 기록
 - **PASTA** (Process for Attack Simulation and Threat Analysis): 7단계 비즈니스 중심 위협 모델링
   1. 비즈니스 목표 정의 → 2. 기술 범위 정의 → 3. 애플리케이션 분해 → 4. 위협 분석
   5. 취약점 분석 → 6. 공격 모델링 → 7. 위험 분석 및 대응책
@@ -38,6 +43,11 @@
 - Sprint 0에서 팀 전체가 DFD 기반 STRIDE 위협 식별
 
 **난이도**: 중간 | **사용 빈도**: ★★★☆☆
+
+**risk acceptance 기준**:
+- 소유자, 만료일, 대체 통제, 재검토 조건이 없으면 risk acceptance로 인정하지 않는다.
+- PII/결제/의료/권한 상승/공개 인터넷 노출이 있으면 acceptance보다 차단 또는 완화가 기본값이다.
+- CVSS ≥ 7.0, EPSS 상위권, CISA KEV 등재, exploitability 높음 중 하나라도 있으면 `security-audit` 통합 severity는 최소 P1 후보로 올린다.
 
 **예제 — STRIDE 위협 매핑 테이블 (결제 API)**:
 ```markdown

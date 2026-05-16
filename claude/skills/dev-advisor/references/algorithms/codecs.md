@@ -4,7 +4,7 @@
 
 **원전·표준 참고**:
 - ITU-T T.81 (JPEG), W3C PNG Specification, ITU-T H.264/H.265/H.266
-- ISO/IEC 14496-3 (AAC), RFC 6716 (Opus)
+- ISO/IEC MPEG-4 Audio (AAC), RFC 6716 (Opus)
 - *Introduction to Data Compression*, Khalid Sayood, 5th ed. (2017)
 - *Video Compression* — Iain Richardson, 2nd ed. (2010)
 - AV1 Bitstream & Decoding Process Specification (Alliance for Open Media)
@@ -259,7 +259,7 @@ except ImportError:
 ---
 
 <a id="h264"></a>
-## 4. H.264 / AVC (ITU-T Rec. H.264 | ISO/IEC 14496-10)
+## 4. H.264 / AVC (ITU-T Rec. H.264 | ISO/IEC MPEG-4 AVC)
 
 **개념**: **블록 기반 motion compensation** 으로 시간 축 중복 (temporal redundancy) 을 제거하고, **DCT-like integer transform** 으로 공간 축 중복을 제거하는 비디오 코덱. **CABAC** 엔트로피 코딩으로 마무리. 2003 년 표준화 이후 사실상 비디오의 lingua franca.
 

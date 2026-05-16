@@ -1,4 +1,4 @@
 interface:
   display_name: "Dev Advisor"
-  short_description: "Guide architecture, refactoring, security, full audits, and swarm reviews"
-  default_prompt: "Use $dev-advisor to recommend, validate, refactor, maintain, security-audit, full-audit, or swarm-audit this code."
+  short_description: "Guide architecture, refactoring, security, QA/QC, full audits, and swarm reviews"
+  default_prompt: "Use $dev-advisor to recommend, validate, refactor, maintain, security-audit, qa, qc, full-audit, or swarm-audit this code."

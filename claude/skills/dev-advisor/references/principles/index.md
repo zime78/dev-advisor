@@ -1,6 +1,6 @@
 # SW 공학 원칙 레퍼런스
 
-소프트웨어 공학의 정평 있는 표준·원칙 15 카테고리. dev-advisor `recommend / validate / refactor / maintain / security-audit` 5 모드의 표준 인용 source.
+소프트웨어 공학의 정평 있는 표준·원칙 15 카테고리. dev-advisor `recommend / validate / refactor / maintain / security-audit / qa / qc` 7 기본 모드의 표준 인용 source.
 
 ## 도메인 진입점
 
@@ -68,7 +68,7 @@
 
 | 파일 | 항목 수 | 설명 |
 |------|--------:|------|
-| [micro-principles.md](micro-principles.md) | 18 | 핵심 8 (DRY / KISS / YAGNI / LoD / SoC / Tell-Don't-Ask / Composition over Inheritance / SSoT) + 사회·조직·확장 10 (Conway / Inverse Conway / Hyrum / Postel / Brooks / Hollywood-IoC / Boy Scout / Pareto / Goodhart / Cunningham). verify 카운트 외 부록 — 163 합계에 포함되지 않음 |
+| [micro-principles.md](micro-principles.md) | 18 | 핵심 8 (DRY / KISS / YAGNI / LoD / SoC / Tell-Don't-Ask / Composition over Inheritance / SSoT) + 사회·조직·확장 10 (Conway / Inverse Conway / Hyrum / Postel / Brooks / Hollywood-IoC / Boy Scout / Pareto / Goodhart / Cunningham). verify 주 카탈로그 212 항목 외 부록 |
 
 ## 카테고리 선택 가이드
 

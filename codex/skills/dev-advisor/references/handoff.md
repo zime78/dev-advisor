@@ -1,12 +1,12 @@
 # OMX/Codex 에이전트 hand-off 상세
 
-dev-advisor advisor 7 모드 → 트리거 조건 도달 → Codex 전문 서브에이전트 또는 후속 OMX 스킬 hand-off. 각 대상의 정식 입출력 계약. SKILL.md `## OMX hand-off` 요약 표에서 참조.
+dev-advisor advisor 9 모드 → 트리거 조건 도달 → Codex 전문 서브에이전트 또는 후속 OMX 스킬 hand-off. 각 대상의 정식 입출력 계약. SKILL.md `## OMX hand-off` 요약 표에서 참조.
 
 ---
 
 ## OMX hand-off
 
-advisor 7 모드는 다음 트리거 조건 도달 시 Codex 전문 서브에이전트 또는 후속 OMX 스킬로 hand-off 한다. `architect` / `code-reviewer` / `security-reviewer` / `verifier` / `designer` / `planner` 는 Codex `spawn_agent` 대상이고, `$ai-slop-cleaner` 는 별도 스킬 호출 대상이다. 서브에이전트는 사용자가 `swarm`, 병렬 점검, 서브에이전트 사용을 명시했거나 상위 지침이 허용한 경우에만 사용한다.
+advisor 9 모드는 다음 트리거 조건 도달 시 Codex 전문 서브에이전트 또는 후속 OMX 스킬로 hand-off 한다. `architect` / `code-reviewer` / `security-reviewer` / `verifier` / `designer` / `planner` / `test-engineer` 는 Codex `spawn_agent` 대상이고, `$ai-slop-cleaner` 는 별도 스킬 호출 대상이다. 서브에이전트는 사용자가 `swarm`, 병렬 점검, 서브에이전트 사용을 명시했거나 상위 지침이 허용한 경우에만 사용한다.
 
 ### `architect` — 아키텍처 설계
 - **트리거**: `recommend` 5단계 결과가 아키텍처 영향 ≥ 3 파일 / 계층 재설계 / 도메인 분해 / [database-fundamentals](principles/database-fundamentals.md) (CAP/PACELC/복제/파티셔닝 결정) / [master-data-management](patterns/master-data-management.md) (MDM 통합) / [data-quality-governance](patterns/data-quality-governance.md) (DQ 거버넌스 설계) / [data-warehousing-bi](patterns/data-warehousing-bi.md) (DWH 차원 모델링 / Lakehouse 선택 / SCD 정책) / [standards-mapping](principles/standards-mapping.md) (SWEBOK/CS2023/DMBOK/NIST/ISO 매핑 검증) / [formal-methods](principles/formal-methods.md) (안전 critical / 분산 합의 / 동시성 정합성 — TLA+ / Alloy / Hoare / Model Checking 적용 의사결정) / [hpc-scientific](patterns/hpc-scientific.md) (HPC 도메인 영향 — MPI/CUDA/SLURM 환경 / NUMA 토폴로지 / Roofline 모델 기반 성능 설계) 영향

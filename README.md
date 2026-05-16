@@ -1,6 +1,6 @@
 # dev-advisor
 
-`dev-advisor`는 앱 개발 과정에서 아키텍처, 알고리즘, 언어 선택, 보안, 소프트웨어 공학 원칙을 한 번에 참조할 수 있도록 정리한 멀티 에이전트용 개발 어드바이저 카탈로그입니다. 현재 저장소는 Codex용 스킬과 Claude용 스킬을 함께 제공하며, 두 환경에서 같은 개발 판단 기준을 재사용할 수 있도록 구성되어 있습니다.
+`dev-advisor`는 앱 개발 과정에서 아키텍처, 알고리즘, 언어 선택, 보안, 소프트웨어 공학 원칙, QA/QC 품질 활동을 한 번에 참조할 수 있도록 정리한 멀티 에이전트용 개발 어드바이저 카탈로그입니다. 현재 저장소는 Codex용 스킬과 Claude용 스킬을 함께 제공하며, 두 환경에서 같은 개발 판단 기준을 재사용할 수 있도록 구성되어 있습니다.
 
 ## 설치 방법
 
@@ -49,7 +49,9 @@ cp -R claude/skills/dev-advisor ~/.claude/skills/dev-advisor
 | 리팩토링 | `/dev-advisor refactor <file\|function>` | 코드, 함수, 클래스 | 단계별 리팩토링, Before/After, 회귀 위험 |
 | 유지보수 | `/dev-advisor maintain <module\|project>` | 모듈, 프로젝트 구조 | 기술 부채, 코드 스멜, 우선순위 |
 | 보안 점검 | `/dev-advisor security-audit <module\|api>` | API, 모듈, 인증/인가 흐름 | STRIDE, DREAD, 통제 방안, 컴플라이언스 매핑 |
-| 전체 점검 | `/dev-advisor full <module\|path>` | 모듈, 경로, 프로젝트 | 5개 기본 모드 순차 통합 보고서 |
+| QA 점검 | `/dev-advisor qa <module\|path>` | 요구사항, 모듈, 릴리즈 범위 | 요구사항 추적성, 테스트 전략, 릴리즈 준비도 |
+| QC 검증 | `/dev-advisor qc <module\|path>` | 빌드, 테스트 리포트, 배포 후보 | 테스트 실행 증거, 품질 게이트, 결함 재현 |
+| 전체 점검 | `/dev-advisor full <module\|path>` | 모듈, 경로, 프로젝트 | 7 기본 모드 순차 통합 보고서 |
 | 병렬 심층 점검 | `/dev-advisor swarm <module\|path>` | 큰 모듈, 복합 프로젝트 | 다중 에이전트 병렬 분석과 reviewer 통합 |
 
 | 카탈로그 | 명령 형식 | 예시 | 용도 |
@@ -59,6 +61,7 @@ cp -R claude/skills/dev-advisor ~/.claude/skills/dev-advisor
 | Languages | `/language <id\|list\|search>` | `/language python`, `/language search 모바일` | 언어 선택/비교 조회 |
 | Security | `/security <id\|list\|search>` | `/security oauth2-pkce`, `/security jwt` | 보안 패턴/통제 조회 |
 | Principles | `/principle <id\|list\|search>` | `/principle srp`, `/principle dry` | SW 공학 원칙 조회 |
+| Quality | `/quality <id\|list\|search>` | `/quality qa-test-strategy`, `/quality qc-quality-gate` | QA/QC 품질 활동 조회 |
 
 ## 사용 방법
 
@@ -76,6 +79,7 @@ cp -R claude/skills/dev-advisor ~/.claude/skills/dev-advisor
 | 특정 분야 언어를 찾을 때 | `/language search 모바일` | 모바일 개발에 관련된 언어 후보 |
 | 보안 통제를 찾을 때 | `/security oauth2-pkce` | OAuth2 + PKCE의 목적, 적용 조건, 주의점 |
 | 원칙을 찾을 때 | `/principle srp` | 단일 책임 원칙 설명, 위반 신호, 리팩토링 방향 |
+| QA/QC 기준을 찾을 때 | `/quality qc-quality-gate` | 품질 게이트의 입력 증거, 판정 기준, 실패 시 조치 |
 
 ### 2. 프로젝트나 코드를 분석시키기
 
@@ -86,7 +90,9 @@ cp -R claude/skills/dev-advisor ~/.claude/skills/dev-advisor
 | 리팩토링 가이드 | `/dev-advisor refactor src/services/UserService.ts` | 단계별 리팩토링 계획, Before/After 방향, 회귀 위험 |
 | 유지보수 점검 | `/dev-advisor maintain backend/` | 기술 부채, 코드 스멜, 운영 리스크, 개선 우선순위 |
 | 보안 점검 | `/dev-advisor security-audit api/auth` | STRIDE/DREAD 기반 위협, 보안 통제, 컴플라이언스 매핑 |
-| 전체 점검 | `/dev-advisor full src/checkout` | 추천, 검증, 리팩토링, 유지보수, 보안 점검을 순차 통합 |
+| QA 점검 | `/dev-advisor qa src/checkout` | 요구사항 추적성, 테스트 전략, 릴리즈 준비도 |
+| QC 검증 | `/dev-advisor qc src/checkout` | 빌드/테스트 실행 증거, 품질 게이트, 릴리즈 차단 여부 |
+| 전체 점검 | `/dev-advisor full src/checkout` | 추천, 검증, 리팩토링, 유지보수, 보안, QA, QC를 순차 통합 |
 | 병렬 심층 점검 | `/dev-advisor swarm src/checkout` | 여러 관점의 병렬 분석 결과와 통합 Top 10 개선안 |
 
 ### 3. 자연어로도 요청하기
@@ -102,6 +108,8 @@ cp -R claude/skills/dev-advisor ~/.claude/skills/dev-advisor
 | `Python이 이 프로젝트에 맞는지 검토해줘` | `/language python` + `recommend` 관점 |
 | `이 코드 SOLID 위반인지 봐줘` | `/dev-advisor validate <제공된 코드>` |
 | `기술 부채 높은 부분부터 정리해줘` | `/dev-advisor maintain <project>` |
+| `릴리즈 전에 QA 점검해줘: src/checkout` | `/dev-advisor qa src/checkout` |
+| `품질 게이트 통과했는지 QC 검증해줘` | `/dev-advisor qc <module>` |
 | `큰 모듈이라 병렬로 심층 분석해줘` | `/dev-advisor swarm <module>` |
 
 ### 4. 추천 사용 흐름
@@ -111,8 +119,21 @@ cp -R claude/skills/dev-advisor ~/.claude/skills/dev-advisor
 | 새 기능 설계 전 | `/dev-advisor recommend` → 후보 비교 → `/pattern <id>`로 세부 확인 |
 | 기존 코드 품질 확인 | `/dev-advisor validate` → 위반 항목 확인 → `/dev-advisor refactor` |
 | 배포 전 보안 점검 | `/dev-advisor security-audit` → 취약점 조치 → 재검증 |
+| 릴리즈 전 품질 승인 | `/dev-advisor qa` → 추적성/전략 gap 보완 → `/dev-advisor qc` |
 | 레거시 모듈 개선 | `/dev-advisor maintain` → 부채 우선순위 결정 → 단계별 리팩토링 |
 | 큰 프로젝트 종합 점검 | `/dev-advisor full` 또는 `/dev-advisor swarm` → Top 10 개선안 실행 |
+
+### 4.1 개발 라이프사이클 라우팅
+
+`dev-advisor`는 advisor 모드를 9개로 유지하면서, 개발 생명주기 질문은 아래 보조 라우팅으로 9모드와 카탈로그를 조합합니다.
+
+| 라우트 | 범위 | 기본 동작 |
+|---|---|---|
+| `lifecycle` | Discovery → Requirements → Design → Build → Test → Release → Operate → Improve | 단계 식별 후 필요한 advisor 모드로 분기 |
+| `requirements` | PRD, user story, NFR, acceptance criteria, traceability, scope/risk | `qa` + 요구공학/SDLC 카탈로그 |
+| `release` | rollout, migration, rollback, hotfix, release note, go/no-go | `qa` + `qc` + 배포/형상관리 카탈로그 |
+| `ops` / `sre` | SLO, alert, runbook, on-call, incident, postmortem, capacity, DR | `maintain` + `qc` + 관측성/회복성 카탈로그 |
+| `ecosystem/current-docs` | framework, SDK, cloud, library, CLI, 버전 마이그레이션 | 최신 공식 문서 조회로 라우팅하고, dev-advisor 카탈로그는 안정적 판단 원칙 보조 근거로만 사용 |
 
 ### 5. 출력 결과를 읽는 기준
 
@@ -153,7 +174,7 @@ cp -R claude/skills/dev-advisor ~/.claude/skills/dev-advisor
 
 | 구분 | Claude 경로 | Codex 경로 | 포함 내용 | 사용 목적 |
 |---|---|---|---|---|
-| 스킬 진입점 | `claude/skills/dev-advisor/SKILL.md` | `codex/skills/dev-advisor/SKILL.md` | 목적, 호출 인터페이스, 라우팅, 7개 advisor 모드 | 에이전트가 어떤 기준으로 dev-advisor를 호출할지 정의 |
+| 스킬 진입점 | `claude/skills/dev-advisor/SKILL.md` | `codex/skills/dev-advisor/SKILL.md` | 목적, 호출 인터페이스, 라우팅, 9개 advisor 모드 | 에이전트가 어떤 기준으로 dev-advisor를 호출할지 정의 |
 | 참조 카탈로그 | `claude/skills/dev-advisor/references/` | `codex/skills/dev-advisor/references/` | 패턴, 알고리즘, 언어, 보안, 원칙 문서 | 실제 판단 근거와 lookup 데이터 저장 |
 | 검증 스크립트 | `claude/skills/dev-advisor/scripts/` | `codex/skills/dev-advisor/scripts/` | anchor, 링크, 카운트, 품질 게이트 검증 | 카탈로그 무결성 확인 |
 | 에이전트 설정 | 없음 | `codex/skills/dev-advisor/agents/openai.yaml` | Codex 에이전트 설정 | Codex 환경 전용 설정 |
@@ -167,18 +188,21 @@ cp -R claude/skills/dev-advisor ~/.claude/skills/dev-advisor
 | 3 | `refactor` | 리팩토링, Before/After | 단계 표, Before/After 코드, 회귀 위험 | Patterns, Code Templates, Principles |
 | 4 | `maintain` | 유지보수, 기술 부채 | 코드 스멜, 부채 표, 영향도 우선순위 | Principles, Patterns |
 | 5 | `security-audit` | 보안 점검, 취약점 | STRIDE, DREAD, 컴플라이언스 매핑 | Security, Principles |
-| 6 | `full` | 전체 점검, 종합 분석 | 5개 기본 모드 순차 통합 보고서 | 전체 도메인 |
-| 7 | `swarm` | 병렬 점검, 심층 분석, swarm | 다중 에이전트 병렬 분석과 reviewer 통합 | 전체 도메인, OMX ultrawork |
+| 6 | `qa` | QA 점검, 품질 보증, 테스트 전략 | 요구사항 추적성, 테스트 전략, 릴리즈 승인 | Quality, Principles |
+| 7 | `qc` | QC 검증, 품질 게이트, 테스트 실행 | 빌드/테스트 증거, 결함 재현, 품질 게이트 | Quality, Patterns, Principles |
+| 8 | `full` | 전체 점검, 종합 분석 | 7 기본 모드 순차 통합 보고서 | 전체 도메인 |
+| 9 | `swarm` | 병렬 점검, 심층 분석, swarm | 다중 에이전트 병렬 분석과 reviewer 통합 | 전체 도메인, OMX ultrawork |
 
 ### 2.4 카탈로그 도메인
 
 | 도메인 | 경로 | 항목 수 | 내부 파일 수 | 주요 내용 | 대표 호출 |
 |---|---|---:|---:|---|---|
-| Patterns | `references/patterns/` | 496 | 48 | GoF, 아키텍처, 분산, 신뢰성, 동시성, 통합, DDD, 테스트, Observability, AI/LLM, 배포, 캐싱, 모바일, 도메인 패턴 등 | `/pattern singleton`, `/pattern list` |
-| Algorithms | `references/algorithms/` | 268 | 32 | 정렬, 탐색, 그래프, DP, 문자열, 수학, 자료구조, DB 인덱스, OS, 검색, 이미지, 신호, 코덱 등 | `/algorithm quick-sort`, `/algorithm list graph` |
+| Patterns | `references/patterns/` | 547 | 56 | GoF, 아키텍처, 분산, 신뢰성, 동시성, 통합, DDD, 테스트, Observability, AI/LLM, 배포, 캐싱, 모바일, 도메인 패턴 등 | `/pattern singleton`, `/pattern list` |
+| Algorithms | `references/algorithms/` | 273 | 33 | 정렬, 탐색, 그래프, DP, 문자열, 수학, 자료구조, DB 인덱스, OS, 검색, 이미지, 신호, 코덱 등 | `/algorithm quick-sort`, `/algorithm list graph` |
 | Languages | `references/languages/` | 75 | 77 | 언어별 사용처, 특징, 장점, 제약, 예제, 분야별 추천 | `/language python`, `/language search 웹` |
 | Security | `references/security/` | 106 | 15 | 인증, 인가, 암호 운영, 데이터 보호, API/Web, 공급망, 플랫폼, SDLC, 탐지, 모바일, AI 모델, 개인정보, 컴플라이언스 | `/security oauth2-pkce`, `/security jwt` |
-| Principles | `references/principles/` | 163 + 18 부록 | 17 | SOLID, GRASP, ISO 25010, 12-Factor, Code Smells, 타입 시스템, 동시성 이론, 리팩토링, SW 경제, 성능, 지속가능성 등 | `/principle srp`, `/principle dry` |
+| Principles | `references/principles/` | 212 + 18 부록 | 25 | SOLID, GRASP, ISO 25010, 12-Factor, Code Smells, 타입 시스템, 동시성 이론, 리팩토링, SW 경제, 성능, 지속가능성 등 | `/principle srp`, `/principle dry` |
+| Quality | `references/quality/` | 20 | 3 | QA 요구사항 추적성/테스트 전략/릴리즈 승인 + QC 빌드 검증/테스트 실행 증거/품질 게이트 | `/quality qa-test-strategy`, `/quality qc-quality-gate` |
 | 보조 문서 | `references/*.md` | 6 | 6 | 코드 템플릿, 예시, handoff, 출력 템플릿, references 디렉토리 가이드 | 스킬 내부 참조 |
 
 ### 2.5 도메인별 세부 항목
@@ -202,6 +226,8 @@ cp -R claude/skills/dev-advisor ~/.claude/skills/dev-advisor
 | Principles | 핵심 원칙 | SOLID, GRASP, ISO 25010, 12-Factor, Code Smells |
 | Principles | 확장 원칙 | Type Systems, Concurrency Theory, Refactoring Techniques, SW Economics, Evolutionary Architecture, Resilience, Documentation, Process Metrics, Performance Metrics, Sustainable Software |
 | Principles | 미시 원칙 부록 | DRY, KISS, YAGNI, Law of Demeter, Separation of Concerns, Tell Don't Ask, Composition over Inheritance, Single Source of Truth, Conway's Law, Hyrum's Law 등 |
+| Quality | QA | Requirements Traceability, Test Strategy, Risk-Based Testing, Acceptance Criteria Review, Test Plan Review, Release Readiness, Defect Triage, Change Impact, Regression Scope, Compliance Evidence Plan |
+| Quality | QC | Build Verification, Test Execution Evidence, Functional/Nonfunctional Verification, Regression Result, Defect Reproduction, Quality Gate, Release Blocker, Data Integrity, Post-Release Smoke |
 
 ### 2.6 보조 파일과 스크립트
 

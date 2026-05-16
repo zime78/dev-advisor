@@ -6,6 +6,21 @@ AI/ML 모델 자체를 대상으로 하는 공격 분류학(Attack Taxonomy). `a
 
 **관련 원칙·규제 (P0 신설)**: [`../principles/professional-ethics.md#eu-ai-act-2024`](../principles/professional-ethics.md#eu-ai-act-2024) — EU AI Act 2024 의 위험 분류 (Unacceptable / High / Limited / Minimal) · 고위험 시스템 의무 (적합성 평가 · 데이터 거버넌스 · 인적 감시 · 로그 보존) — AI 모델 보안 통제의 규제·법적 근거. [`../principles/professional-ethics.md#acm-code-ethics-2018`](../principles/professional-ethics.md#acm-code-ethics-2018) — ACM 윤리 코드 (2018) 의 AI 책임 원칙도 함께 참조.
 
+## LLM/Agent 보안 확장 범위
+
+LLM 앱과 에이전트 시스템은 모델 공격과 애플리케이션 보안 경계가 겹친다. `security-audit`에서는 아래 항목을 별도 체크리스트로 본다.
+
+| 항목 | 점검 기준 | 관련 도메인 |
+|---|---|---|
+| Prompt Injection | 직접/간접 injection, instruction hierarchy 우회, hidden content 처리 | `security-ai-model.md#4-adversarial-inputs-evasion-attack-적대적-입력-회피-공격`, `patterns/ai-llm.md` |
+| Tool Permission | tool allowlist, scoped token, human approval, destructive action gating | `security-authz.md#authz-least-privilege`, `security-sdlc.md#1-threat-modeling-stride-dread-pasta` |
+| RAG / Vector DB 격리 | tenant isolation, embedding ACL, metadata filter, retrieval audit | `security-data-protection.md`, `algorithms/search-systems.md#vector-search` |
+| Output Handling | structured validation, escaping, unsafe code/SQL/shell output 차단 | `security-api-web.md`, `patterns/ai-llm.md` |
+| System Prompt Leakage | prompt/secret 분리, prompt exposure 테스트, 모델 추출 방어 | `security-ai-model.md#1-model-extraction-theft-모델-복제-공격` |
+| Agent Audit / Evals | tool call log, eval set, red-team replay, regression threshold | `security-detect-respond.md#audit-log-tamper-evident`, `quality/qc.md#qc-test-execution-evidence` |
+
+위 항목은 OWASP LLM Top 10 2025와 MITRE ATLAS를 보조 기준으로 사용하되, 실제 판정은 데이터 민감도, 권한 범위, tool side effect, blast radius를 함께 본다.
+
 ---
 
 ## 1. Model Extraction / Theft (모델 복제 공격)

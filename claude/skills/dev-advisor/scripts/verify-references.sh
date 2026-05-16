@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# verify-references.sh — dev-advisor 스킬의 5 도메인 reference 무결성 검증
+# verify-references.sh — dev-advisor 스킬의 6 도메인 reference 무결성 검증
 # 검증 항목:
 #   [1] 카테고리별 anchor 수 == 헤더 수 (algorithms base 23 파일 — db-query-optimizer 추가)
 #   [2] 전역 anchor unique
@@ -7,25 +7,65 @@
 #   [4] SKILL.md progressive disclosure 구조 (32 카테고리 진입점)
 #   [5] languages reference 무결성 (75+ 언어)
 #   [6] languages 표준 14 섹션 헤더 spot-check + 전체 언어 품질 게이트
-#   [7] patterns reference 무결성 (base 15 + P0 2 + P1 2 + P2 3 카테고리 파일 존재, 159 + Phase 2 확장 = 539)
+#   [7] patterns reference 무결성 (base/P0/P1/P2/P3 카테고리 파일 존재, 전체 547)
 #   [8] security reference 무결성 (base 14 파일 — 별도 도메인, 97 보안 패턴 + Privacy/Compliance 확장 = 106)
-#   [9] principles reference 무결성 (6 base 파일 — 56 원칙 + Phase 2 확장 = 163 + 부록 micro-principles 18)
+#   [9] principles reference 무결성 (base/P0/P1/P3 파일, 전체 212 + 부록 micro-principles 18)
 #   [10] Phase 2 확장 신규 카탈로그 anchor/header 일관성
-#   [11] SKILL.md 통합 모드 (full / swarm) 등록 검증
+#   [11] SKILL.md 통합 모드 (qa / qc / full / swarm) 등록 검증
 #   [12] 핵심 Markdown 내부 링크/anchor 검증
+#
+# 빠른 선택 검증:
+#   --check quality  QA/QC 카탈로그와 문서 노출만 검증
+#   --check today    오늘 확장 P0/P1/P2/P3 항목과 QA/QC만 검증
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILL_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 ALGO_DIR="${SKILL_DIR}/references/algorithms"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../../" && pwd)"
+REPO_MODE=0
+if [ -f "${REPO_ROOT}/README.md" ] && [ -d "${REPO_ROOT}/codex/skills/dev-advisor" ] && [ -d "${REPO_ROOT}/claude/skills/dev-advisor" ]; then
+  REPO_MODE=1
+fi
+
+CHECK_SCOPE="all"
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --check)
+      if [ "$#" -lt 2 ]; then
+        echo "FATAL: --check requires one of: all, today, quality" >&2
+        exit 1
+      fi
+      CHECK_SCOPE="$2"
+      shift 2
+      ;;
+    --help|-h)
+      echo "Usage: $0 [--check all|today|quality]"
+      exit 0
+      ;;
+    *)
+      echo "FATAL: unknown argument: $1" >&2
+      echo "Usage: $0 [--check all|today|quality]" >&2
+      exit 1
+      ;;
+  esac
+done
+
+case "${CHECK_SCOPE}" in
+  all|today|quality) ;;
+  *)
+    echo "FATAL: invalid --check value: ${CHECK_SCOPE} (expected all, today, quality)" >&2
+    exit 1
+    ;;
+esac
 
 # Shared counts manifest — silent divergence 차단.
 # claude/codex 양쪽 verify 가 이 파일을 source 하여 expected 정수를 동일화한다.
 # 탐색 우선순위: (1) repo root (SCRIPT_DIR 4단계 상위 — scripts/dev-advisor/skills/<runtime>/repo)
 #                (2) skill root (SCRIPT_DIR 1단계 상위 — 배포 사본 fallback)
-MANIFEST_REPO="$(cd "${SCRIPT_DIR}/../../../../" && pwd)/.counts.manifest"
+MANIFEST_REPO="${REPO_ROOT}/.counts.manifest"
 MANIFEST_SKILL="$(cd "${SCRIPT_DIR}/../" && pwd)/.counts.manifest"
-if [ -f "${MANIFEST_REPO}" ]; then
+if [ "${REPO_MODE}" -eq 1 ] && [ -f "${MANIFEST_REPO}" ]; then
     # shellcheck disable=SC1090
     source "${MANIFEST_REPO}"
     MANIFEST="${MANIFEST_REPO}"
@@ -46,6 +86,247 @@ ok() { echo "  ✓ $1"; PASS=$((PASS + 1)); }
 # 개별 검증 실패 메시지를 출력하고 실패 카운터를 증가시킨다.
 fail() { echo "  ✗ $1"; FAIL=$((FAIL + 1)); }
 
+count_numbered_headers() {
+  /usr/bin/grep -cE '^## [0-9]+\.' "$1" 2>/dev/null || echo 0
+}
+
+count_index_rows() {
+  local file="$1"
+  local start="$2"
+  awk -v start="${start}" '
+    index($0, start) == 1 {found=1; next}
+    found && /^## / {found=0}
+    found && /^\| `/ {count++}
+    END {print count+0}
+  ' "${file}" 2>/dev/null || echo 0
+}
+
+finish() {
+  echo ""
+  echo "======================================"
+  if [ "${FAIL}" -eq 0 ]; then
+    echo "✓ All integrity checks passed (${EXPECTED_PATTERNS} patterns / ${EXPECTED_ALGORITHMS} algorithms / ${EXPECTED_SECURITY} security / ${EXPECTED_LANGUAGES} languages / ${EXPECTED_PRINCIPLES} principles / ${EXPECTED_QUALITY} quality + ${EXPECTED_MICRO_PRINCIPLES} 부록 — 6 domains, ${EXPECTED_TOTAL} items + ${EXPECTED_MICRO_PRINCIPLES} 부록 = ${EXPECTED_TOTAL_WITH_MICRO} total)"
+    exit 0
+  else
+    echo "✗ ${FAIL}개 검사 실패, ${PASS}개 통과"
+    exit 1
+  fi
+}
+
+check_quality_catalog() {
+  echo "[Q] quality QA/QC 카탈로그 검증"
+  QUALITY_DIR="${SKILL_DIR}/references/quality"
+
+  if [ -d "${QUALITY_DIR}" ]; then
+    ok "디렉토리 존재: references/quality/"
+  else
+    fail "디렉토리 누락: references/quality/"
+  fi
+
+  for f in index.md qa.md qc.md; do
+    if [ -f "${QUALITY_DIR}/${f}" ]; then
+      ok "파일 존재: references/quality/${f}"
+    else
+      fail "파일 누락: references/quality/${f}"
+    fi
+  done
+
+  for entry in "qa.md:10" "qc.md:10"; do
+    file="${entry%%:*}"
+    expected="${entry##*:}"
+    path="${QUALITY_DIR}/${file}"
+    anchors=$(/usr/bin/grep -c '<a id=' "${path}" 2>/dev/null || echo 0)
+    headers=$(/usr/bin/grep -cE '^## [0-9]+\.' "${path}" 2>/dev/null || echo 0)
+    if [ "${anchors}" -eq "${expected}" ] && [ "${headers}" -eq "${expected}" ]; then
+      ok "quality/${file}: anchors=${anchors} headers=${headers}"
+    else
+      fail "quality/${file}: anchors=${anchors} headers=${headers} expected=${expected}"
+    fi
+  done
+
+  quality_index_count=$(awk '
+    /^## Quality ID 매핑/{found=1; next}
+    found && /^## /{found=0}
+    found && /^\| `/{count++}
+    END{print count+0}
+  ' "${QUALITY_DIR}/index.md" 2>/dev/null || echo 0)
+  if [ "${quality_index_count}" -eq "${EXPECTED_QUALITY}" ]; then
+    ok "quality/index.md ID 매핑: ${quality_index_count}개"
+  else
+    fail "quality/index.md ID 매핑: 기대=${EXPECTED_QUALITY}, 실제=${quality_index_count}"
+  fi
+}
+
+check_quality_exposure() {
+  echo ""
+  echo "[Q2] QA/QC 호출 노출 검증"
+  SKILL_FILE="${SKILL_DIR}/SKILL.md"
+  EXAMPLES_FILE="${SKILL_DIR}/references/examples.md"
+  TEMPLATES_FILE="${SKILL_DIR}/references/output_templates.md"
+  ROOT_README="${REPO_ROOT}/README.md"
+
+  for token in '/dev-advisor qa' '/dev-advisor qc' '/quality'; do
+    if grep -q "${token}" "${SKILL_FILE}"; then
+      ok "SKILL.md 노출: ${token}"
+    else
+      fail "SKILL.md 누락: ${token}"
+    fi
+  done
+
+  if grep -q '/dev-advisor qa' "${EXAMPLES_FILE}" && grep -q '/dev-advisor qc' "${EXAMPLES_FILE}"; then
+    ok "examples.md 에 qa/qc 예시 존재"
+  else
+    fail "examples.md 에 qa 또는 qc 예시 누락"
+  fi
+
+  if grep -q '^## 6\. qa' "${TEMPLATES_FILE}" && grep -q '^## 7\. qc' "${TEMPLATES_FILE}"; then
+    ok "output_templates.md 에 qa/qc 템플릿 존재"
+  else
+    fail "output_templates.md 에 qa 또는 qc 템플릿 누락"
+  fi
+
+  if [ "${REPO_MODE}" -eq 1 ]; then
+    if [ -f "${ROOT_README}" ] && grep -q '/quality' "${ROOT_README}" && grep -q '/dev-advisor qa' "${ROOT_README}" && grep -q '/dev-advisor qc' "${ROOT_README}"; then
+      ok "README.md 에 /quality 및 qa/qc 노출"
+    else
+      fail "README.md 에 /quality 또는 qa/qc 노출 누락"
+    fi
+  else
+    ok "standalone 설치본: repo README 검증 생략"
+  fi
+}
+
+check_today_catalog() {
+  echo "[T] 오늘 확장 P0/P1/P2/P3 카탈로그 검증"
+  TODAY_FILES=(
+    "patterns/master-data-management.md:6"
+    "patterns/data-quality-governance.md:6"
+    "patterns/web-performance.md:6"
+    "patterns/data-warehousing-bi.md:6"
+    "patterns/graphics-rendering.md:5"
+    "patterns/ar-vr-xr.md:5"
+    "patterns/serverless-faas.md:5"
+    "patterns/hpc-scientific.md:6"
+    "patterns/mobile-app.md:15"
+    "algorithms/db-query-optimizer.md:5"
+    "principles/database-fundamentals.md:8"
+    "principles/sdlc-models.md:7"
+    "principles/scaled-agile.md:6"
+    "principles/professional-ethics.md:6"
+    "principles/standards-mapping.md:5"
+    "principles/configuration-management.md:6"
+    "principles/hci-methodology.md:6"
+    "principles/formal-methods.md:5"
+  )
+
+  for entry in "${TODAY_FILES[@]}"; do
+    file="${entry%%:*}"
+    expected="${entry##*:}"
+    path="${SKILL_DIR}/references/${file}"
+    if [ ! -f "${path}" ]; then
+      fail "${file}: 파일 누락"
+      continue
+    fi
+    anchors=$(/usr/bin/grep -c '<a id=' "${path}" 2>/dev/null || echo 0)
+    headers=$(/usr/bin/grep -cE '^## [0-9]+\.' "${path}" 2>/dev/null || echo 0)
+    if [ "${anchors}" -ge "${expected}" ] && [ "${headers}" -ge "${expected}" ]; then
+      ok "${file}: anchors=${anchors} headers=${headers} (expected≥${expected})"
+    else
+      fail "${file}: anchors=${anchors} headers=${headers} expected≥${expected}"
+    fi
+  done
+}
+
+check_manifest_alignment() {
+  echo "[0] manifest / 배포 hygiene 검증"
+
+  if [ "${REPO_MODE}" -eq 1 ]; then
+    for manifest_path in \
+      "${REPO_ROOT}/.counts.manifest" \
+      "${REPO_ROOT}/codex/skills/dev-advisor/.counts.manifest" \
+      "${REPO_ROOT}/claude/skills/dev-advisor/.counts.manifest"
+    do
+      if [ -f "${manifest_path}" ]; then
+        ok "manifest 존재: ${manifest_path#${REPO_ROOT}/}"
+      else
+        fail "manifest 누락: ${manifest_path#${REPO_ROOT}/}"
+      fi
+    done
+
+    if cmp -s "${REPO_ROOT}/.counts.manifest" "${REPO_ROOT}/codex/skills/dev-advisor/.counts.manifest" \
+      && cmp -s "${REPO_ROOT}/.counts.manifest" "${REPO_ROOT}/claude/skills/dev-advisor/.counts.manifest"; then
+      ok "root/codex/claude manifest 동일"
+    else
+      fail "root/codex/claude manifest 불일치"
+    fi
+  else
+    ok "standalone 설치본 manifest 사용: ${MANIFEST#${SKILL_DIR}/}"
+  fi
+
+  forbidden_files=$(find "${SKILL_DIR}" \( -name .DS_Store -o -name __pycache__ -o -name '*.pyc' \) -print 2>/dev/null || true)
+  if [ -z "${forbidden_files}" ]; then
+    ok "배포 제외 파일 없음 (.DS_Store / __pycache__ / *.pyc)"
+  else
+    fail "배포 제외 파일 발견: $(printf '%s' "${forbidden_files}" | tr '\n' ' ')"
+  fi
+
+  stale_pattern='5'"중"'|7'"모드"'|core 16'"3"'|4'"중 카탈로그"'|5'" 서브에이전트"'|\b49'"6"'\b|\b26'"8"'\b|\b53'"9"'\b'
+  stale_hits=$(
+    {
+      /usr/bin/grep -RInE "${stale_pattern}" \
+        "${SKILL_DIR}/SKILL.md" "${SKILL_DIR}/references" "${SKILL_DIR}/scripts/README.md" 2>/dev/null || true
+      if [ "${REPO_MODE}" -eq 1 ]; then
+        /usr/bin/grep -InE "${stale_pattern}" \
+          "${REPO_ROOT}/README.md" 2>/dev/null || true
+      fi
+    }
+  )
+  if [ -z "${stale_hits}" ]; then
+    ok "stale token 금지 검사 통과"
+  else
+    fail "stale token 발견: $(printf '%s' "${stale_hits}" | head -n 5 | tr '\n' ' ')"
+  fi
+}
+
+check_catalog_manifest_totals() {
+  echo "[0B] 카탈로그 총계 / manifest 대조"
+
+  patterns_headers=$(find "${SKILL_DIR}/references/patterns" -name '*.md' ! -name 'index.md' -print0 \
+    | xargs -0 /usr/bin/grep -hE '^## [0-9]+\.' 2>/dev/null | wc -l | tr -d ' ')
+  if [ "${patterns_headers}" -eq "${EXPECTED_PATTERNS}" ]; then
+    ok "patterns 실제 ## N. 헤더 합계 = manifest (${patterns_headers})"
+  else
+    fail "patterns 실제 ## N. 헤더 합계=${patterns_headers}, manifest=${EXPECTED_PATTERNS}"
+  fi
+
+  security_privacy=$(/usr/bin/grep -c '<a id=' "${SKILL_DIR}/references/security/privacy-engineering.md" 2>/dev/null || echo 0)
+  security_headers=$(for f in security security-authn security-authz security-crypto-ops security-data-protection security-api-web security-supply-chain security-platform security-sdlc security-detect-respond security-mobile security-ai-model compliance; do
+      count_numbered_headers "${SKILL_DIR}/references/security/${f}.md"
+    done | awk '{s+=$1} END{print s+0}')
+  security_total=$((security_headers + security_privacy))
+  if [ "${security_total}" -eq "${EXPECTED_SECURITY}" ]; then
+    ok "security 실제 항목 합계 = manifest (${security_total})"
+  else
+    fail "security 실제 항목 합계=${security_total}, manifest=${EXPECTED_SECURITY}"
+  fi
+
+  principles_headers=$(find "${SKILL_DIR}/references/principles" -name '*.md' ! -name 'index.md' ! -name 'micro-principles.md' -print0 \
+    | xargs -0 /usr/bin/grep -hE '^## [0-9]+\.' 2>/dev/null | wc -l | tr -d ' ')
+  if [ "${principles_headers}" -eq "${EXPECTED_PRINCIPLES}" ]; then
+    ok "principles 실제 ## N. 헤더 합계 = manifest (${principles_headers})"
+  else
+    fail "principles 실제 ## N. 헤더 합계=${principles_headers}, manifest=${EXPECTED_PRINCIPLES}"
+  fi
+
+  quality_headers=$(find "${SKILL_DIR}/references/quality" -name '*.md' ! -name 'index.md' -print0 \
+    | xargs -0 /usr/bin/grep -hE '^## [0-9]+\.' 2>/dev/null | wc -l | tr -d ' ')
+  if [ "${quality_headers}" -eq "${EXPECTED_QUALITY}" ]; then
+    ok "quality 실제 ## N. 헤더 합계 = manifest (${quality_headers})"
+  else
+    fail "quality 실제 ## N. 헤더 합계=${quality_headers}, manifest=${EXPECTED_QUALITY}"
+  fi
+}
+
 # Pre-flight: TMPDIR/temp-file writability check.
 # 사유: here-doc 및 process substitution 이 임시파일을 생성한다.
 # sandbox / read-only 환경에서 임시파일 생성이 막히면 본문 검사가 silent
@@ -63,6 +344,25 @@ rm -f "${_tmp_probe}"
 
 echo "=== dev-advisor anchor integrity check ==="
 echo ""
+
+check_manifest_alignment
+echo ""
+check_catalog_manifest_totals
+echo ""
+
+if [ "${CHECK_SCOPE}" = "quality" ]; then
+  check_quality_catalog
+  check_quality_exposure
+  finish
+fi
+
+if [ "${CHECK_SCOPE}" = "today" ]; then
+  check_today_catalog
+  echo ""
+  check_quality_catalog
+  check_quality_exposure
+  finish
+fi
 
 # ─────────────────────────────────────────────
 # CHECK 1: 카테고리별 anchor 수 == 기대 카운트
@@ -194,7 +494,7 @@ else
   fail "별칭 표 행: 기대>=5, 실제=${alias_rows}"
 fi
 
-# 4-4. index.md 의 ID 매핑이 lookup 대체이므로, index.md 매핑 행 카운트(check 3)가 268 인지로 보강.
+# 4-4. index.md 의 ID 매핑이 lookup 대체이므로, index.md 매핑 행 카운트(check 3)가 EXPECTED_ALGORITHMS 인지로 보강.
 #       이미 check 3 에서 검증됨.
 
 # ─────────────────────────────────────────────
@@ -742,10 +1042,16 @@ else
 fi
 
 # ─────────────────────────────────────────────
-# CHECK 11: SKILL.md 통합 모드 (full / swarm) 등록 검증
+# CHECK 10B: quality QA/QC 신규 도메인 검증
 # ─────────────────────────────────────────────
 echo ""
-echo "[11] 통합 모드 (full / swarm) 등록 검증"
+check_quality_catalog
+
+# ─────────────────────────────────────────────
+# CHECK 11: SKILL.md 통합 모드 (qa / qc / full / swarm) 등록 검증
+# ─────────────────────────────────────────────
+echo ""
+echo "[11] 통합 모드 (qa / qc / full / swarm) 등록 검증"
 
 SKILL_FILE="${SKILL_DIR}/SKILL.md"
 
@@ -763,9 +1069,28 @@ else
   fail "/dev-advisor swarm 명령 미등록"
 fi
 
+# 11-2B. /dev-advisor qa/qc + /quality 호출 명령 등록 확인
+if grep -q '/dev-advisor qa' "${SKILL_FILE}"; then
+  ok "/dev-advisor qa 명령 등록됨"
+else
+  fail "/dev-advisor qa 명령 미등록"
+fi
+
+if grep -q '/dev-advisor qc' "${SKILL_FILE}"; then
+  ok "/dev-advisor qc 명령 등록됨"
+else
+  fail "/dev-advisor qc 명령 미등록"
+fi
+
+if grep -q '/quality' "${SKILL_FILE}"; then
+  ok "/quality lookup 등록됨"
+else
+  fail "/quality lookup 미등록"
+fi
+
 # 11-3. full 모드 자연어 트리거 (최소 2개)
 full_triggers=0
-for trigger in '전체 점검' '종합 분석' '모두 체크' '5 도메인 분석' 'full audit'; do
+for trigger in '전체 점검' '종합 분석' '모두 체크' '6 도메인 분석' 'full audit'; do
   if grep -q "${trigger}" "${SKILL_FILE}"; then
     full_triggers=$((full_triggers + 1))
   fi
@@ -789,6 +1114,19 @@ else
   fail "swarm 모드 자연어 트리거: ${swarm_triggers}개 (최소 2개 필요)"
 fi
 
+# 11-4B. qa/qc 자연어 트리거
+qa_qc_triggers=0
+for trigger in 'QA 점검' '품질 보증' '테스트 전략' 'QC 검증' '품질 게이트' '테스트 실행'; do
+  if grep -q "${trigger}" "${SKILL_FILE}"; then
+    qa_qc_triggers=$((qa_qc_triggers + 1))
+  fi
+done
+if [ "${qa_qc_triggers}" -ge 4 ]; then
+  ok "qa/qc 자연어 트리거: ${qa_qc_triggers}개 등록"
+else
+  fail "qa/qc 자연어 트리거: ${qa_qc_triggers}개 (최소 4개 필요)"
+fi
+
 # 11-5. examples.md 에 예시 G / H 존재 확인
 EXAMPLES_FILE="${SKILL_DIR}/references/examples.md"
 if grep -qE '^### [GH]\.' "${EXAMPLES_FILE}" 2>/dev/null; then
@@ -804,6 +1142,8 @@ if grep -q '/dev-advisor full' "${TEMPLATES_FILE}" 2>/dev/null && grep -q '/dev-
 else
   fail "output_templates.md 에 full 또는 swarm 템플릿 누락"
 fi
+
+check_quality_exposure
 
 # ─────────────────────────────────────────────
 # CHECK 12: 전체 Markdown 내부 링크/anchor 검증
@@ -921,7 +1261,7 @@ fi
 echo ""
 echo "======================================"
 if [ "${FAIL}" -eq 0 ]; then
-  echo "✓ All integrity checks passed (${EXPECTED_PATTERNS} patterns / ${EXPECTED_ALGORITHMS} algorithms / ${EXPECTED_SECURITY} security / ${EXPECTED_LANGUAGES} languages / ${EXPECTED_PRINCIPLES} principles + ${EXPECTED_MICRO_PRINCIPLES} 부록 — 5 domains, ${EXPECTED_TOTAL} items + ${EXPECTED_MICRO_PRINCIPLES} 부록 = ${EXPECTED_TOTAL_WITH_MICRO} total)"
+  echo "✓ All integrity checks passed (${EXPECTED_PATTERNS} patterns / ${EXPECTED_ALGORITHMS} algorithms / ${EXPECTED_SECURITY} security / ${EXPECTED_LANGUAGES} languages / ${EXPECTED_PRINCIPLES} principles / ${EXPECTED_QUALITY} quality + ${EXPECTED_MICRO_PRINCIPLES} 부록 — 6 domains, ${EXPECTED_TOTAL} items + ${EXPECTED_MICRO_PRINCIPLES} 부록 = ${EXPECTED_TOTAL_WITH_MICRO} total)"
   exit 0
 else
   echo "✗ ${FAIL}개 검사 실패, ${PASS}개 통과"

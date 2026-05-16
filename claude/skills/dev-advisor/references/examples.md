@@ -1,6 +1,6 @@
-# advisor 모드 예시 8개
+# advisor 모드 예시 10개
 
-dev-advisor `## 워크플로우` 5 모드 + 카탈로그 lookup 의 실제 호출/응답 예. SKILL.md 의 `## 예시 → references/examples.md` pointer 에서 참조.
+dev-advisor `## 워크플로우` 9 모드 + 카탈로그 lookup 의 실제 호출/응답 예. SKILL.md 의 `## 예시 → references/examples.md` pointer 에서 참조.
 
 상세 산출물 템플릿: [output_templates.md](output_templates.md)
 
@@ -204,13 +204,13 @@ User: /dev-advisor security-audit api/payment/handler.go
 
 ### G. full 모드 — 예약 시스템 모듈 종합 점검
 
-Flutter 프로젝트의 예약 도메인 핵심 Repository 단일 파일을 5 advisor 모드 전체로 순차 점검하는 종합 진단. 단일 모드로는 놓치기 쉬운 도메인 cross-cutting 이슈(아키텍처 ↔ 보안 ↔ 부채)를 한 번에 식별한다.
+Flutter 프로젝트의 예약 도메인 핵심 Repository 단일 파일을 7 기본 advisor 모드 전체로 순차 점검하는 종합 진단. 단일 모드로는 놓치기 쉬운 도메인 cross-cutting 이슈(아키텍처 ↔ 보안 ↔ 품질 ↔ 부채)를 한 번에 식별한다.
 
 ```
 User: /dev-advisor full packages/data/lib/src/repositories/booking_repository_impl.dart
 ```
 
-**5 sub-섹션 출력**:
+**7 sub-섹션 출력**:
 
 **1) RECOMMEND 단계** — 현재 패턴 적합도 평가 + 대안 후보:
 
@@ -246,7 +246,23 @@ User: /dev-advisor full packages/data/lib/src/repositories/booking_repository_im
 | DoS | 슬롯 조회 캐시 없음 | 5.5 | Redis cache + rate limit |
 | EoP | 타 유저 예약 cancel 가능 (ownership 미검증) | 8.0 | 리소스 소유권 검증 미들웨어 |
 
-**4) MAINTAIN 단계** — 5 그룹 부채 분포:
+**4) QA 단계** — 프로세스 품질:
+
+| QA 항목 | 판정 | 근거 |
+|---------|------|------|
+| [requirements-traceability](quality/qa.md#qa-requirements-traceability) | GAP | 예약 취소 ownership 요구사항에 테스트 연결 없음 |
+| [test-strategy](quality/qa.md#qa-test-strategy) | CONDITIONAL | 보안/회귀 경로는 있으나 idempotency 테스트 전략 누락 |
+| [release-readiness](quality/qa.md#qa-release-readiness) | FAIL | P1 보안 결함 3건으로 go/no-go 보류 |
+
+**5) QC 단계** — 실행 증거:
+
+| QC 항목 | 판정 | 차단 여부 |
+|---------|------|----------|
+| [test-execution-evidence](quality/qc.md#qc-test-execution-evidence) | GAP | 결제 중복 방지 테스트 실행 증거 없음 |
+| [quality-gate](quality/qc.md#qc-quality-gate) | FAIL | PII 로깅 scanner 실패 |
+| [post-release-smoke](quality/qc.md#qc-post-release-smoke) | N/A | 릴리즈 전 단계 |
+
+**6) MAINTAIN 단계** — 5 그룹 부채 분포:
 
 | 위치 | 스멜 | 그룹 | 영향 × 빈도 |
 |------|------|------|------------|
@@ -258,7 +274,7 @@ User: /dev-advisor full packages/data/lib/src/repositories/booking_repository_im
 
 **5 그룹 분포**: Bloaters 2 / Couplers 1 / Dispensables 1 / OO Abusers 1
 
-**5) REFACTOR 단계** — Top 3 부채 Before/After:
+**7) REFACTOR 단계** — Top 3 부채 Before/After:
 
 | 단계 | 변경 | 위험 |
 |------|------|------|
@@ -286,7 +302,7 @@ log.info('booking created for user=${user.id.hashed}'); // 의사익명화
 7. [P2, SOLID] DioClient 직접 호출 — DIP 위반
 8. [P2, DDD] Aggregate 경계 모호 — Slot 직접 update
 9. [P2, Maintain] createBooking 152줄 — Long Method
-10. [P2, Code Smell] Repeated Switches 7곳 — Polymorphism 권장
+10. [P2, QA/QC] idempotency 회귀 테스트 전략/실행 증거 누락 — release readiness 차단
 
 **통합 6 필드 산출**:
 - **선택/판정**: Repository 패턴 적용했으나 6 책임 누적 → Booking/Slot/Payment Aggregate 분리 권장 + PII 즉시 차단
@@ -294,7 +310,7 @@ log.info('booking created for user=${user.id.hashed}'); // 의사익명화
 - **대안 비교**: A) 6개 sub-Repo 분리 (Aggregate 단위) / B) Use Case 추출 (Application Service 도입) / C) CQRS (read/write 분리) — TPS 1000+ 시 C 필수
 - **표준 인용**: [solid.md#srp](principles/solid.md#1-single-responsibility-principle-srp-단일-책임-원칙), [ddd-tactical.md#aggregate](patterns/ddd-tactical.md#3-aggregate), [security-data-protection.md#pseudonymization](security/security-data-protection.md#6-pseudonymization-가명처리), [clean-architecture.md](patterns/architectural.md#9-clean-architecture), [iso25010.md#maintainability](principles/iso25010.md#7-maintainability-유지보수성)
 - **적용 조건**: 동시 사용자 1000+ AND PII 보유 시 → 즉시 진행. PII만 있고 트래픽 낮으면 1순위 (PII) 만 즉시
-- **비추천 조건**: prototype/POC 단계 AND PII 미보유 → 부분 적용 (SRP/Aggregate 분리만)
+- **비추천/예외/품질 차단 조건**: prototype/POC 단계 AND PII 미보유 → 부분 적용 가능. PII scanner 또는 quality gate 실패 시 릴리즈 차단.
 
 **6단계 hand-off**: `security-reviewer` (P1 PII 가장 시급, DREAD 9.5) → `architect` (data 계층 재설계 + Aggregate 분리 설계) → `executor` (단계별 refactor) → `verifier` (회귀 테스트).
 
@@ -302,21 +318,23 @@ log.info('booking created for user=${user.id.hashed}'); // 의사익명화
 
 ### H. swarm 모드 — 동일 모듈 병렬 심층 분석
 
-`full` 모드와 동일한 5 모드를 단일 context 순차가 아닌 **5 Claude Code 서브에이전트 병렬 + 1 reviewer 통합** 으로 실행하는 심층 audit. 각 모드가 독립 context 를 가져 깊이가 더해지지만 OMC `ultrawork` 의존 + 토큰 비용 ↑.
+`full` 모드와 동일한 7 기본 모드를 단일 context 순차가 아닌 **7 Claude Code 서브에이전트 병렬 + 1 reviewer 통합** 으로 실행하는 심층 audit. 각 모드가 독립 context 를 가져 깊이가 더해지지만 OMC `ultrawork` 의존 + 토큰 비용 ↑.
 
 ```
 User: /dev-advisor swarm packages/data/lib/src/repositories/booking_repository_impl.dart
 ```
 
-**ULW 발사** (5 + 1 = 6 Claude Code 서브에이전트 병렬):
+**ULW 발사** (7 + 1 = 8 Claude Code 서브에이전트 병렬):
 
 ```text
 Task(subagent_type="oh-my-claudecode:executor", model="opus", description="recommend", prompt="recommend booking_repository_impl") — 후보 매트릭스 4행
 Task(subagent_type="oh-my-claudecode:executor", model="opus", description="validate", prompt="validate booking_repository_impl") — 위반 P1×3, P2×6, P3×11
 Task(subagent_type="oh-my-claudecode:executor", model="opus", description="security-audit", prompt="security-audit booking_repository_impl") — STRIDE 6 + DREAD
+Task(subagent_type="oh-my-claudecode:executor", model="opus", description="qa", prompt="qa booking_repository_impl") — traceability / release readiness
+Task(subagent_type="oh-my-claudecode:executor", model="opus", description="qc", prompt="qc booking_repository_impl") — quality gate / test evidence
 Task(subagent_type="oh-my-claudecode:executor", model="opus", description="maintain", prompt="maintain booking_repository_impl") — 부채 9행 + 5 그룹 분포
 Task(subagent_type="oh-my-claudecode:executor", model="opus", description="refactor", prompt="refactor booking_repository_impl") — Top 5 부채 Before/After
-Task(subagent_type="oh-my-claudecode:verifier", model="opus", description="synthesis", prompt="통합 우선순위 정렬 + cross-link 매트릭스") — 5 결과 reviewer
+Task(subagent_type="oh-my-claudecode:verifier", model="opus", description="synthesis", prompt="통합 우선순위 정렬 + cross-link 매트릭스") — 7 결과 reviewer
 ```
 
 **reviewer 통합 결과**:
@@ -345,9 +363,9 @@ Task(subagent_type="oh-my-claudecode:verifier", model="opus", description="synth
 
 cross-link ≥ 3 도메인 검출 = 시스템 영향 광범위 → architect/security-reviewer 합동 검토 권장.
 
-**통합 6 필드** (5 Claude Code 서브에이전트 의견 종합):
+**통합 6 필드** (7 Claude Code 서브에이전트 의견 종합):
 - **선택/판정**: full 모드 결론과 동일 (Aggregate 분리 + PII 차단) + **신규 발견**: 6 책임 중 PII/idempotency/ownership 3건이 Security ↔ Maintain ↔ SOLID 교차 → 단일 refactor 로 3 도메인 동시 개선 가능
-- **근거**: 독립 5 context 분석 → 단일 context 에서 우선순위가 묻혔던 P2 이슈 (Aggregate 경계, OCP) 가 cross-link 매트릭스에서 P1 영향도로 재평가
+- **근거**: 독립 7 context 분석 → 단일 context 에서 우선순위가 묻혔던 P2 이슈 (Aggregate 경계, OCP, test evidence gap) 가 cross-link 매트릭스에서 P1 영향도로 재평가
 - **대안 비교**: full 모드 vs swarm 모드 — swarm 은 cross-link 매트릭스 + 독립 분석 깊이, full 은 단일 context 일관성
 - **표준 인용**: full 모드와 동일 + [GRASP Low Coupling/High Cohesion](principles/grasp.md), [12-Factor #III Config](principles/12-factor.md)
 - **적용 조건**: 단일 모듈이 핵심 비즈니스 도메인 AND 변경 빈도 ≥ 월 5회 AND OMC ultrawork 및 Claude Code 서브에이전트 사용 가능
@@ -361,8 +379,8 @@ cross-link ≥ 3 도메인 검출 = 시스템 영향 광범위 → architect/sec
 
 | 측면 | full | swarm |
 |------|------|-------|
-| 실행 방식 | 5 모드 순차 (단일 context) | 5 모드 병렬 Claude Code 서브에이전트 + 1 reviewer |
-| 토큰 비용 | 5만~10만 | 6만~12만 |
+| 실행 방식 | 7 기본 모드 순차 (단일 context) | 7 기본 모드 병렬 Claude Code 서브에이전트 + 1 reviewer |
+| 토큰 비용 | 7만~14만 | 8만~16만 |
 | 시간 | 5분 (순차) | 1.5분 (병렬) |
 | 깊이 | 중간 (단일 context 일관성) | 높음 (독립 분석 + cross-link 매트릭스) |
 | 누락 위험 | P2 가 묻힐 수 있음 | cross-link 로 재평가 |
@@ -376,3 +394,51 @@ cross-link ≥ 3 도메인 검출 = 시스템 영향 광범위 → architect/sec
 - ultrawork 미사용 환경 → **full** (swarm 사용 불가)
 
 상세 산출물 마크다운 스켈레톤은 [`output_templates.md`](output_templates.md) 참조.
+
+---
+
+### I. qa 모드 — 릴리즈 전 품질 보증 점검
+
+```
+User: /dev-advisor qa src/checkout
+```
+
+**QA 점검 표**:
+
+| QA 항목 | 판정 | 보완 조치 |
+|---------|------|----------|
+| [requirements-traceability](quality/qa.md#qa-requirements-traceability) | GAP | 결제 실패/환불 요구사항에 테스트 ID 연결 |
+| [test-strategy](quality/qa.md#qa-test-strategy) | PASS | 단위/통합/E2E/보안 경계 분리 |
+| [release-readiness](quality/qa.md#qa-release-readiness) | CONDITIONAL | P2 known issue 승인 기록 필요 |
+
+**5단계 "왜"**:
+- **판정**: CONDITIONAL. 요구사항 추적성 2건 누락, 릴리즈 승인 조건 1건 필요.
+- **근거**: critical payment path는 테스트 전략이 있으나 refund edge case가 traceability matrix에서 비어 있음.
+- **대안 비교**: 릴리즈 보류 vs 조건부 승인 vs 범위 축소.
+- **표준 인용**: [Quality QA](quality/qa.md), [ISO 25010](principles/iso25010.md), [SDLC Models](principles/sdlc-models.md)
+- **적용 조건**: 결제/환불처럼 금전 영향이 있는 릴리즈.
+- **승인·면제 조건**: P2 known issue는 owner 승인과 rollback plan이 있을 때만 조건부 승인.
+
+---
+
+### J. qc 모드 — 품질 게이트와 테스트 실행 증거 검증
+
+```
+User: /dev-advisor qc src/checkout
+```
+
+**QC 증거 표**:
+
+| QC 항목 | 증거 | 판정 | 차단 |
+|---------|------|------|------|
+| [build-verification](quality/qc.md#qc-build-verification) | CI #1842 / artifact checkout-1.8.0 | PASS | NO |
+| [test-execution-evidence](quality/qc.md#qc-test-execution-evidence) | junit.xml + coverage 84% | PASS | NO |
+| [quality-gate](quality/qc.md#qc-quality-gate) | SAST high 1건 | FAIL | YES |
+
+**5단계 "왜"**:
+- **판정**: FAIL. SAST high 1건으로 release blocker.
+- **근거**: 빌드와 테스트는 통과했지만 quality gate가 release policy의 필수 차단 조건을 위반.
+- **대안 비교**: gate 수정 후 재실행 vs 예외 승인 vs 릴리즈 보류.
+- **표준 인용**: [Quality QC](quality/qc.md), [Testing Strategies](patterns/testing-strategies.md), [Process Metrics](principles/process-metrics.md)
+- **적용 조건**: merge/release gate와 CI 증거가 있는 배포 후보.
+- **차단·재검증 조건**: high severity scanner failure, critical path test failure, 증거 누락.

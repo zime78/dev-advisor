@@ -84,13 +84,14 @@ python3 scripts/generate-catalog-index.py --output catalog-index.json
 |---|---:|
 | items | 1,274 |
 | aliases | 213 |
+| standards_mappings | 103 |
 | domains | 6 |
 
 Principles는 주 카탈로그 212개를 `entry`, 도메인 진입점 23개를 `category`, 미시 원칙 18개를 `appendix`로 색인한다. manifest의 `actual_count`는 기존과 같이 `entry`만 센다.
 
 ## lookup-catalog.py
 
-`catalog-index.json`만 읽어 런타임 lookup을 검증한다. Markdown을 다시 파싱하지 않으므로 JSON 우선 lookup 전환의 회귀 확인에 사용한다.
+`catalog-index.json`만 읽어 런타임 lookup을 검증한다. Markdown을 다시 파싱하지 않으므로 JSON-only lookup 전환의 회귀 확인에 사용한다.
 
 ```bash
 python3 scripts/lookup-catalog.py principle srp
@@ -100,6 +101,8 @@ python3 scripts/lookup-catalog.py pattern singleton
 python3 scripts/lookup-catalog.py quality quality-gate
 python3 scripts/lookup-catalog.py principle search responsibility
 python3 scripts/lookup-catalog.py principle list --type category
+python3 scripts/lookup-catalog.py standard API3
+python3 scripts/lookup-catalog.py standard "OWASP LLM05"
 ```
 
 동작:
@@ -107,6 +110,7 @@ python3 scripts/lookup-catalog.py principle list --type category
 - `<domain> <id-or-alias>`: 같은 domain 안에서 ID → alias → lookup key 순서로 해석
 - `<domain> search <query>`: ID, alias, 영문명, 한글명, category를 JSON key로 검색
 - `<domain> list [category]`: JSON item 목록 출력. `--type entry|category|appendix` 필터 지원
+- `standard <query>`: `standards_mappings[]`에서 표준 코드/명칭을 역조회하고 연결된 dev-advisor references 반환
 
 ## verify-anchors.sh (deprecated wrapper)
 

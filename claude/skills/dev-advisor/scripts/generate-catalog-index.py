@@ -47,7 +47,16 @@ def slugify(text: str) -> str:
 
 
 def normalize_key(text: str) -> str:
-    return slugify(strip_md(text))
+    text = strip_md(text).lower()
+    symbol_aliases = {
+        "c++": "cplusplus",
+        "c#": "csharp",
+        "f#": "fsharp",
+        "vb.net": "vb dotnet",
+    }
+    for source, target in symbol_aliases.items():
+        text = text.replace(source, target)
+    return slugify(text)
 
 
 def strip_ordinal_prefix(text: str) -> str:
@@ -211,6 +220,212 @@ def parse_alias_table(index_path: Path, heading_re: str) -> list[dict[str, str]]
             continue
         aliases.append({"alias": alias, "target_id": primary, "source": str(index_path.name)})
     return aliases
+
+
+def split_md_table_row(line: str) -> list[str]:
+    if not line.startswith("|"):
+        return []
+    return [cell.strip() for cell in line.strip().strip("|").split("|")]
+
+
+STANDARD_SECTION_RE = re.compile(r"^(?:##|###)\s+(.+?)\s*$")
+
+STANDARD_IDS = {
+    "swebok v4": "swebok-v4",
+    "computing curricula 2023": "cs2023",
+    "cs2023": "cs2023",
+    "dama-dmbok 2": "dmbok-2",
+    "dmbok 2": "dmbok-2",
+    "owasp web top 10": "owasp-web-2021",
+    "owasp api security top 10": "owasp-api-2023",
+    "owasp mobile top 10": "owasp-mobile-2024",
+    "owasp llm top 10": "owasp-llm-2025",
+    "nist 800-series": "nist-800-series",
+    "iso/iec 정보보안 표준": "iso-iec-security",
+}
+
+STANDARD_ALIASES = {
+    "swebok-v4": ["SWEBOK", "SWEBOK V4"],
+    "cs2023": ["CS2023", "Computing Curricula 2023"],
+    "dmbok-2": ["DMBOK", "DMBOK 2", "DAMA DMBOK"],
+    "owasp-web-2021": ["OWASP", "OWASP Web", "OWASP Web 2021"],
+    "owasp-api-2023": ["OWASP", "OWASP API", "OWASP API 2023"],
+    "owasp-mobile-2024": ["OWASP", "OWASP Mobile", "OWASP Mobile 2024"],
+    "owasp-llm-2025": ["OWASP", "OWASP LLM", "OWASP LLM 2025"],
+    "nist-800-series": ["NIST", "NIST 800", "NIST 800-series"],
+    "iso-iec-security": ["ISO", "ISO IEC", "ISO/IEC security"],
+}
+
+
+def standard_from_heading(heading: str) -> str | None:
+    normalized = normalize_key(strip_ordinal_prefix(slugify(heading)).replace("-", " "))
+    heading_lower = strip_md(heading).lower()
+    for needle, standard_id in STANDARD_IDS.items():
+        if needle in heading_lower:
+            return standard_id
+    if "owasp" in heading_lower and "web" in heading_lower:
+        return "owasp-web-2021"
+    if "owasp" in heading_lower and "api" in heading_lower:
+        return "owasp-api-2023"
+    if "owasp" in heading_lower and "mobile" in heading_lower:
+        return "owasp-mobile-2024"
+    if "owasp" in heading_lower and "llm" in heading_lower:
+        return "owasp-llm-2025"
+    if "nist" in heading_lower and "800" in heading_lower:
+        return "nist-800-series"
+    if "iso/iec" in heading_lower and "표준" in heading_lower:
+        return "iso-iec-security"
+    if normalized in STANDARD_IDS:
+        return STANDARD_IDS[normalized]
+    return None
+
+
+def clean_standard_cell(text: str) -> str:
+    text = strip_md(text)
+    text = re.sub(r"[*_~]+", "", text)
+    return text.strip()
+
+
+def ordinal_references(refs: Path, rel_file: str, suffix: str) -> list[str]:
+    ordinals = [int(match) for match in re.findall(r"§\s*(\d+)", suffix)]
+    if not ordinals:
+        return []
+    path = refs / rel_file
+    if not path.exists():
+        return []
+    entries = {entry["ordinal"]: entry for entry in numbered_entries(path)}
+    return [
+        f"references/{rel_file}#{entries[ordinal]['anchor']}"
+        for ordinal in ordinals
+        if ordinal in entries
+    ]
+
+
+def extract_backtick_refs(cell: str, refs: Path) -> list[str]:
+    references: list[str] = []
+    current_file: str | None = None
+    matches = list(re.finditer(r"`([^`]+)`", cell))
+    for index, match in enumerate(matches):
+        raw = match.group(1)
+        value = raw.strip()
+        file_match = re.match(
+            r"^((?:patterns|algorithms|languages|security|principles|quality)/[^#\s,)]+\.md)(?:#([^)\s,]+))?$",
+            value,
+        )
+        if file_match:
+            current_file = file_match.group(1)
+            fragment = file_match.group(2)
+            if fragment:
+                references.append(f"references/{current_file}#{fragment}")
+            else:
+                next_start = matches[index + 1].start() if index + 1 < len(matches) else len(cell)
+                suffix = cell[match.end() : next_start]
+                ordinal_refs = ordinal_references(refs, current_file, suffix)
+                references.extend(ordinal_refs or [f"references/{current_file}"])
+            continue
+        fragment_match = re.match(r"^#([^)\s,]+)$", value)
+        if fragment_match and current_file:
+            references.append(f"references/{current_file}#{fragment_match.group(1)}")
+    if not references and "SWEBOK" in cell and "§1" in cell:
+        references.append("references/principles/standards-mapping.md#swebok-v4-mapping")
+    return references
+
+
+def parse_code_title(standard: str, headers: list[str], cells: list[str]) -> tuple[str, str]:
+    cleaned = [clean_standard_cell(cell) for cell in cells]
+    if standard.startswith("owasp-"):
+        return cleaned[0], cleaned[1]
+    if standard in {"nist-800-series", "iso-iec-security"}:
+        return cleaned[0], cleaned[1]
+    if standard == "cs2023":
+        match = re.match(r"^([A-Z]+)\s*[—-]\s*(.+)$", cleaned[1])
+        if match:
+            return match.group(1), match.group(2)
+        return cleaned[0], cleaned[1]
+    if standard == "dmbok-2":
+        return cleaned[0], cleaned[1]
+    if standard == "swebok-v4":
+        return cleaned[0], cleaned[1]
+    code_index = 0
+    title_index = 1 if len(cleaned) > 1 else 0
+    return cleaned[code_index], cleaned[title_index]
+
+
+def standard_lookup_keys(standard: str, code: str, title: str, coverage: str) -> list[str]:
+    raw_keys = [standard, code, title, coverage, f"{standard} {code}", f"{standard} {title}"]
+    if code.isdigit():
+        raw_keys.extend([f"KA{code}", f"KA {code}", f"{standard} KA{code}", f"{standard} KA {code}"])
+    code_match = re.match(r"^([A-Za-z]+)(\d+)$", code)
+    spaced_code = f"{code_match.group(1)} {code_match.group(2)}" if code_match else None
+    if spaced_code:
+        raw_keys.extend([spaced_code, f"{standard} {spaced_code}"])
+    for alias in STANDARD_ALIASES.get(standard, []):
+        raw_keys.extend([alias, f"{alias} {code}", f"{alias}{code}", f"{alias} {title}"])
+        if code.isdigit():
+            raw_keys.extend([f"{alias} KA{code}", f"{alias} KA {code}"])
+        if spaced_code:
+            raw_keys.extend([f"{alias} {spaced_code}", f"{alias}{spaced_code}"])
+    return sorted({key for key in (normalize_key(raw) for raw in raw_keys) if key})
+
+
+def generate_standards_mappings(refs: Path) -> list[dict[str, Any]]:
+    path = refs / "principles" / "standards-mapping.md"
+    mappings: list[dict[str, Any]] = []
+    current_standard: str | None = None
+    current_section_id: str | None = None
+    headers: list[str] | None = None
+
+    for line in path.read_text(encoding="utf-8").splitlines():
+        heading_match = STANDARD_SECTION_RE.match(line)
+        if heading_match:
+            standard = standard_from_heading(heading_match.group(1))
+            if standard:
+                current_standard = standard
+                current_section_id = slugify(heading_match.group(1))
+            headers = None
+            continue
+
+        cells = split_md_table_row(line)
+        if not cells:
+            continue
+        if all(set(cell) <= set("-: ") for cell in cells):
+            continue
+        if any("커버리지" == strip_md(cell) for cell in cells):
+            headers = [strip_md(cell) for cell in cells]
+            continue
+        if not (current_standard and current_section_id and headers):
+            continue
+        if len(cells) < len(headers):
+            continue
+
+        coverage_index = next((idx for idx, header in enumerate(headers) if header == "커버리지"), len(headers) - 1)
+        mapping_index = next(
+            (
+                idx
+                for idx, header in enumerate(headers)
+                if "매핑" in header or "dev-advisor" in header
+            ),
+            None,
+        )
+        if mapping_index is None:
+            continue
+
+        code, title = parse_code_title(current_standard, headers, cells)
+        coverage = clean_standard_cell(cells[coverage_index])
+        references = sorted(set(extract_backtick_refs(cells[mapping_index], refs)))
+        mappings.append(
+            {
+                "standard": current_standard,
+                "section_id": current_section_id,
+                "code": code,
+                "title": title,
+                "coverage": coverage,
+                "references": references,
+                "lookup_keys": standard_lookup_keys(current_standard, code, title, coverage),
+            }
+        )
+
+    return sorted(mappings, key=lambda row: (row["standard"], row["code"]))
 
 
 def parse_simple_mapping(index_path: Path, start_re: str, stop_re: str) -> dict[tuple[str, int], dict[str, str]]:
@@ -684,6 +899,30 @@ def validate(skill_dir: Path, catalog: dict[str, Any], manifest: dict[str, int])
         if (row["domain"], row["target_id"]) not in ids:
             issues.append(f"alias target missing: {row['domain']}/{row['alias']} -> {row['target_id']}")
 
+    standard_keys: dict[tuple[str, str], str] = {}
+    for row in catalog.get("standards_mappings", []):
+        key = (row["standard"], row["code"])
+        if key in standard_keys:
+            issues.append(f"duplicate standards mapping: {row['standard']}/{row['code']}")
+        standard_keys[key] = row["title"]
+        if not row.get("references"):
+            issues.append(f"empty standards references: {row['standard']}/{row['code']}")
+        for reference in row.get("references", []):
+            ref_match = re.match(r"^(references/[^#]+\.md)(?:#(.+))?$", reference)
+            if not ref_match:
+                issues.append(f"invalid standards reference: {row['standard']}/{row['code']} -> {reference}")
+                continue
+            ref_file, fragment = ref_match.groups()
+            path = skill_dir / ref_file
+            if not path.exists():
+                issues.append(f"missing standards reference file: {row['standard']}/{row['code']} -> {reference}")
+                continue
+            if fragment:
+                if path not in anchors_cache:
+                    anchors_cache[path] = collect_anchors(path)
+                if not anchor_matches(fragment, anchors_cache[path]):
+                    issues.append(f"missing standards reference anchor: {row['standard']}/{row['code']} -> {reference}")
+
     for domain, summary in catalog["domains"].items():
         if summary["actual_count"] != entry_counts[domain]:
             issues.append(
@@ -704,6 +943,7 @@ def build_catalog(skill_dir: Path) -> dict[str, Any]:
     items.extend(generate_quality(refs))
     items.sort(key=lambda row: (row["domain"], row["category"], row["id"]))
     aliases = collect_aliases(refs, items)
+    standards_mappings = generate_standards_mappings(refs)
 
     counts = {domain: 0 for domain in DOMAINS}
     for entry in items:
@@ -722,7 +962,7 @@ def build_catalog(skill_dir: Path) -> dict[str, Any]:
     }
 
     catalog = {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "catalog_version": "2026-05",
         "generated_at": generated_at(),
         "source": {
@@ -733,6 +973,7 @@ def build_catalog(skill_dir: Path) -> dict[str, Any]:
         "domains": domains,
         "items": items,
         "aliases": aliases,
+        "standards_mappings": standards_mappings,
     }
 
     issues = validate(skill_dir, catalog, manifest)
@@ -777,12 +1018,16 @@ def main() -> int:
             return 1
         print(
             "catalog-index.json OK "
-            f"({len(catalog['items'])} items, {len(catalog['aliases'])} aliases)"
+            f"({len(catalog['items'])} items, {len(catalog['aliases'])} aliases, "
+            f"{len(catalog['standards_mappings'])} standards mappings)"
         )
         return 0
 
     output.write_text(text, encoding="utf-8")
-    print(f"wrote {output} ({len(catalog['items'])} items, {len(catalog['aliases'])} aliases)")
+    print(
+        f"wrote {output} ({len(catalog['items'])} items, {len(catalog['aliases'])} aliases, "
+        f"{len(catalog['standards_mappings'])} standards mappings)"
+    )
     return 0
 
 

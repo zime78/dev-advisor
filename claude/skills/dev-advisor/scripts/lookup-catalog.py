@@ -35,6 +35,14 @@ def strip_md(text: str) -> str:
 def normalize_key(text: str) -> str:
     text = re.sub(r"<[^>]+>", "", strip_md(text))
     text = re.sub(r"[`*_~]", "", text).strip().lower()
+    symbol_aliases = {
+        "c++": "cplusplus",
+        "c#": "csharp",
+        "f#": "fsharp",
+        "vb.net": "vb dotnet",
+    }
+    for source, target in symbol_aliases.items():
+        text = text.replace(source, target)
     text = re.sub(r"[^\w\s\-\u3131-\u318E\uAC00-\uD7A3]+", " ", text)
     text = re.sub(r"\s+", "-", text)
     text = re.sub(r"-+", "-", text)
@@ -144,9 +152,47 @@ def list_items(catalog: dict[str, Any], domain: str, *, item_type: str | None, c
     return sorted(results, key=lambda row: (row["item_type"], row["category"], row["id"]))
 
 
+def public_standard(row: dict[str, Any], *, resolved_from: str | None = None) -> dict[str, Any]:
+    data = {
+        "standard": row["standard"],
+        "section_id": row["section_id"],
+        "code": row["code"],
+        "title": row["title"],
+        "coverage": row["coverage"],
+        "references": row.get("references", []),
+    }
+    if resolved_from:
+        data["resolved_from"] = resolved_from
+    return data
+
+
+def resolve_standard(catalog: dict[str, Any], query: str, *, limit: int) -> list[dict[str, Any]]:
+    normalized = normalize_key(query)
+    exact: list[dict[str, Any]] = []
+    partial: list[dict[str, Any]] = []
+    for row in catalog.get("standards_mappings", []):
+        keys = set(row.get("lookup_keys", []))
+        code = normalize_key(row["code"])
+        standard = normalize_key(row["standard"])
+        title = normalize_key(row["title"])
+        if normalized == code or normalized in keys:
+            exact.append(public_standard(row, resolved_from="lookup_key"))
+            continue
+        if normalized == standard or normalized == title:
+            exact.append(public_standard(row, resolved_from="lookup_key"))
+            continue
+        haystack = " ".join([standard, code, title, *keys])
+        if normalized and normalized in haystack:
+            partial.append(public_standard(row, resolved_from="partial"))
+    results = exact + partial
+    if not results:
+        raise SystemExit(f"FATAL: standard not found: {query}")
+    return results[:limit]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Lookup dev-advisor catalog-index.json")
-    parser.add_argument("domain", help="pattern|algorithm|language|security|principle|quality")
+    parser.add_argument("domain", help="pattern|algorithm|language|security|principle|quality|standard")
     parser.add_argument("command", help="list|search|<id-or-alias>")
     parser.add_argument("query", nargs="*", help="search query or optional list category")
     parser.add_argument("--catalog", default=None, help="catalog-index.json path")
@@ -157,19 +203,22 @@ def main() -> int:
     script_dir = Path(__file__).resolve().parent
     catalog_path = Path(args.catalog) if args.catalog else script_dir.parent / "catalog-index.json"
     catalog = load_catalog(catalog_path)
-    domain = resolve_domain(args.domain)
-
     command = args.command.strip()
-    if command == "list":
-        category = " ".join(args.query).strip() or None
-        output: Any = list_items(catalog, domain, item_type=args.item_type, category=category)
-    elif command == "search":
-        if not args.query:
-            raise SystemExit("FATAL: search query required")
-        output = search(catalog, domain, " ".join(args.query), limit=args.limit)
-    else:
+    if args.domain.strip().lower() in {"standard", "standards"}:
         query = " ".join([command, *args.query]).strip()
-        output = resolve(catalog, domain, query)
+        output = resolve_standard(catalog, query, limit=args.limit)
+    else:
+        domain = resolve_domain(args.domain)
+        if command == "list":
+            category = " ".join(args.query).strip() or None
+            output: Any = list_items(catalog, domain, item_type=args.item_type, category=category)
+        elif command == "search":
+            if not args.query:
+                raise SystemExit("FATAL: search query required")
+            output = search(catalog, domain, " ".join(args.query), limit=args.limit)
+        else:
+            query = " ".join([command, *args.query]).strip()
+            output = resolve(catalog, domain, query)
 
     print(json.dumps(output, ensure_ascii=False, indent=2))
     return 0

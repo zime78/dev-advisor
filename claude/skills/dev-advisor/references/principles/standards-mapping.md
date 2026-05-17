@@ -229,6 +229,48 @@ OWASP Foundation 의 4 종 Top 10 — [Web 2021](https://owasp.org/Top10/) / [AP
 
 ---
 
+## 6. ISO/IEC 25010:2023 8 특성 분해 매핑
+
+<a id="iso25010-detail-mapping"></a>
+
+5-2 표는 ISO/IEC 25010:2023 을 단일 행으로 묶었지만, *Product Quality Model* 의 8 특성을 개별 코드로 분해해 `principles/iso25010.md` 의 8 섹션 anchor 와 1:1 매핑하고, 각 특성을 보강하는 외부 카탈로그 항목을 함께 표기합니다. lookup 단위 정확도를 위해 추가합니다.
+
+| 코드 | 특성 (Characteristic) | dev-advisor 매핑 | 커버리지 |
+|---|---|---|---|
+| FS | Functional Suitability (기능 적합성) | `principles/iso25010.md` + `patterns/api-design.md` + `patterns/testing-strategies.md` | ✓ |
+| PE | Performance Efficiency (성능 효율성) | `principles/iso25010.md` + `principles/performance-metrics.md` + `patterns/caching.md` | ✓ |
+| CO | Compatibility (호환성) | `principles/iso25010.md` + `patterns/api-design.md` + `patterns/integration.md` | ✓ |
+| US | Usability (사용성) | `principles/iso25010.md#usability` + `principles/hci-methodology.md` + `patterns/ui-ux.md` | ✓ |
+| RE | Reliability (신뢰성) | `principles/iso25010.md#reliability` + `principles/resilience-theory.md` + `patterns/error-handling.md` | ✓ |
+| SE | Security (보안) | `principles/iso25010.md` + `security/index.md` | ✓ |
+| MA | Maintainability (유지보수성) | `principles/iso25010.md#maintainability` + `principles/code-smells.md` + `principles/refactoring-techniques.md` + `principles/solid.md` | ✓ |
+| PO | Portability (이식성) | `principles/iso25010.md` + `patterns/build-versioning.md` + `patterns/deployment.md` | ✓ |
+
+**커버리지**: ISO/IEC 25010:2023 Product Quality Model **8/8 ✓ 완전 커버**
+
+> 비고: 2023 개정에서 Usability 는 **Interaction Capability** 로, Portability 의 일부는 **Flexibility** 로 재구성됐고 **Safety** 가 새 특성으로 추가됐습니다. 본 표는 기존 명명을 유지하되 신규 특성은 향후 reference 확장 시 추가합니다.
+
+---
+
+## 7. DORA 4 Key Metrics ↔ dev-advisor 매핑
+
+<a id="dora-mapping"></a>
+
+DORA (DevOps Research and Assessment) *State of DevOps Report* 가 통계적으로 검증한 **SW 전달 4 메트릭**을 측정·개선 actionable 카탈로그 항목으로 매핑합니다. 메트릭 정의 본문은 `principles/process-metrics.md#4-dora-4-metrics` 단일 source 이고, 본 표는 각 메트릭을 *개선하는* 카탈로그 자산을 가리킵니다.
+
+| 코드 | 메트릭 | dev-advisor 매핑 | 커버리지 |
+|---|---|---|---|
+| DF | Deployment Frequency | `principles/process-metrics.md#4-dora-4-metrics` + `principles/process-metrics.md#6-trunk-based-development` + `principles/process-metrics.md#7-gitops` + `patterns/deployment.md` | ✓ |
+| LT | Lead Time for Changes | `principles/process-metrics.md#4-dora-4-metrics` + `principles/process-metrics.md#6-trunk-based-development` + `principles/refactoring-techniques.md` + `patterns/build-versioning.md` | ✓ |
+| MTTR | Mean Time To Restore | `principles/process-metrics.md#4-dora-4-metrics` + `patterns/error-handling.md` + `security/security-detect-respond.md#6-incident-response-playbook` + `patterns/observability.md` | ✓ |
+| CFR | Change Failure Rate | `principles/process-metrics.md#4-dora-4-metrics` + `patterns/testing-strategies.md` + `principles/evolutionary-arch.md#1-fitness-function` + `patterns/deployment.md` | ✓ |
+
+**커버리지**: DORA 4 Key Metrics **4/4 ✓ 완전 커버**
+
+> 보조: 2021~2022 보고서가 추가한 5번째 메트릭 *Reliability (SLO 달성률)* 는 `patterns/observability.md` 및 `principles/resilience-theory.md` 가 SLI/SLO 패턴으로 커버 — 표 외 부록.
+
+---
+
 ## Cross-link Summary (역방향 인덱스)
 
 본 매핑 파일이 가장 자주 참조하는 카탈로그 파일 Top 15 (출현 빈도순):

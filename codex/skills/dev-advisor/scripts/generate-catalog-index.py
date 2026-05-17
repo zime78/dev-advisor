@@ -252,6 +252,9 @@ STANDARD_IDS = {
     "owasp llm top 10": "owasp-llm-2025",
     "nist 800-series": "nist-800-series",
     "iso/iec 정보보안 표준": "iso-iec-security",
+    "iso/iec 25010:2023 8 특성": "iso-iec-25010",
+    "iso/iec 25010": "iso-iec-25010",
+    "dora 4 key metrics": "dora",
 }
 
 STANDARD_ALIASES = {
@@ -264,6 +267,8 @@ STANDARD_ALIASES = {
     "owasp-llm-2025": ["OWASP", "OWASP LLM", "OWASP LLM 2025"],
     "nist-800-series": ["NIST", "NIST 800", "NIST 800-series"],
     "iso-iec-security": ["ISO", "ISO IEC", "ISO/IEC security"],
+    "iso-iec-25010": ["ISO 25010", "ISO/IEC 25010", "ISO 25010:2023", "ISO/IEC 25010:2023", "Product Quality Model"],
+    "dora": ["DORA", "DORA Metrics", "DORA Four Keys", "DORA 4 Key Metrics"],
 }
 
 

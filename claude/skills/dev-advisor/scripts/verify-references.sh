@@ -1198,17 +1198,19 @@ check_pri sdlc-models            "${pri_sdlc}"    7
 check_pri scaled-agile           "${pri_scaled}"  6
 check_pri professional-ethics    "${pri_ethics}"  6
 # P1 신설 2 카테고리
-check_pri standards-mapping        "${pri_standards}"  5
+# standards-mapping: 5 표준 그룹 + ISO 25010 8특성 분해 + DORA 4메트릭 = 7 ## N 헤더
+check_pri standards-mapping        "${pri_standards}"  7
 check_pri configuration-management "${pri_config}"     6
 # P3 신설 2 카테고리
 check_pri hci-methodology          "${pri_hci}"        6
 check_pri formal-methods           "${pri_formal}"     5
 
 # 5 base + 4 P0 신설 + 2 P1 신설 + 2 P3 신설 = 56 + 27 + 11 + 11 = 105
-if [ "${pri_total}" -eq 105 ]; then
+# + standards-mapping ISO 25010 8특성/DORA 분해 헤더 2 = 107
+if [ "${pri_total}" -eq 107 ]; then
   ok "base+P0+P1+P3 원칙 합계: ${pri_total}개"
 else
-  fail "base+P0+P1+P3 원칙 합계: 기대=105, 실제=${pri_total}"
+  fail "base+P0+P1+P3 원칙 합계: 기대=107, 실제=${pri_total}"
 fi
 
 # 미시 원칙 부록 검증 (Phase 2 확장: 8 → 18 항목)

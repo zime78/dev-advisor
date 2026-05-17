@@ -663,6 +663,7 @@ class PaymentController(private val service: PaymentService, private val redis: 
 
 ---
 
+<a id="graphql-security"></a>
 ## 10. GraphQL 보안
 
 **목적**: GraphQL 의 유연한 query 모델이 가져오는 고유 공격 표면 — **무한 깊이 query / N+1 / cost-bomb / introspection 노출 / authorization bypass** — 을 차단합니다. OWASP GraphQL Cheat Sheet 기반.

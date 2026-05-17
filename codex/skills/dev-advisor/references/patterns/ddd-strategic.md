@@ -82,7 +82,7 @@ class LineItem(val unitPrice: Money, val orderedQuantity: Quantity) {
 // - Promotion: 가격 / 수량 / 묶음에 적용되는 할인 정책
 ```
 
-**관련 패턴**: [Bounded Context](#bounded-context-strategic), [Context Map](#context-map), [Entity](ddd-tactical.md#1-entity), [Value Object](ddd-tactical.md#2-value-object)
+**관련 패턴**: [Bounded Context](#bounded-context-strategic), [Context Map](#context-map-strategic), [Entity](ddd-tactical.md#1-entity), [Value Object](ddd-tactical.md#2-value-object)
 
 ---
 
@@ -149,7 +149,7 @@ class NotificationService(private val sendgrid: SendGridClient) {
 }
 ```
 
-**관련 패턴**: [Bounded Context](#bounded-context-strategic), [Context Map](#context-map), [Separate Ways](#separate-ways)
+**관련 패턴**: [Bounded Context](#bounded-context-strategic), [Context Map](#context-map-strategic), [Separate Ways](#separate-ways)
 
 ---
 
@@ -160,7 +160,7 @@ class NotificationService(private val sendgrid: SendGridClient) {
 
 **메커니즘 / 관계 구조**:
 - 하나의 BC = 하나의 모델 = 하나의 언어 = (이상적으로) 하나의 팀
-- BC 간 통신은 명시적 통합 패턴 ([Context Map](#context-map) 의 9 관계 중 하나) 으로
+- BC 간 통신은 명시적 통합 패턴 ([Context Map](#context-map-strategic) 의 9 관계 중 하나) 으로
 - 같은 회사 안에서도 BC 마다 다른 기술 스택 · 다른 DB · 다른 배포 주기 가능
 - Conway's Law 의 의도적 활용 — 팀 구조와 BC 경계를 정렬
 - 마이크로서비스 분해의 1차 단위 (단, BC ≠ 마이크로서비스. BC 가 더 큰 개념)
@@ -223,11 +223,11 @@ class Customer(
 // 통합은 CustomerId 동기화 + 이벤트 (CustomerRegistered) 로
 ```
 
-**관련 패턴**: [Context Map](#context-map), [Ubiquitous Language](#ubiquitous-language), [Anti-Corruption Layer (전략)](#anti-corruption-layer-strategic), [BC (전술)](ddd-tactical.md#8-bounded-context)
+**관련 패턴**: [Context Map](#context-map-strategic), [Ubiquitous Language](#ubiquitous-language), [Anti-Corruption Layer (전략)](#anti-corruption-layer-strategic), [BC (전술)](ddd-tactical.md#8-bounded-context)
 
 ---
 
-<a id="context-map"></a>
+<a id="context-map-strategic"></a>
 ## 4. Context Map
 
 **정의**: Evans Blue Book Chapter 14 · Vernon IDDD Chapter 3. 시스템의 모든 Bounded Context 와 그 사이 관계를 시각화한 다이어그램 · 문서. 통합 전략을 의식적으로 선택하기 위한 도구.
@@ -391,7 +391,7 @@ class SalesPaymentContractTest {
 // 이 계약이 Payment Platform 의 CI 에서 검증되어야 customer-supplier 성립
 ```
 
-**관련 패턴**: [Context Map](#context-map), [Conformist](#conformist), [Open Host Service](#open-host-service), [Published Language](#published-language)
+**관련 패턴**: [Context Map](#context-map-strategic), [Conformist](#conformist), [Open Host Service](#open-host-service), [Published Language](#published-language)
 
 ---
 
@@ -457,7 +457,7 @@ class BillingService(private val stripeClient: StripeClient) {
 // → Conformist 는 의도적으로 그 변환을 포기. 변경 비용 < 변환 비용.
 ```
 
-**관련 패턴**: [Context Map](#context-map), [Customer-Supplier](#customer-supplier), [Anti-Corruption Layer (전략)](#anti-corruption-layer-strategic), [Subdomain 분류](#subdomain-classification)
+**관련 패턴**: [Context Map](#context-map-strategic), [Customer-Supplier](#customer-supplier), [Anti-Corruption Layer (전략)](#anti-corruption-layer-strategic), [Subdomain 분류](#subdomain-classification)
 
 ---
 
@@ -535,7 +535,7 @@ class LoyaltyService(private val customers: CustomerRepository) {
 }
 ```
 
-**관련 패턴**: [Context Map](#context-map), [Conformist](#conformist), [ACL (전술)](ddd-tactical.md#7-anti-corruption-layer-acl), [Strangler Fig](legacy-code.md), [Bounded Context](#bounded-context-strategic)
+**관련 패턴**: [Context Map](#context-map-strategic), [Conformist](#conformist), [ACL (전술)](ddd-tactical.md#7-anti-corruption-layer-acl), [Strangler Fig](legacy-code.md), [Bounded Context](#bounded-context-strategic)
 
 ---
 
@@ -613,7 +613,7 @@ class BillingAuthGuard(private val oauth: OAuth2Client) {
 }
 ```
 
-**관련 패턴**: [Published Language](#published-language), [Customer-Supplier](#customer-supplier), [Conformist](#conformist), [Context Map](#context-map)
+**관련 패턴**: [Published Language](#published-language), [Customer-Supplier](#customer-supplier), [Conformist](#conformist), [Context Map](#context-map-strategic)
 
 ---
 
@@ -691,7 +691,7 @@ class PatientPublishedLanguageMapper {
 }
 ```
 
-**관련 패턴**: [Open Host Service](#open-host-service), [Context Map](#context-map), [Conformist](#conformist), [Anti-Corruption Layer (전략)](#anti-corruption-layer-strategic)
+**관련 패턴**: [Open Host Service](#open-host-service), [Context Map](#context-map-strategic), [Conformist](#conformist), [Anti-Corruption Layer (전략)](#anti-corruption-layer-strategic)
 
 ---
 
@@ -843,7 +843,7 @@ class InventoryService {
 // → 통합 sprint, 통합 contract test, 양 팀 PM 협력 필수
 ```
 
-**관련 패턴**: [Customer-Supplier](#customer-supplier), [Shared Kernel](#shared-kernel), [Context Map](#context-map), [Bounded Context](#bounded-context-strategic)
+**관련 패턴**: [Customer-Supplier](#customer-supplier), [Shared Kernel](#shared-kernel), [Context Map](#context-map-strategic), [Bounded Context](#bounded-context-strategic)
 
 ---
 
@@ -917,7 +917,7 @@ object WikiSalesIntegration  // 의도적 빈 객체 — 문서 anchor 용도
 // → 현재는 이 비용을 의도적으로 피한다.
 ```
 
-**관련 패턴**: [Subdomain 분류](#subdomain-classification), [Context Map](#context-map), [Big Ball of Mud](anti-patterns.md), [Anti-Corruption Layer (전략)](#anti-corruption-layer-strategic)
+**관련 패턴**: [Subdomain 분류](#subdomain-classification), [Context Map](#context-map-strategic), [Big Ball of Mud](anti-patterns.md), [Anti-Corruption Layer (전략)](#anti-corruption-layer-strategic)
 
 ---
 
@@ -929,7 +929,7 @@ object WikiSalesIntegration  // 의도적 빈 객체 — 문서 anchor 용도
 - [ ] 각 BC 의 [Subdomain 분류](#subdomain-classification) (Core / Supporting / Generic) 가 명시되어 있는가?
 - [ ] Core Subdomain 에 시니어 개발자 · 정교한 패턴이 집중되어 있는가?
 - [ ] Generic Subdomain 을 SaaS / 오픈소스로 대체했는가?
-- [ ] [Context Map](#context-map) 이 그려져 있고 정기 갱신되는가?
+- [ ] [Context Map](#context-map-strategic) 이 그려져 있고 정기 갱신되는가?
 - [ ] 각 통합 관계가 9 관계 중 어느 것인지 명시되어 있는가?
 - [ ] [Conformist](#conformist) 가 Core Subdomain 에 적용되어 있지 않은가? (안티패턴)
 - [ ] 외부 시스템 통합에 [ACL](#anti-corruption-layer-strategic) 또는 의도적 [Conformist](#conformist) 결정이 있는가?

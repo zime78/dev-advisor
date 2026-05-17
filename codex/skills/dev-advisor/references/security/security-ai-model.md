@@ -291,6 +291,7 @@ def adversarial_train_step(model, optimizer, x_batch, y_batch):
 
 ---
 
+<a id="federated-learning-security"></a>
 ## 5. Federated Learning 보안 (분산 학습 위협과 방어)
 
 **목적/위협**: 여러 참여자(클라이언트)가 데이터를 공유하지 않고 로컬 그래디언트만 집계하는 Federated Learning(FL)에서 발생하는 보안 위협과 방어 패턴. MITRE ATLAS AML.T0020 (악성 ML 아티팩트), AML.T0024 (추론 공격).

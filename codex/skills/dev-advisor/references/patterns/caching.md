@@ -345,6 +345,7 @@ fun main() {
 
 ---
 
+<a id="cache-stampede-prevention"></a>
 ## 6. Cache Stampede 방지 (singleflight / lock / probabilistic early expiration)
 
 **목적**: 인기 키의 TTL 만료 순간 다수의 요청이 동시에 DB로 몰리는 Cache Stampede(Thundering Herd) 현상을 방지합니다.
@@ -425,6 +426,7 @@ fun <V> shouldRefresh(entry: CacheEntry<V>, beta: Double = 1.0): Boolean {
 
 ---
 
+<a id="eviction-policies"></a>
 ## 7. TTL / LRU / LFU 정책 (Eviction Strategies)
 
 **목적**: 캐시 용량 한계에서 어떤 항목을 제거할지, 얼마나 오래 보관할지를 결정하는 퇴거(Eviction) 정책을 선택합니다.

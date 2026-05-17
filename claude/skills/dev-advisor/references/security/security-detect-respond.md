@@ -479,6 +479,7 @@ grep -rh "attack\." ./sigma-rules/ \
 
 ---
 
+<a id="ir-playbook"></a>
 ## 6. Incident Response Playbook (NIST SP 800-61 Rev.2)
 
 **목적**: 보안 침해 사고 발생 시 혼란을 최소화하고 체계적으로 대응·복구하기 위한 6단계 프로세스를 표준화합니다. NIST SP 800-61 Rev.2를 근거로 합니다.

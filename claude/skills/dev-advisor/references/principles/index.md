@@ -189,8 +189,8 @@ dev-advisor SKILL.md `## 호출 인터페이스` 와 동일하게 `list / search
 | concurrency                     | concurrency-theory               | 도메인 단축 |
 | linearizability                 | conc-linearizability             | 동시성 (Herlihy-Wing) |
 | happens-before                  | conc-happens-before              | 동시성 (Lamport) |
-| cap-theorem                     | conc-cap                         | 동시성 (Brewer) |
-| flp-impossibility               | conc-flp                         | 동시성 (Fischer-Lynch-Paterson) |
+| cap-theorem                     | cap-pacelc                       | DB/분산 데이터 (Brewer CAP) |
+| flp-impossibility               | conc-liveness-safety             | 동시성 (불가능성/진행성 한계) |
 | refactoring                     | refactoring-techniques           | 도메인 단축 |
 | extract-method                  | refactor-extract-function        | Fowler 1st ed. 명칭 |
 | extract-function                | refactor-extract-function        | Fowler 2nd ed. 정식 |

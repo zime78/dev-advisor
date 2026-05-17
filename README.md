@@ -163,9 +163,10 @@ cp -R claude/skills/dev-advisor ~/.claude/skills/dev-advisor
 | 구분 | 경로 | 파일 수 | 역할 | 비고 |
 |---|---:|---:|---|---|
 | Git 제외 규칙 | `.gitignore` | 1 | 로컬 상태, 캐시, 비밀 파일 제외 | `.omx/`, `.DS_Store`, `.env*`, Python 캐시 제외 |
-| Claude 스킬 | `claude/skills/dev-advisor/` | 204 | Claude 환경에서 사용할 dev-advisor 스킬 패키지 | `SKILL.md`, `references/`, `scripts/` 포함 |
-| Codex 스킬 | `codex/skills/dev-advisor/` | 202 | Codex 환경에서 사용할 dev-advisor 스킬 패키지 | `agents/openai.yaml` 포함 |
+| Claude 스킬 | `claude/skills/dev-advisor/` | 222 | Claude 환경에서 사용할 dev-advisor 스킬 패키지 | `SKILL.md`, `references/`, `scripts/`, `catalog-index.json` 포함 |
+| Codex 스킬 | `codex/skills/dev-advisor/` | 224 | Codex 환경에서 사용할 dev-advisor 스킬 패키지 | `agents/openai.yaml`, `catalog-index.json` 포함 |
 | 루트 문서 | `README.md` | 1 | 프로젝트 개요, 구성, 출처 정리 | 현재 문서 |
+| 설계 문서 | `docs/` | 1 | 생성 산출물과 운영 설계 | `catalog-index.json` 설계 |
 | 설치 스크립트 | `scripts/install-skills.sh` | 1 | Codex/Claude Code 스킬 자동 설치 | 기존 설치본은 `.backups/`로 백업 |
 | 로컬 런타임 | `.omx/` | 추적 제외 | oh-my-codex 실행 상태와 로그 | 저장소에는 포함하지 않음 |
 | macOS 메타파일 | `.DS_Store` | 추적 제외 | Finder 로컬 메타데이터 | 저장소에는 포함하지 않음 |
@@ -239,11 +240,19 @@ cp -R claude/skills/dev-advisor ~/.claude/skills/dev-advisor
 | Handoff | `references/handoff.md` | 에이전트 hand-off 기준과 협업 계약 |
 | Output templates | `references/output_templates.md` | advisor 모드별 출력 스켈레톤 |
 | Enrich languages | `scripts/enrich-languages.py` | 언어 reference 확장/보강용 스크립트 |
-| Verify references | `scripts/verify-references.sh` | 전체 카탈로그, 링크, anchor, 카운트 검증 |
+| Verify references | `scripts/verify-references.sh` | 전체 카탈로그, 링크, anchor, 카운트, semantic validation 검증 |
+| Generate catalog index | `scripts/generate-catalog-index.py` | Markdown 원본에서 `catalog-index.json` 생성 및 stale 여부 검증 |
+| Lookup catalog | `scripts/lookup-catalog.py` | `catalog-index.json`만 읽어 ID/alias/search가 실제 파일과 anchor로 해석되는지 검증 |
 | Verify anchors | `scripts/verify-anchors.sh` | deprecated wrapper, `verify-references.sh`로 위임 |
 | Skill installer | `scripts/install-skills.sh` | 루트 자동 설치 스크립트. Codex/Claude Code 설치 여부를 감지해 스킬을 복사 |
 
-### 2.7 전체 세부 항목 인벤토리
+### 2.7 설계 문서
+
+| 문서 | 역할 |
+|---|---|
+| [`docs/catalog-index-design.md`](docs/catalog-index-design.md) | `catalog-index.json`의 source of truth, JSON 스키마, 생성기 인터페이스, 검증 불변식, CI 도입 순서 정의 |
+
+### 2.8 전체 세부 항목 인벤토리
 
 아래 표는 각 reference 파일의 실제 세부 항목을 전부 펼친 인벤토리입니다. 항목명은 각 파일의 `## N.` 제목 기준이며, 긴 항목은 같은 칸에서 줄바꿈으로 구분합니다.
 
@@ -395,6 +404,7 @@ cp -R claude/skills/dev-advisor ~/.claude/skills/dev-advisor
 │   └── skills/
 │       └── dev-advisor/
 │           ├── SKILL.md
+│           ├── catalog-index.json
 │           ├── references/
 │           │   ├── README.md
 │           │   ├── algorithms/
@@ -410,12 +420,14 @@ cp -R claude/skills/dev-advisor ~/.claude/skills/dev-advisor
 │           └── scripts/
 │               ├── README.md
 │               ├── enrich-languages.py
+│               ├── generate-catalog-index.py
 │               ├── verify-anchors.sh
 │               └── verify-references.sh
 └── codex/
     └── skills/
         └── dev-advisor/
             ├── SKILL.md
+            ├── catalog-index.json
             ├── agents/
             │   └── openai.yaml
             ├── references/
@@ -433,6 +445,7 @@ cp -R claude/skills/dev-advisor ~/.claude/skills/dev-advisor
             └── scripts/
                 ├── README.md
                 ├── enrich-languages.py
+                ├── generate-catalog-index.py
                 ├── verify-anchors.sh
                 └── verify-references.sh
 ```
@@ -468,8 +481,14 @@ cp -R claude/skills/dev-advisor ~/.claude/skills/dev-advisor
 |---|---|
 | `sh codex/skills/dev-advisor/scripts/verify-references.sh` | Codex 스킬 카탈로그 전체 무결성 검증 |
 | `sh claude/skills/dev-advisor/scripts/verify-references.sh` | Claude 스킬 카탈로그 전체 무결성 검증 |
+| `sh codex/skills/dev-advisor/scripts/verify-references.sh --check semantic` | index ↔ 실제 anchor ↔ standards mapping의 의미적 무결성 검증 |
+| `python3 codex/skills/dev-advisor/scripts/generate-catalog-index.py --check` | Codex `catalog-index.json`이 Markdown 원본과 동기화되어 있는지 검증 |
+| `python3 claude/skills/dev-advisor/scripts/generate-catalog-index.py --check` | Claude `catalog-index.json`이 Markdown 원본과 동기화되어 있는지 검증 |
+| `python3 codex/skills/dev-advisor/scripts/lookup-catalog.py principle dry` | JSON 우선 lookup이 미시 원칙 appendix를 실제 파일/anchor로 해석하는지 검증 |
 | `sh codex/skills/dev-advisor/scripts/verify-anchors.sh` | Codex 스킬 anchor wrapper 검증 |
 | `sh claude/skills/dev-advisor/scripts/verify-anchors.sh` | Claude 스킬 anchor wrapper 검증 |
+
+semantic validation은 카탈로그 무결성 검증의 일부입니다. 항목 수를 세는 것과 별도로 index ID가 실제 reference anchor로 해석되는지, 표준 매핑 문서의 cross-link가 살아 있는지 확인합니다.
 
 ## 5. 출처와 참조 사이트 정리
 

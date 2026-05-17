@@ -63,6 +63,16 @@ def strip_ordinal_prefix(text: str) -> str:
     return re.sub(r"^\d+-", "", text)
 
 
+def build_lookup_keys(keys: list[str]) -> list[str]:
+    lookup_keys = {key for key in (normalize_key(k) for k in keys) if key}
+    lookup_keys.update(
+        key.replace("-c-cplusplus", "-cplusplus")
+        for key in list(lookup_keys)
+        if "-c-cplusplus" in key
+    )
+    return sorted(lookup_keys)
+
+
 def first_heading(path: Path) -> tuple[str, str]:
     for line in path.read_text(encoding="utf-8").splitlines():
         match = re.match(r"^#\s+(.+?)\s*$", line)
@@ -196,7 +206,7 @@ def item(
         "anchor": anchor,
         "aliases": alias_list,
         "tags": tag_list,
-        "lookup_keys": sorted({key for key in (normalize_key(k) for k in keys) if key}),
+        "lookup_keys": build_lookup_keys(keys),
     }
 
 
@@ -857,7 +867,7 @@ def collect_aliases(refs: Path, items: list[dict[str, Any]]) -> list[dict[str, s
         keys = [entry["id"], entry["title"], *entry["aliases"]]
         if entry.get("title_ko"):
             keys.append(entry["title_ko"])
-        entry["lookup_keys"] = sorted({key for key in (normalize_key(k) for k in keys) if key})
+        entry["lookup_keys"] = build_lookup_keys(keys)
 
     return sorted(aliases, key=lambda row: (row["domain"], row["alias"]))
 

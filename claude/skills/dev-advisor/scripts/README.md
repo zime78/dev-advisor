@@ -4,7 +4,7 @@ dev-advisor 스킬 무결성 검증 도구.
 
 ## verify-references.sh (권장)
 
-**6 도메인 reference 무결성 검증** — 패턴 / 알고리즘 / 언어 / 보안 / 원칙 / 품질. 총 1,251 항목.
+**6 도메인 reference 무결성 검증** — 패턴 / 알고리즘 / 언어 / 보안 / 원칙 / 품질. 총 1,253 항목.
 
 ```bash
 bash scripts/verify-references.sh
@@ -26,7 +26,7 @@ bash scripts/verify-references.sh --check today
    - languages 전체 품질 게이트: 75개 언어 파일 정확성, `## 관련 문서` 존재, Markdown 링크 3개 이상, 외부 공식 문서 후보 링크 2개 이상, `실사용 예제` 코드 블록 1개 이상, 예제 섹션 25단어 이상
 7. patterns base reference 무결성 (base/P0/P1/P2/P3 카테고리, 부분 합계 == 208; 전체 547은 10번과 합산)
 8. security base reference 무결성 (base 13 보안 파일, base 합계 == 97; 전체 106은 10번과 합산)
-9. **principles reference 무결성** (base/P0/P1/P3 원칙 파일, 부분 합계 == 105; 전체 212 + 18 부록은 10번과 합산)
+9. **principles reference 무결성** (base/P0/P1/P3 원칙 파일, 부분 합계 == 107; 전체 214 + 18 부록은 10번과 합산)
 10. Phase 2 확장 신규 카탈로그 anchor/header 일관성
 11. SKILL.md 통합 모드 (`qa` / `qc` / `full` / `swarm`) 등록 검증
 12. 핵심 Markdown 내부 링크/anchor 검증
@@ -46,9 +46,9 @@ bash scripts/verify-references.sh --check today
 | Algorithms | 32 + index           | 273 |
 | Languages  | ≥75 + index + domains | 75 |
 | Security   | 14 + index           | 106 |
-| Principles | 23 + index + micro appendix | 212 + 18 appendix |
+| Principles | 23 + index + micro appendix | 214 + 18 appendix |
 | Quality    | 2 + index            | 20 |
-| **합계**   |                      | **1,251** |
+| **합계**   |                      | **1,253** |
 
 새 항목 추가 후 반드시 실행. CI 또는 pre-commit hook 통합 권장:
 
@@ -82,12 +82,12 @@ python3 scripts/generate-catalog-index.py --output catalog-index.json
 
 | 항목 | 수 |
 |---|---:|
-| items | 1,274 |
+| items | 1,276 |
 | aliases | 213 |
-| standards_mappings | 103 |
+| standards_mappings | 115 |
 | domains | 6 |
 
-Principles는 주 카탈로그 212개를 `entry`, 도메인 진입점 23개를 `category`, 미시 원칙 18개를 `appendix`로 색인한다. manifest의 `actual_count`는 기존과 같이 `entry`만 센다.
+Principles는 주 카탈로그 214개를 `entry`, 도메인 진입점 23개를 `category`, 미시 원칙 18개를 `appendix`로 색인한다. manifest의 `actual_count`는 기존과 같이 `entry`만 센다.
 
 ## lookup-catalog.py
 

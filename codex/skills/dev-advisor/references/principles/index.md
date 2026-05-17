@@ -48,7 +48,7 @@
 
 | # | 파일 | 항목 수 | 표준 / 저자 | 주요 용도 |
 |---|------|--------:|------------|----------|
-| 20 | [standards-mapping.md](standards-mapping.md)         |  5 | IEEE/ACM SWEBOK V4 (2024); ACM/IEEE-CS CS2023; DAMA-DMBOK 2; OWASP Top 10 (Web/API/Mobile/LLM); NIST 800-series + ISO 27001/27017/27018 | 외부 표준 ↔ dev-advisor 카탈로그 매핑 (recommend / validate / security-audit / maintain 표준 인용 strengthening) |
+| 20 | [standards-mapping.md](standards-mapping.md)         |  7 | IEEE/ACM SWEBOK V4 (2024); ACM/IEEE-CS CS2023; DAMA-DMBOK 2; OWASP Top 10 (Web/API/Mobile/LLM); NIST 800-series + ISO 27001/27017/27018; ISO/IEC 25010; DORA | 외부 표준 ↔ dev-advisor 카탈로그 매핑 (recommend / validate / security-audit / maintain 표준 인용 strengthening) |
 | 21 | [configuration-management.md](configuration-management.md) |  6 | IEEE Std 828-2012 (SCMP); MIL-STD-973 / ISO 10007 (CM); Conradi & Westfechtel (variant management); Krueger / Clements & Northrop (SPL) | 형상 관리·Baseline 3종·CCB·FCA/PCA·Variant 관리 (planner / architect / code-reviewer / maintain 기준) |
 
 ### P3 신설 2 카테고리 (HCI 방법론 · 형식 기법)
@@ -60,15 +60,15 @@
 
 **P3 소계**: 11 항목 (6 + 5)
 
-**P1 소계**: 11 항목 (5 + 6)
+**P1 소계**: 13 항목 (7 + 6)
 
-**총합**: **212 항목** (56 + 107 + 27 + 11 + 11)
+**총합**: **214 항목** (56 + 107 + 27 + 13 + 11)
 
 ### 부록: 미시 원칙
 
 | 파일 | 항목 수 | 설명 |
 |------|--------:|------|
-| [micro-principles.md](micro-principles.md) | 18 | 핵심 8 (DRY / KISS / YAGNI / LoD / SoC / Tell-Don't-Ask / Composition over Inheritance / SSoT) + 사회·조직·확장 10 (Conway / Inverse Conway / Hyrum / Postel / Brooks / Hollywood-IoC / Boy Scout / Pareto / Goodhart / Cunningham). verify 주 카탈로그 212 항목 외 부록 |
+| [micro-principles.md](micro-principles.md) | 18 | 핵심 8 (DRY / KISS / YAGNI / LoD / SoC / Tell-Don't-Ask / Composition over Inheritance / SSoT) + 사회·조직·확장 10 (Conway / Inverse Conway / Hyrum / Postel / Brooks / Hollywood-IoC / Boy Scout / Pareto / Goodhart / Cunningham). verify 주 카탈로그 214 항목 외 부록 |
 
 ## 카테고리 선택 가이드
 
@@ -390,6 +390,6 @@ dev-advisor SKILL.md `## 호출 인터페이스` 와 동일하게 `list / search
 
 `scripts/verify-references.sh` 의 CHECK 9 블록이 이 도메인을 검증:
 - **24 파일 존재** (`index.md` + 23 카테고리 md: solid / grasp / iso25010 / 12-factor / code-smells / type-systems / concurrency-theory / refactoring-techniques / sw-economics / evolutionary-arch / resilience-theory / documentation / process-metrics / performance-metrics / sustainable-sw / database-fundamentals / sdlc-models / scaled-agile / professional-ethics / standards-mapping / configuration-management / hci-methodology / formal-methods)
-- 항목 합계 **212** (`^## [0-9]+\.` 헤더 카운트)
-- 도메인별 카운트: solid=5, grasp=9, iso25010=8, 12-factor=12, code-smells=22, type-systems=10, concurrency-theory=10, refactoring-techniques=25, sw-economics=10, evolutionary-arch=8, resilience-theory=8, documentation=8, process-metrics=10, performance-metrics=10, sustainable-sw=8, database-fundamentals=8, sdlc-models=7, scaled-agile=6, professional-ethics=6, standards-mapping=5, configuration-management=6
-- **부록 검증** (별도 검사): `micro-principles.md` 존재 + **18** 항목 카운트 (`^## ` 헤더 — 표준 인용·매트릭스·분류 섹션 3 제외). 201 합계에는 포함되지 않음.
+- 항목 합계 **214** (`^## [0-9]+\.` 헤더 카운트)
+- 도메인별 카운트: solid=5, grasp=9, iso25010=8, 12-factor=12, code-smells=22, type-systems=10, concurrency-theory=10, refactoring-techniques=25, sw-economics=10, evolutionary-arch=8, resilience-theory=8, documentation=8, process-metrics=10, performance-metrics=10, sustainable-sw=8, database-fundamentals=8, sdlc-models=7, scaled-agile=6, professional-ethics=6, standards-mapping=7, configuration-management=6
+- **부록 검증** (별도 검사): `micro-principles.md` 존재 + **18** 항목 카운트 (`^## ` 헤더 — 표준 인용·매트릭스·분류 섹션 3 제외). 214 합계에는 포함되지 않음.

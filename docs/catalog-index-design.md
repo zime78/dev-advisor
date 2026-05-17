@@ -190,7 +190,7 @@ scripts/generate-catalog-index.sh
 | Algorithms | `references/algorithms/index.md`의 ID 매핑 링크 | 명시 anchor 중심 |
 | Languages | `references/languages/index.md` + 언어 파일 목록 | 언어 파일 stem이 primary ID |
 | Security | `references/security/index.md`의 `보안 ID -> 파일 매핑` | heading fallback 허용 |
-| Principles | `references/principles/index.md`의 도메인/alias 정보 + 원칙 파일 anchor | `entry` 212 + `category` 23 + `appendix` 18 색인 |
+| Principles | `references/principles/index.md`의 도메인/alias 정보 + 원칙 파일 anchor | `entry` 214 + `category` 23 + `appendix` 18 색인 |
 | Quality | `references/quality/index.md`의 `Quality ID 매핑` | 명시 anchor 중심 |
 | Standards Mapping | `references/principles/standards-mapping.md`의 표준별 매핑표 | `standards_mappings[]`로 생성, reference 파일/anchor 검증 |
 

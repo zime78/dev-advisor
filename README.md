@@ -202,7 +202,7 @@ cp -R claude/skills/dev-advisor ~/.claude/skills/dev-advisor
 | Algorithms | `references/algorithms/` | 273 | 33 | 정렬, 탐색, 그래프, DP, 문자열, 수학, 자료구조, DB 인덱스, OS, 검색, 이미지, 신호, 코덱 등 | `/algorithm quick-sort`, `/algorithm list graph` |
 | Languages | `references/languages/` | 75 | 77 | 언어별 사용처, 특징, 장점, 제약, 예제, 분야별 추천 | `/language python`, `/language search 웹` |
 | Security | `references/security/` | 106 | 15 | 인증, 인가, 암호 운영, 데이터 보호, API/Web, 공급망, 플랫폼, SDLC, 탐지, 모바일, AI 모델, 개인정보, 컴플라이언스 | `/security oauth2-pkce`, `/security jwt` |
-| Principles | `references/principles/` | 212 + 18 부록 | 25 | SOLID, GRASP, ISO 25010, 12-Factor, Code Smells, 타입 시스템, 동시성 이론, 리팩토링, SW 경제, 성능, 지속가능성 등 | `/principle srp`, `/principle dry` |
+| Principles | `references/principles/` | 214 + 18 부록 | 25 | SOLID, GRASP, ISO 25010, 12-Factor, Code Smells, 타입 시스템, 동시성 이론, 리팩토링, SW 경제, 성능, 지속가능성 등 | `/principle srp`, `/principle dry` |
 | Quality | `references/quality/` | 20 | 3 | QA 요구사항 추적성/테스트 전략/릴리즈 승인 + QC 빌드 검증/테스트 실행 증거/품질 게이트 | `/quality qa-test-strategy`, `/quality qc-quality-gate` |
 | 보조 문서 | `references/*.md` | 6 | 6 | 코드 템플릿, 예시, handoff, 출력 템플릿, references 디렉토리 가이드 | 스킬 내부 참조 |
 

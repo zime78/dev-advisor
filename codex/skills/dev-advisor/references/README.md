@@ -24,7 +24,7 @@
 - `algorithms/` — 273 알고리즘 (32 카테고리)
 - `languages/` — 75 프로그래밍 언어
 - `security/` — 106 보안 항목 (15 파일)
-- `principles/` — 212 SW 공학 원칙 + 18 미시 부록
+- `principles/` — 214 SW 공학 원칙 + 18 미시 부록
 - `quality/` — 20 QA/QC 품질 항목 (QA 10 + QC 10)
 
 자세한 카탈로그 진입점은 SKILL.md `## 데이터 기반` 표 참조.

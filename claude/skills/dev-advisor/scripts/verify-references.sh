@@ -9,7 +9,7 @@
 #   [6] languages 표준 14 섹션 헤더 spot-check + 전체 언어 품질 게이트
 #   [7] patterns reference 무결성 (base/P0/P1/P2/P3 카테고리 파일 존재, 전체 547)
 #   [8] security reference 무결성 (base 14 파일 — 별도 도메인, 97 보안 패턴 + Privacy/Compliance 확장 = 106)
-#   [9] principles reference 무결성 (base/P0/P1/P3 파일, 전체 212 + 부록 micro-principles 18)
+#   [9] principles reference 무결성 (base/P0/P1/P3 파일, 전체 214 + 부록 micro-principles 18)
 #   [10] Phase 2 확장 신규 카탈로그 anchor/header 일관성
 #   [11] SKILL.md 통합 모드 (qa / qc / full / swarm) 등록 검증
 #   [12] 핵심 Markdown 내부 링크/anchor 검증
@@ -215,7 +215,7 @@ check_today_catalog() {
     "principles/sdlc-models.md:7"
     "principles/scaled-agile.md:6"
     "principles/professional-ethics.md:6"
-    "principles/standards-mapping.md:5"
+    "principles/standards-mapping.md:7"
     "principles/configuration-management.md:6"
     "principles/hci-methodology.md:6"
     "principles/formal-methods.md:5"

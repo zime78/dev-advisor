@@ -1,0 +1,1114 @@
+{
+  "schema_version": "1.0",
+  "catalog_version": "2026-05",
+  "generated_at": "2026-05-22T03:51:26Z",
+  "source": {
+    "root": "references",
+    "generator": "scripts/generate-catalog-index.py"
+  },
+  "domains": {
+    "patterns": {
+      "index": "references/patterns/index.md",
+      "expected_count": 18,
+      "actual_count": 18
+    },
+    "algorithms": {
+      "index": "references/algorithms/index.md",
+      "expected_count": 23,
+      "actual_count": 23
+    },
+    "principles": {
+      "index": "references/principles/index.md",
+      "expected_count": 8,
+      "actual_count": 8
+    }
+  },
+  "items": [
+    {
+      "domain": "algorithms",
+      "id": "b-plus-tree",
+      "item_type": "entry",
+      "title": "B+Tree Index",
+      "title_ko": "B+트리 인덱스",
+      "category": "db-indexes",
+      "file": "references/algorithms/db-indexes.md",
+      "anchor": "b-plus-tree",
+      "aliases": [],
+      "lookup_keys": [
+        "b-plus-tree",
+        "b-tree-index",
+        "b-트리-인덱스"
+      ]
+    },
+    {
+      "domain": "algorithms",
+      "id": "bitmap-index",
+      "item_type": "entry",
+      "title": "Bitmap Index",
+      "title_ko": "비트맵 인덱스",
+      "category": "db-indexes",
+      "file": "references/algorithms/db-indexes.md",
+      "anchor": "bitmap-index",
+      "aliases": [],
+      "lookup_keys": [
+        "bitmap-index",
+        "비트맵-인덱스"
+      ]
+    },
+    {
+      "domain": "algorithms",
+      "id": "brin",
+      "item_type": "entry",
+      "title": "BRIN (Block Range Index)",
+      "title_ko": null,
+      "category": "db-indexes",
+      "file": "references/algorithms/db-indexes.md",
+      "anchor": "brin",
+      "aliases": [],
+      "lookup_keys": [
+        "brin",
+        "brin-block-range-index"
+      ]
+    },
+    {
+      "domain": "algorithms",
+      "id": "covering-index",
+      "item_type": "entry",
+      "title": "Covering Index (Index-Only Scan)",
+      "title_ko": null,
+      "category": "db-indexes",
+      "file": "references/algorithms/db-indexes.md",
+      "anchor": "covering-index",
+      "aliases": [],
+      "lookup_keys": [
+        "covering-index",
+        "covering-index-index-only-scan"
+      ]
+    },
+    {
+      "domain": "algorithms",
+      "id": "gin",
+      "item_type": "entry",
+      "title": "GIN (Generalized Inverted Index)",
+      "title_ko": null,
+      "category": "db-indexes",
+      "file": "references/algorithms/db-indexes.md",
+      "anchor": "gin",
+      "aliases": [],
+      "lookup_keys": [
+        "gin",
+        "gin-generalized-inverted-index"
+      ]
+    },
+    {
+      "domain": "algorithms",
+      "id": "gist",
+      "item_type": "entry",
+      "title": "GiST (Generalized Search Tree)",
+      "title_ko": null,
+      "category": "db-indexes",
+      "file": "references/algorithms/db-indexes.md",
+      "anchor": "gist",
+      "aliases": [],
+      "lookup_keys": [
+        "gist",
+        "gist-generalized-search-tree"
+      ]
+    },
+    {
+      "domain": "algorithms",
+      "id": "hash-index",
+      "item_type": "entry",
+      "title": "Hash Index",
+      "title_ko": "해시 인덱스",
+      "category": "db-indexes",
+      "file": "references/algorithms/db-indexes.md",
+      "anchor": "hash-index",
+      "aliases": [],
+      "lookup_keys": [
+        "hash-index",
+        "해시-인덱스"
+      ]
+    },
+    {
+      "domain": "algorithms",
+      "id": "partial-index",
+      "item_type": "entry",
+      "title": "Partial Index / Filtered Index",
+      "title_ko": "부분 인덱스",
+      "category": "db-indexes",
+      "file": "references/algorithms/db-indexes.md",
+      "anchor": "partial-index",
+      "aliases": [],
+      "lookup_keys": [
+        "partial-index",
+        "partial-index-filtered-index",
+        "부분-인덱스"
+      ]
+    },
+    {
+      "domain": "algorithms",
+      "id": "cardinality-estimation-statistics",
+      "item_type": "entry",
+      "title": "Statistics / Cardinality Estimation — Histogram / MCV / Selectivity",
+      "title_ko": null,
+      "category": "db-query-optimizer",
+      "file": "references/algorithms/db-query-optimizer.md",
+      "anchor": "cardinality-estimation-statistics",
+      "aliases": [],
+      "lookup_keys": [
+        "cardinality-estimation-statistics",
+        "statistics-cardinality-estimation-histogram-mcv-selectivity"
+      ]
+    },
+    {
+      "domain": "algorithms",
+      "id": "cbo-vs-heuristic-optimizer",
+      "item_type": "entry",
+      "title": "Cost-Based Optimizer vs Heuristic (Rule-Based) Optimizer",
+      "title_ko": null,
+      "category": "db-query-optimizer",
+      "file": "references/algorithms/db-query-optimizer.md",
+      "anchor": "cbo-vs-heuristic-optimizer",
+      "aliases": [
+        "query-optimizer"
+      ],
+      "lookup_keys": [
+        "cbo-vs-heuristic-optimizer",
+        "cost-based-optimizer-vs-heuristic-rule-based-optimizer",
+        "query-optimizer"
+      ]
+    },
+    {
+      "domain": "algorithms",
+      "id": "explain-analyze-guide",
+      "item_type": "entry",
+      "title": "EXPLAIN 분석 가이드 — PostgreSQL / MySQL / Oracle / SQL Server 해독",
+      "title_ko": null,
+      "category": "db-query-optimizer",
+      "file": "references/algorithms/db-query-optimizer.md",
+      "anchor": "explain-analyze-guide",
+      "aliases": [
+        "explain-analyze"
+      ],
+      "lookup_keys": [
+        "explain-analyze",
+        "explain-analyze-guide",
+        "explain-분석-가이드-postgresql-mysql-oracle-sql-server-해독"
+      ]
+    },
+    {
+      "domain": "algorithms",
+      "id": "join-algorithms-hash-sortmerge-nestedloop",
+      "item_type": "entry",
+      "title": "Join Algorithms — Hash Join / Sort-Merge Join / Nested Loop Join",
+      "title_ko": null,
+      "category": "db-query-optimizer",
+      "file": "references/algorithms/db-query-optimizer.md",
+      "anchor": "join-algorithms-hash-sortmerge-nestedloop",
+      "aliases": [
+        "hash-join",
+        "join",
+        "nested-loop-join",
+        "sort-merge-join"
+      ],
+      "lookup_keys": [
+        "hash-join",
+        "join",
+        "join-algorithms-hash-join-sort-merge-join-nested-loop-join",
+        "join-algorithms-hash-sortmerge-nestedloop",
+        "nested-loop-join",
+        "sort-merge-join"
+      ]
+    },
+    {
+      "domain": "algorithms",
+      "id": "plan-cache",
+      "item_type": "entry",
+      "title": "Plan Cache — Statement Cache / Prepared Statement / Bind Variable Peeking / Plan Cache Pollution",
+      "title_ko": null,
+      "category": "db-query-optimizer",
+      "file": "references/algorithms/db-query-optimizer.md",
+      "anchor": "plan-cache",
+      "aliases": [
+        "prepared-statement"
+      ],
+      "lookup_keys": [
+        "plan-cache",
+        "plan-cache-statement-cache-prepared-statement-bind-variable-peeking-plan-cache-pollution",
+        "prepared-statement"
+      ]
+    },
+    {
+      "domain": "algorithms",
+      "id": "b-link-tree",
+      "item_type": "entry",
+      "title": "B-Link Tree (Concurrent B-Tree)",
+      "title_ko": null,
+      "category": "db-storage-engines",
+      "file": "references/algorithms/db-storage-engines.md",
+      "anchor": "b-link-tree",
+      "aliases": [],
+      "lookup_keys": [
+        "b-link-tree",
+        "b-link-tree-concurrent-b-tree"
+      ]
+    },
+    {
+      "domain": "algorithms",
+      "id": "buffer-pool",
+      "item_type": "entry",
+      "title": "Buffer Pool / Page Cache",
+      "title_ko": null,
+      "category": "db-storage-engines",
+      "file": "references/algorithms/db-storage-engines.md",
+      "anchor": "buffer-pool",
+      "aliases": [],
+      "lookup_keys": [
+        "buffer-pool",
+        "buffer-pool-page-cache"
+      ]
+    },
+    {
+      "domain": "algorithms",
+      "id": "compaction-strategy",
+      "item_type": "entry",
+      "title": "Compaction Strategy",
+      "title_ko": "컴팩션 전략",
+      "category": "db-storage-engines",
+      "file": "references/algorithms/db-storage-engines.md",
+      "anchor": "compaction-strategy",
+      "aliases": [],
+      "lookup_keys": [
+        "compaction-strategy",
+        "컴팩션-전략"
+      ]
+    },
+    {
+      "domain": "algorithms",
+      "id": "hot-update",
+      "item_type": "entry",
+      "title": "HOT Update (Heap-Only Tuple)",
+      "title_ko": null,
+      "category": "db-storage-engines",
+      "file": "references/algorithms/db-storage-engines.md",
+      "anchor": "hot-update",
+      "aliases": [],
+      "lookup_keys": [
+        "hot-update",
+        "hot-update-heap-only-tuple"
+      ]
+    },
+    {
+      "domain": "algorithms",
+      "id": "lsm-tree",
+      "item_type": "entry",
+      "title": "LSM Tree (Log-Structured Merge Tree)",
+      "title_ko": null,
+      "category": "db-storage-engines",
+      "file": "references/algorithms/db-storage-engines.md",
+      "anchor": "lsm-tree",
+      "aliases": [],
+      "lookup_keys": [
+        "lsm-tree",
+        "lsm-tree-log-structured-merge-tree"
+      ]
+    },
+    {
+      "domain": "algorithms",
+      "id": "mvcc-vacuum",
+      "item_type": "entry",
+      "title": "MVCC Vacuum / Garbage Collection",
+      "title_ko": null,
+      "category": "db-storage-engines",
+      "file": "references/algorithms/db-storage-engines.md",
+      "anchor": "mvcc-vacuum",
+      "aliases": [],
+      "lookup_keys": [
+        "mvcc-vacuum",
+        "mvcc-vacuum-garbage-collection"
+      ]
+    },
+    {
+      "domain": "algorithms",
+      "id": "page-layout-slotted",
+      "item_type": "entry",
+      "title": "Page Layout (Slotted Page)",
+      "title_ko": null,
+      "category": "db-storage-engines",
+      "file": "references/algorithms/db-storage-engines.md",
+      "anchor": "page-layout-slotted",
+      "aliases": [],
+      "lookup_keys": [
+        "page-layout-slotted",
+        "page-layout-slotted-page"
+      ]
+    },
+    {
+      "domain": "algorithms",
+      "id": "replication-log",
+      "item_type": "entry",
+      "title": "Replication Log (Binlog / WAL Streaming)",
+      "title_ko": null,
+      "category": "db-storage-engines",
+      "file": "references/algorithms/db-storage-engines.md",
+      "anchor": "replication-log",
+      "aliases": [],
+      "lookup_keys": [
+        "replication-log",
+        "replication-log-binlog-wal-streaming"
+      ]
+    },
+    {
+      "domain": "algorithms",
+      "id": "sstable",
+      "item_type": "entry",
+      "title": "SSTable (Sorted String Table)",
+      "title_ko": null,
+      "category": "db-storage-engines",
+      "file": "references/algorithms/db-storage-engines.md",
+      "anchor": "sstable",
+      "aliases": [],
+      "lookup_keys": [
+        "sstable",
+        "sstable-sorted-string-table"
+      ]
+    },
+    {
+      "domain": "algorithms",
+      "id": "wal",
+      "item_type": "entry",
+      "title": "Write-Ahead Log (WAL)",
+      "title_ko": null,
+      "category": "db-storage-engines",
+      "file": "references/algorithms/db-storage-engines.md",
+      "anchor": "wal",
+      "aliases": [],
+      "lookup_keys": [
+        "wal",
+        "write-ahead-log-wal"
+      ]
+    },
+    {
+      "domain": "patterns",
+      "id": "data-catalog",
+      "item_type": "entry",
+      "title": "Data Catalog",
+      "title_ko": "데이터 카탈로그",
+      "category": "data-quality",
+      "file": "references/patterns/data-quality.md",
+      "anchor": "data-catalog",
+      "aliases": [
+        "catalog"
+      ],
+      "lookup_keys": [
+        "catalog",
+        "data-catalog",
+        "데이터-카탈로그"
+      ]
+    },
+    {
+      "domain": "patterns",
+      "id": "data-lineage",
+      "item_type": "entry",
+      "title": "Data Lineage",
+      "title_ko": "데이터 계보",
+      "category": "data-quality",
+      "file": "references/patterns/data-quality.md",
+      "anchor": "data-lineage",
+      "aliases": [
+        "lineage"
+      ],
+      "lookup_keys": [
+        "data-lineage",
+        "lineage",
+        "데이터-계보"
+      ]
+    },
+    {
+      "domain": "patterns",
+      "id": "dq-6-dimensions",
+      "item_type": "entry",
+      "title": "DQ 6 Dimensions",
+      "title_ko": "데이터 품질 6 차원",
+      "category": "data-quality",
+      "file": "references/patterns/data-quality.md",
+      "anchor": "dq-6-dimensions",
+      "aliases": [
+        "data-quality",
+        "dq"
+      ],
+      "lookup_keys": [
+        "data-quality",
+        "dq",
+        "dq-6-dimensions",
+        "데이터-품질-6-차원"
+      ]
+    },
+    {
+      "domain": "patterns",
+      "id": "dq-stewardship-raci",
+      "item_type": "entry",
+      "title": "Stewardship RACI",
+      "title_ko": "데이터 스튜어드십 RACI",
+      "category": "data-quality",
+      "file": "references/patterns/data-quality.md",
+      "anchor": "dq-stewardship-raci",
+      "aliases": [],
+      "lookup_keys": [
+        "dq-stewardship-raci",
+        "stewardship-raci",
+        "데이터-스튜어드십-raci"
+      ]
+    },
+    {
+      "domain": "patterns",
+      "id": "dq-validation-tools",
+      "item_type": "entry",
+      "title": "DQ Validation Tools Matrix",
+      "title_ko": "검증 도구 매트릭스",
+      "category": "data-quality",
+      "file": "references/patterns/data-quality.md",
+      "anchor": "dq-validation-tools",
+      "aliases": [],
+      "lookup_keys": [
+        "dq-validation-tools",
+        "dq-validation-tools-matrix",
+        "검증-도구-매트릭스"
+      ]
+    },
+    {
+      "domain": "patterns",
+      "id": "openlineage-standard",
+      "item_type": "entry",
+      "title": "OpenLineage Standard",
+      "title_ko": "OpenLineage 표준",
+      "category": "data-quality",
+      "file": "references/patterns/data-quality.md",
+      "anchor": "openlineage-standard",
+      "aliases": [
+        "openlineage"
+      ],
+      "lookup_keys": [
+        "openlineage",
+        "openlineage-standard",
+        "openlineage-표준"
+      ]
+    },
+    {
+      "domain": "patterns",
+      "id": "dbt-modeling",
+      "item_type": "entry",
+      "title": "dbt (data build tool) — 모델 / Snapshot / Test / Macro / Seed + Layer 패턴",
+      "title_ko": null,
+      "category": "data-warehousing",
+      "file": "references/patterns/data-warehousing.md",
+      "anchor": "dbt-modeling",
+      "aliases": [
+        "dbt"
+      ],
+      "lookup_keys": [
+        "dbt",
+        "dbt-data-build-tool-모델-snapshot-test-macro-seed-layer-패턴",
+        "dbt-modeling"
+      ]
+    },
+    {
+      "domain": "patterns",
+      "id": "fact-table-types",
+      "item_type": "entry",
+      "title": "Fact Table 4종 — Transaction / Periodic Snapshot / Accumulating Snapshot / Factless",
+      "title_ko": null,
+      "category": "data-warehousing",
+      "file": "references/patterns/data-warehousing.md",
+      "anchor": "fact-table-types",
+      "aliases": [
+        "fact-table"
+      ],
+      "lookup_keys": [
+        "fact-table",
+        "fact-table-4종-transaction-periodic-snapshot-accumulating-snapshot-factless",
+        "fact-table-types"
+      ]
+    },
+    {
+      "domain": "patterns",
+      "id": "kimball-star-snowflake",
+      "item_type": "entry",
+      "title": "Kimball Star / Snowflake Schema — 차원 모델링 4단계 설계",
+      "title_ko": null,
+      "category": "data-warehousing",
+      "file": "references/patterns/data-warehousing.md",
+      "anchor": "kimball-star-snowflake",
+      "aliases": [
+        "dwh",
+        "kimball",
+        "snowflake-schema",
+        "star-schema"
+      ],
+      "lookup_keys": [
+        "dwh",
+        "kimball",
+        "kimball-star-snowflake",
+        "kimball-star-snowflake-schema-차원-모델링-4단계-설계",
+        "snowflake-schema",
+        "star-schema"
+      ]
+    },
+    {
+      "domain": "patterns",
+      "id": "lakehouse-iceberg-delta-hudi",
+      "item_type": "entry",
+      "title": "Lakehouse — Apache Iceberg / Delta Lake / Apache Hudi 비교",
+      "title_ko": null,
+      "category": "data-warehousing",
+      "file": "references/patterns/data-warehousing.md",
+      "anchor": "lakehouse-iceberg-delta-hudi",
+      "aliases": [
+        "delta-lake",
+        "hudi",
+        "iceberg",
+        "lakehouse"
+      ],
+      "lookup_keys": [
+        "delta-lake",
+        "hudi",
+        "iceberg",
+        "lakehouse",
+        "lakehouse-apache-iceberg-delta-lake-apache-hudi-비교",
+        "lakehouse-iceberg-delta-hudi"
+      ]
+    },
+    {
+      "domain": "patterns",
+      "id": "olap-cube-tabular",
+      "item_type": "entry",
+      "title": "OLAP Cube vs Tabular — MOLAP / ROLAP / HOLAP / Tabular(Vertipaq) 비교",
+      "title_ko": null,
+      "category": "data-warehousing",
+      "file": "references/patterns/data-warehousing.md",
+      "anchor": "olap-cube-tabular",
+      "aliases": [],
+      "lookup_keys": [
+        "olap-cube-tabular",
+        "olap-cube-vs-tabular-molap-rolap-holap-tabular-vertipaq-비교"
+      ]
+    },
+    {
+      "domain": "patterns",
+      "id": "scd-types",
+      "item_type": "entry",
+      "title": "SCD (Slowly Changing Dimensions) Type 1/2/3/4/6 + Bridge Table",
+      "title_ko": null,
+      "category": "data-warehousing",
+      "file": "references/patterns/data-warehousing.md",
+      "anchor": "scd-types",
+      "aliases": [
+        "scd",
+        "slowly-changing-dimensions"
+      ],
+      "lookup_keys": [
+        "scd",
+        "scd-slowly-changing-dimensions-type-1-2-3-4-6-bridge-table",
+        "scd-types",
+        "slowly-changing-dimensions"
+      ]
+    },
+    {
+      "domain": "patterns",
+      "id": "mdm-data-steward",
+      "item_type": "entry",
+      "title": "Data Steward",
+      "title_ko": "데이터 스튜어드 / Stewardship Operating Model",
+      "category": "mdm",
+      "file": "references/patterns/mdm.md",
+      "anchor": "mdm-data-steward",
+      "aliases": [],
+      "lookup_keys": [
+        "data-steward",
+        "mdm-data-steward",
+        "데이터-스튜어드-stewardship-operating-model"
+      ]
+    },
+    {
+      "domain": "patterns",
+      "id": "mdm-golden-record",
+      "item_type": "entry",
+      "title": "Golden Record",
+      "title_ko": "황금 레코드 / Single Source of Truth",
+      "category": "mdm",
+      "file": "references/patterns/mdm.md",
+      "anchor": "mdm-golden-record",
+      "aliases": [
+        "golden-record",
+        "mdm"
+      ],
+      "lookup_keys": [
+        "golden-record",
+        "mdm",
+        "mdm-golden-record",
+        "황금-레코드-single-source-of-truth"
+      ]
+    },
+    {
+      "domain": "patterns",
+      "id": "mdm-hierarchy",
+      "item_type": "entry",
+      "title": "Hierarchy Management",
+      "title_ko": "계층 관리 / Hierarchies + SCD",
+      "category": "mdm",
+      "file": "references/patterns/mdm.md",
+      "anchor": "mdm-hierarchy",
+      "aliases": [],
+      "lookup_keys": [
+        "hierarchy-management",
+        "mdm-hierarchy",
+        "계층-관리-hierarchies-scd"
+      ]
+    },
+    {
+      "domain": "patterns",
+      "id": "mdm-match-merge",
+      "item_type": "entry",
+      "title": "Match-Merge",
+      "title_ko": "매칭·병합 / Record Linkage / Entity Resolution",
+      "category": "mdm",
+      "file": "references/patterns/mdm.md",
+      "anchor": "mdm-match-merge",
+      "aliases": [
+        "match-merge"
+      ],
+      "lookup_keys": [
+        "match-merge",
+        "mdm-match-merge",
+        "매칭-병합-record-linkage-entity-resolution"
+      ]
+    },
+    {
+      "domain": "patterns",
+      "id": "mdm-reference-data",
+      "item_type": "entry",
+      "title": "Reference Data Management",
+      "title_ko": "참조 데이터 관리",
+      "category": "mdm",
+      "file": "references/patterns/mdm.md",
+      "anchor": "mdm-reference-data",
+      "aliases": [
+        "reference-data"
+      ],
+      "lookup_keys": [
+        "mdm-reference-data",
+        "reference-data",
+        "reference-data-management",
+        "참조-데이터-관리"
+      ]
+    },
+    {
+      "domain": "patterns",
+      "id": "mdm-survivorship-rules",
+      "item_type": "entry",
+      "title": "Survivorship Rules",
+      "title_ko": "생존 규칙 / Trust Rules",
+      "category": "mdm",
+      "file": "references/patterns/mdm.md",
+      "anchor": "mdm-survivorship-rules",
+      "aliases": [
+        "survivorship"
+      ],
+      "lookup_keys": [
+        "mdm-survivorship-rules",
+        "survivorship",
+        "survivorship-rules",
+        "생존-규칙-trust-rules"
+      ]
+    },
+    {
+      "domain": "principles",
+      "id": "acid-vs-base",
+      "item_type": "entry",
+      "title": "ACID vs BASE",
+      "title_ko": null,
+      "category": "db-fundamentals",
+      "file": "references/principles/db-fundamentals.md",
+      "anchor": "acid-vs-base",
+      "aliases": [
+        "acid",
+        "base"
+      ],
+      "lookup_keys": [
+        "acid",
+        "acid-vs-base",
+        "base"
+      ]
+    },
+    {
+      "domain": "principles",
+      "id": "ansi-sql-anomaly",
+      "item_type": "entry",
+      "title": "ANSI SQL Anomaly",
+      "title_ko": "이상 현상",
+      "category": "db-fundamentals",
+      "file": "references/principles/db-fundamentals.md",
+      "anchor": "ansi-sql-anomaly",
+      "aliases": [],
+      "lookup_keys": [
+        "ansi-sql-anomaly",
+        "이상-현상"
+      ]
+    },
+    {
+      "domain": "principles",
+      "id": "cap-pacelc",
+      "item_type": "entry",
+      "title": "CAP 정리 & PACELC",
+      "title_ko": null,
+      "category": "db-fundamentals",
+      "file": "references/principles/db-fundamentals.md",
+      "anchor": "cap-pacelc",
+      "aliases": [
+        "cap",
+        "pacelc"
+      ],
+      "lookup_keys": [
+        "cap",
+        "cap-pacelc",
+        "cap-정리-pacelc",
+        "pacelc"
+      ]
+    },
+    {
+      "domain": "principles",
+      "id": "consistency-models",
+      "item_type": "entry",
+      "title": "일관성 모델 (Consistency Models)",
+      "title_ko": null,
+      "category": "db-fundamentals",
+      "file": "references/principles/db-fundamentals.md",
+      "anchor": "consistency-models",
+      "aliases": [],
+      "lookup_keys": [
+        "consistency-models",
+        "일관성-모델-consistency-models"
+      ]
+    },
+    {
+      "domain": "principles",
+      "id": "db-partitioning",
+      "item_type": "entry",
+      "title": "파티셔닝 / 샤딩 (Partitioning / Sharding)",
+      "title_ko": null,
+      "category": "db-fundamentals",
+      "file": "references/principles/db-fundamentals.md",
+      "anchor": "db-partitioning",
+      "aliases": [
+        "db-sharding",
+        "sharding"
+      ],
+      "lookup_keys": [
+        "db-partitioning",
+        "db-sharding",
+        "sharding",
+        "파티셔닝-샤딩-partitioning-sharding"
+      ]
+    },
+    {
+      "domain": "principles",
+      "id": "db-replication",
+      "item_type": "entry",
+      "title": "데이터베이스 복제 (Replication)",
+      "title_ko": null,
+      "category": "db-fundamentals",
+      "file": "references/principles/db-fundamentals.md",
+      "anchor": "db-replication",
+      "aliases": [],
+      "lookup_keys": [
+        "db-replication",
+        "데이터베이스-복제-replication"
+      ]
+    },
+    {
+      "domain": "principles",
+      "id": "normalization-1nf-bcnf",
+      "item_type": "entry",
+      "title": "정규화 1NF ~ BCNF / 4NF / 5NF (Normalization)",
+      "title_ko": null,
+      "category": "db-fundamentals",
+      "file": "references/principles/db-fundamentals.md",
+      "anchor": "normalization-1nf-bcnf",
+      "aliases": [
+        "normalization"
+      ],
+      "lookup_keys": [
+        "normalization",
+        "normalization-1nf-bcnf",
+        "정규화-1nf-bcnf-4nf-5nf-normalization"
+      ]
+    },
+    {
+      "domain": "principles",
+      "id": "tx-isolation-levels",
+      "item_type": "entry",
+      "title": "트랜잭션 격리 4단계 (Transaction Isolation Levels)",
+      "title_ko": null,
+      "category": "db-fundamentals",
+      "file": "references/principles/db-fundamentals.md",
+      "anchor": "tx-isolation-levels",
+      "aliases": [
+        "db-fundamentals",
+        "isolation-levels",
+        "rdbms",
+        "relational-database"
+      ],
+      "lookup_keys": [
+        "db-fundamentals",
+        "isolation-levels",
+        "rdbms",
+        "relational-database",
+        "tx-isolation-levels",
+        "트랜잭션-격리-4단계-transaction-isolation-levels"
+      ]
+    }
+  ],
+  "aliases": [
+    {
+      "alias": "mdm",
+      "target_id": "mdm-golden-record",
+      "domain": "patterns",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "golden-record",
+      "target_id": "mdm-golden-record",
+      "domain": "patterns",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "survivorship",
+      "target_id": "mdm-survivorship-rules",
+      "domain": "patterns",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "match-merge",
+      "target_id": "mdm-match-merge",
+      "domain": "patterns",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "reference-data",
+      "target_id": "mdm-reference-data",
+      "domain": "patterns",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "dq",
+      "target_id": "dq-6-dimensions",
+      "domain": "patterns",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "data-quality",
+      "target_id": "dq-6-dimensions",
+      "domain": "patterns",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "lineage",
+      "target_id": "data-lineage",
+      "domain": "patterns",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "catalog",
+      "target_id": "data-catalog",
+      "domain": "patterns",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "openlineage",
+      "target_id": "openlineage-standard",
+      "domain": "patterns",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "dbt",
+      "target_id": "dbt-modeling",
+      "domain": "patterns",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "dwh",
+      "target_id": "kimball-star-snowflake",
+      "domain": "patterns",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "kimball",
+      "target_id": "kimball-star-snowflake",
+      "domain": "patterns",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "star-schema",
+      "target_id": "kimball-star-snowflake",
+      "domain": "patterns",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "snowflake-schema",
+      "target_id": "kimball-star-snowflake",
+      "domain": "patterns",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "scd",
+      "target_id": "scd-types",
+      "domain": "patterns",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "slowly-changing-dimensions",
+      "target_id": "scd-types",
+      "domain": "patterns",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "fact-table",
+      "target_id": "fact-table-types",
+      "domain": "patterns",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "lakehouse",
+      "target_id": "lakehouse-iceberg-delta-hudi",
+      "domain": "patterns",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "iceberg",
+      "target_id": "lakehouse-iceberg-delta-hudi",
+      "domain": "patterns",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "delta-lake",
+      "target_id": "lakehouse-iceberg-delta-hudi",
+      "domain": "patterns",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "hudi",
+      "target_id": "lakehouse-iceberg-delta-hudi",
+      "domain": "patterns",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "relational-database",
+      "target_id": "tx-isolation-levels",
+      "domain": "principles",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "rdbms",
+      "target_id": "tx-isolation-levels",
+      "domain": "principles",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "db-fundamentals",
+      "target_id": "tx-isolation-levels",
+      "domain": "principles",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "acid",
+      "target_id": "acid-vs-base",
+      "domain": "principles",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "base",
+      "target_id": "acid-vs-base",
+      "domain": "principles",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "cap",
+      "target_id": "cap-pacelc",
+      "domain": "principles",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "pacelc",
+      "target_id": "cap-pacelc",
+      "domain": "principles",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "normalization",
+      "target_id": "normalization-1nf-bcnf",
+      "domain": "principles",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "isolation-levels",
+      "target_id": "tx-isolation-levels",
+      "domain": "principles",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "sharding",
+      "target_id": "db-partitioning",
+      "domain": "principles",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "db-sharding",
+      "target_id": "db-partitioning",
+      "domain": "principles",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "query-optimizer",
+      "target_id": "cbo-vs-heuristic-optimizer",
+      "domain": "algorithms",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "join",
+      "target_id": "join-algorithms-hash-sortmerge-nestedloop",
+      "domain": "algorithms",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "hash-join",
+      "target_id": "join-algorithms-hash-sortmerge-nestedloop",
+      "domain": "algorithms",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "sort-merge-join",
+      "target_id": "join-algorithms-hash-sortmerge-nestedloop",
+      "domain": "algorithms",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "nested-loop-join",
+      "target_id": "join-algorithms-hash-sortmerge-nestedloop",
+      "domain": "algorithms",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "prepared-statement",
+      "target_id": "plan-cache",
+      "domain": "algorithms",
+      "source": "references/index.md"
+    },
+    {
+      "alias": "explain-analyze",
+      "target_id": "explain-analyze-guide",
+      "domain": "algorithms",
+      "source": "references/index.md"
+    }
+  ]
+}

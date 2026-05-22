@@ -1,0 +1,7 @@
+# data-advisor 카탈로그 카운트
+# Last updated: 2026-05-22 (dev-advisor DMBOK KA 클러스터 이관)
+
+EXPECTED_PATTERNS=18
+EXPECTED_ALGORITHMS=23
+EXPECTED_PRINCIPLES=8
+EXPECTED_TOTAL=49

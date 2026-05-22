@@ -102,7 +102,7 @@ class SafeCounter {
 }
 ```
 
-**관련 항목**: [serializability](#serializability) (다중 객체 트랜잭션), [sequential-consistency](#sequential-consistency) (실시간 순서 미보장), [happens-before](#happens-before), [`../algorithms/concurrent.md#cas`](../algorithms/concurrent.md#cas), [`database-fundamentals.md#tx-isolation-levels`](database-fundamentals.md#tx-isolation-levels) (DB 격리 4 수준의 실무 구현)
+**관련 항목**: [serializability](#serializability) (다중 객체 트랜잭션), [sequential-consistency](#sequential-consistency) (실시간 순서 미보장), [happens-before](#happens-before), [`../algorithms/concurrent.md#cas`](../algorithms/concurrent.md#cas), [`database-fundamentals.md#tx-isolation-levels`](../../../data-advisor/references/principles/db-fundamentals.md#tx-isolation-levels) (DB 격리 4 수준의 실무 구현)
 
 ---
 
@@ -144,7 +144,7 @@ Schedule S 가 serializable 이다
 
 **실무 적용 예**: PostgreSQL `SERIALIZABLE` (SSI 기반), CockroachDB (Strict Serializability 표방), FoundationDB, Google Spanner (TrueTime + Strict Serializability). MySQL InnoDB `SERIALIZABLE` 은 2PL 기반.
 
-**관련 항목**: [`database-fundamentals.md#tx-isolation-levels`](database-fundamentals.md#tx-isolation-levels) (ANSI SQL 4 격리 수준 — Read Uncommitted/Committed/Repeatable Read/Serializable 의 실무 anomaly 매트릭스), [`database-fundamentals.md#ansi-sql-anomaly`](database-fundamentals.md#ansi-sql-anomaly) (Dirty Read/Non-Repeatable/Phantom/Lost Update/Write Skew 정형 정의)
+**관련 항목**: [`database-fundamentals.md#tx-isolation-levels`](../../../data-advisor/references/principles/db-fundamentals.md#tx-isolation-levels) (ANSI SQL 4 격리 수준 — Read Uncommitted/Committed/Repeatable Read/Serializable 의 실무 anomaly 매트릭스), [`database-fundamentals.md#ansi-sql-anomaly`](../../../data-advisor/references/principles/db-fundamentals.md#ansi-sql-anomaly) (Dirty Read/Non-Repeatable/Phantom/Lost Update/Write Skew 정형 정의)
 
 **난이도**: 높음
 

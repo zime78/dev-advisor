@@ -15,11 +15,11 @@
 **관련 카탈로그**:
 - [`db-indexes.md`](db-indexes.md) — B+Tree / Hash / Bitmap / BRIN / Covering / Partial (인덱스 구조 8종)
 - [`db-storage-engines.md`](db-storage-engines.md) — WAL / LSM / MVCC / Buffer Pool (스토리지·로깅·트랜잭션)
-- [`../principles/database-fundamentals.md`](../principles/database-fundamentals.md) — 격리 수준 / ACID·BASE / CAP / Replication (이론 기반)
-- [`../patterns/data-modeling.md`](../patterns/data-modeling.md) — 정규화·역정규화 (옵티마이저가 처리할 스키마 설계)
-- [`../patterns/data-warehousing-bi.md`](../patterns/data-warehousing-bi.md) — OLAP / Star Schema / Lakehouse (대규모 분석 쿼리)
-- [`searching.md`](searching.md) — Binary Search / Interpolation Search (옵티마이저의 lookup 기반)
-- [`sorting.md`](sorting.md) — Merge Sort / External Sort (Sort-Merge Join 기반)
+- [`../principles/database-fundamentals.md`](../principles/db-fundamentals.md) — 격리 수준 / ACID·BASE / CAP / Replication (이론 기반)
+- [`../patterns/data-modeling.md`](../../../dev-advisor/references/patterns/data-modeling.md) — 정규화·역정규화 (옵티마이저가 처리할 스키마 설계)
+- [`../patterns/data-warehousing-bi.md`](../patterns/data-warehousing.md) — OLAP / Star Schema / Lakehouse (대규모 분석 쿼리)
+- [`searching.md`](../../../dev-advisor/references/algorithms/searching.md) — Binary Search / Interpolation Search (옵티마이저의 lookup 기반)
+- [`sorting.md`](../../../dev-advisor/references/algorithms/sorting.md) — Merge Sort / External Sort (Sort-Merge Join 기반)
 
 ## 알고리즘 목차
 
@@ -159,7 +159,7 @@ SELECT *
 | 한쪽이 페이지 수 ≤ buffer | Block Nested Loop |
 | memory 부족 + equality + 대량 | **Grace Hash / Hybrid Hash** |
 
-**관련 알고리즘**: [Sort-Merge 기반 정렬](sorting.md#merge-sort), [External Merge Sort](sorting.md#external-merge-sort), [Hash Table — data-structures 카탈로그](data-structures.md)
+**관련 알고리즘**: [Sort-Merge 기반 정렬](../../../dev-advisor/references/algorithms/sorting.md#merge-sort), [External Merge Sort](../../../dev-advisor/references/algorithms/sorting.md#external-merge-sort), [Hash Table — data-structures 카탈로그](../../../dev-advisor/references/algorithms/data-structures.md)
 
 **Cross-link**: [`cbo-vs-heuristic-optimizer`](#cbo-vs-heuristic-optimizer) (옵티마이저가 어떤 join 알고리즘 선택), [`cardinality-estimation-statistics`](#cardinality-estimation-statistics) (행 추정 = 알고리즘 선택 입력)
 
@@ -268,7 +268,7 @@ ALTER DATABASE MyDB SET QUERY_STORE = ON;
 | Oracle | CBO (RBO 도 historical) | `DBMS_STATS.GATHER_*_STATS` | 풍부한 hint 문법 (40+종) | SQL Plan Management (SPM), SQL Profile, Baseline |
 | SQL Server | CBO + Cascades 기반 | `UPDATE STATISTICS`, Auto Update | `OPTION(...)` + `QUERYTRACEON` | Query Store, Plan Guide, Force Plan |
 
-**관련 알고리즘**: [Dynamic Programming — 카탈로그 진입](dynamic-programming.md), [Cardinality Estimation](#cardinality-estimation-statistics), [Genetic Algorithms](search-systems.md) (geqo)
+**관련 알고리즘**: [Dynamic Programming — 카탈로그 진입](../../../dev-advisor/references/algorithms/dynamic-programming.md), [Cardinality Estimation](#cardinality-estimation-statistics), [Genetic Algorithms](../../../dev-advisor/references/algorithms/search-systems.md) (geqo)
 
 **Cross-link**: [`cardinality-estimation-statistics`](#cardinality-estimation-statistics) (CBO 입력), [`plan-cache`](#plan-cache) (선택된 plan 보존), [`join-algorithms-hash-sortmerge-nestedloop`](#join-algorithms-hash-sortmerge-nestedloop) (CBO 출력)
 
@@ -386,9 +386,9 @@ DEALLOCATE PREPARE q;
 | Oracle | Shared SQL Area | `CURSOR_SHARING=FORCE` | 11g+ Adaptive | `DBMS_STATS`, DDL, flush | `v$sql`, `v$sql_plan` |
 | SQL Server | Plan Cache | `sp_executesql` | Parameter Sniffing | UPDATE STATISTICS, `DBCC FREEPROCCACHE` | `sys.dm_exec_cached_plans` |
 
-**관련 알고리즘**: [LRU Cache](data-structures.md#lru), [Hash Table — data-structures 카탈로그](data-structures.md), [Memoization — Fibonacci DP](dynamic-programming.md#fibonacci)
+**관련 알고리즘**: [LRU Cache](../../../dev-advisor/references/algorithms/data-structures.md#lru), [Hash Table — data-structures 카탈로그](../../../dev-advisor/references/algorithms/data-structures.md), [Memoization — Fibonacci DP](../../../dev-advisor/references/algorithms/dynamic-programming.md#fibonacci)
 
-**Cross-link**: [`cbo-vs-heuristic-optimizer`](#cbo-vs-heuristic-optimizer) (캐시되는 산출물), [`../patterns/data-modeling.md`](../patterns/data-modeling.md) (스키마 안정성과 cache 수명)
+**Cross-link**: [`cbo-vs-heuristic-optimizer`](#cbo-vs-heuristic-optimizer) (캐시되는 산출물), [`../patterns/data-modeling.md`](../../../dev-advisor/references/patterns/data-modeling.md) (스키마 안정성과 cache 수명)
 
 ---
 
@@ -428,7 +428,7 @@ for i in 0..n-1:
 ### Sample (샘플링)
 
 - 테이블 전체 스캔 비용 회피 — 30K~300K 행 무작위 추출
-- Reservoir Sampling (한 번의 스캔으로 균등 샘플) — [`probabilistic.md`](probabilistic.md) 참조
+- Reservoir Sampling (한 번의 스캔으로 균등 샘플) — [`probabilistic.md`](../../../dev-advisor/references/algorithms/probabilistic.md) 참조
 - PostgreSQL `ANALYZE` 기본 30K · `default_statistics_target`
 
 ### Most Common Values (MCV)
@@ -519,9 +519,9 @@ SET GLOBAL innodb_stats_persistent_sample_pages = 100;
 | Oracle | `DBMS_STATS.GATHER_*` | Auto Task (야간) | Frequency / Top-K / Hybrid | implicit | Extended Statistics |
 | SQL Server | `UPDATE STATISTICS` | Auto Update (20% + 500) | Step (200 step max) | 없음 (rare values) | Multi-column auto |
 
-**관련 알고리즘**: [Histogram](probabilistic.md#count-min-sketch), [Reservoir Sampling](probabilistic.md#reservoir-sampling), [HyperLogLog](probabilistic.md#hyperloglog) (NDV 추정)
+**관련 알고리즘**: [Histogram](../../../dev-advisor/references/algorithms/probabilistic.md#count-min-sketch), [Reservoir Sampling](../../../dev-advisor/references/algorithms/probabilistic.md#reservoir-sampling), [HyperLogLog](../../../dev-advisor/references/algorithms/probabilistic.md#hyperloglog) (NDV 추정)
 
-**Cross-link**: [`cbo-vs-heuristic-optimizer`](#cbo-vs-heuristic-optimizer) (통계 소비자), [`plan-cache`](#plan-cache) (통계 무효화 = 캐시 무효화), [`../principles/database-fundamentals.md`](../principles/database-fundamentals.md) (read consistency 와 통계 일관성)
+**Cross-link**: [`cbo-vs-heuristic-optimizer`](#cbo-vs-heuristic-optimizer) (통계 소비자), [`plan-cache`](#plan-cache) (통계 무효화 = 캐시 무효화), [`../principles/database-fundamentals.md`](../principles/db-fundamentals.md) (read consistency 와 통계 일관성)
 
 ---
 
@@ -739,7 +739,7 @@ SELECT qs.execution_count, qs.total_logical_reads,
 7. Plan baseline / Query Store 로 안정 plan 고정
 ```
 
-**관련 알고리즘**: [Binary Search](searching.md#binary-search) (히스토그램 lookup), [Top-K](data-structures.md), [Profiling](concurrent.md)
+**관련 알고리즘**: [Binary Search](../../../dev-advisor/references/algorithms/searching.md#binary-search) (히스토그램 lookup), [Top-K](../../../dev-advisor/references/algorithms/data-structures.md), [Profiling](../../../dev-advisor/references/algorithms/concurrent.md)
 
 **Cross-link**: 본 카탈로그 4개 항목과 모두 직접 연결됨 — [`join-algorithms-hash-sortmerge-nestedloop`](#join-algorithms-hash-sortmerge-nestedloop), [`cbo-vs-heuristic-optimizer`](#cbo-vs-heuristic-optimizer), [`plan-cache`](#plan-cache), [`cardinality-estimation-statistics`](#cardinality-estimation-statistics). 외부: [`db-indexes.md`](db-indexes.md) (인덱스 진단), [`db-storage-engines.md`](db-storage-engines.md) (Buffer Pool hit/miss 해석)
 
@@ -758,6 +758,6 @@ SELECT qs.execution_count, qs.total_logical_reads,
 **관련 카탈로그 (역방향 cross-link 의무)**:
 - [`db-indexes.md`](db-indexes.md) — 옵티마이저가 선택할 인덱스 후보
 - [`db-storage-engines.md`](db-storage-engines.md) — Buffer Pool / WAL / MVCC 가 plan 비용에 미치는 영향
-- [`../principles/database-fundamentals.md`](../principles/database-fundamentals.md) — 격리 수준이 plan 선택에 미치는 영향 (snapshot vs read committed)
-- [`../patterns/data-modeling.md`](../patterns/data-modeling.md) — 정규화/역정규화가 join 비용에 미치는 영향
-- [`../patterns/data-warehousing-bi.md`](../patterns/data-warehousing-bi.md) — Star Schema 가 옵티마이저 join 순서에 미치는 영향 (star transformation)
+- [`../principles/database-fundamentals.md`](../principles/db-fundamentals.md) — 격리 수준이 plan 선택에 미치는 영향 (snapshot vs read committed)
+- [`../patterns/data-modeling.md`](../../../dev-advisor/references/patterns/data-modeling.md) — 정규화/역정규화가 join 비용에 미치는 영향
+- [`../patterns/data-warehousing-bi.md`](../patterns/data-warehousing.md) — Star Schema 가 옵티마이저 join 순서에 미치는 영향 (star transformation)

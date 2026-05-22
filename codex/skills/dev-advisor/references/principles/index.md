@@ -37,12 +37,11 @@
 
 | # | 파일 | 항목 수 | 표준 / 저자 | 주요 용도 |
 |---|------|--------:|------------|----------|
-| 16 | [database-fundamentals.md](database-fundamentals.md) |  8 | ANSI/ISO SQL-92; Codd — *Relational Model*; Brewer — CAP; Abadi — PACELC; Kleppmann — *Designing Data-Intensive Applications* | 트랜잭션 격리·정규화·ACID/BASE·CAP/PACELC·복제·일관성·파티셔닝 (validate / refactor / security-audit 기준) |
 | 17 | [sdlc-models.md](sdlc-models.md)                     |  7 | Royce — Waterfall (1970); IEEE 1012 V-Model; Boehm — Spiral (1986); Jacobson — RUP; AXELOS — PRINCE2; PMI — PMBOK | 전통적 SDLC 7 모델 (recommend / maintain 기준 — 프로세스 선택) |
 | 18 | [scaled-agile.md](scaled-agile.md)                   |  6 | Dean Leffingwell — SAFe; Larman — LeSS; Ken Schwaber — Nexus; Marty Cagan — Spotify model; Disciplined Agile (PMI); Skelton & Pais — Team Topologies | 대규모 애자일·팀 토폴로지 (recommend / maintain 기준) |
 | 19 | [professional-ethics.md](professional-ethics.md)     |  6 | ACM Code of Ethics (2018); IEEE Code; ACM/IEEE-CS SE Code (1999); EU AI Act (2024); GDPR Art.22; Brignull — Dark Patterns | 직업 윤리·AI 규제·다크패턴 (security-audit / maintain 기준 — 윤리/규제) |
 
-**P0 소계**: 27 항목 (8 + 7 + 6 + 6)
+**P0 소계**: 19 항목 (7 + 6 + 6)
 
 ### P1 신설 2 카테고리 (표준 매핑 · 형상 관리)
 
@@ -62,13 +61,13 @@
 
 **P1 소계**: 13 항목 (7 + 6)
 
-**총합**: **214 항목** (56 + 107 + 27 + 13 + 11)
+**총합**: **206 항목** (56 + 107 + 19 + 13 + 11)
 
 ### 부록: 미시 원칙
 
 | 파일 | 항목 수 | 설명 |
 |------|--------:|------|
-| [micro-principles.md](micro-principles.md) | 18 | 핵심 8 (DRY / KISS / YAGNI / LoD / SoC / Tell-Don't-Ask / Composition over Inheritance / SSoT) + 사회·조직·확장 10 (Conway / Inverse Conway / Hyrum / Postel / Brooks / Hollywood-IoC / Boy Scout / Pareto / Goodhart / Cunningham). verify 주 카탈로그 214 항목 외 부록 |
+| [micro-principles.md](micro-principles.md) | 18 | 핵심 8 (DRY / KISS / YAGNI / LoD / SoC / Tell-Don't-Ask / Composition over Inheritance / SSoT) + 사회·조직·확장 10 (Conway / Inverse Conway / Hyrum / Postel / Brooks / Hollywood-IoC / Boy Scout / Pareto / Goodhart / Cunningham). verify 주 카탈로그 206 항목 외 부록 |
 
 ## 카테고리 선택 가이드
 
@@ -95,7 +94,6 @@
 | 성능 수치 감각·복잡도 측정·Tail latency | [performance-metrics.md](performance-metrics.md) — Dean numbers / McCabe / Flame Graph |
 | 탄소 효율·에너지·하드웨어 효율 운영 | [sustainable-sw.md](sustainable-sw.md) — GSF / SCI (ISO 21031) |
 | 일상 코딩 격언 (DRY/KISS/YAGNI/Conway/Hyrum 등) | [micro-principles.md](micro-principles.md) — 18 미시 원칙 |
-| RDB 격리/정규화/ACID/CAP/PACELC/복제·파티셔닝 | [database-fundamentals.md](database-fundamentals.md) — Codd / Brewer / Abadi / Kleppmann |
 | SDLC 모델 선택 (Waterfall/V/Spiral/RUP/PRINCE2/PMBOK) | [sdlc-models.md](sdlc-models.md) — Royce / Boehm / Jacobson / AXELOS / PMI |
 | 대규모 애자일 프레임워크·팀 토폴로지 | [scaled-agile.md](scaled-agile.md) — SAFe / LeSS / Nexus / Spotify / DA / Team Topologies |
 | 윤리·AI 규제 (EU AI Act, GDPR 22조)·다크패턴 | [professional-ethics.md](professional-ethics.md) — ACM/IEEE 코드 / EU AI Act / Brignull |
@@ -189,7 +187,6 @@ dev-advisor SKILL.md `## 호출 인터페이스` 와 동일하게 `list / search
 | concurrency                     | concurrency-theory               | 도메인 단축 |
 | linearizability                 | conc-linearizability             | 동시성 (Herlihy-Wing) |
 | happens-before                  | conc-happens-before              | 동시성 (Lamport) |
-| cap-theorem                     | cap-pacelc                       | DB/분산 데이터 (Brewer CAP) |
 | flp-impossibility               | conc-liveness-safety             | 동시성 (불가능성/진행성 한계) |
 | refactoring                     | refactoring-techniques           | 도메인 단축 |
 | extract-method                  | refactor-extract-function        | Fowler 1st ed. 명칭 |
@@ -227,21 +224,6 @@ dev-advisor SKILL.md `## 호출 인터페이스` 와 동일하게 `list / search
 | green                           | sustainable-sw                   | 도메인 단축 |
 | sci                             | green-sci                        | 지속가능 SW (ISO 21031) |
 | carbon-aware                    | green-carbon-aware               | 지속가능 SW |
-| relational-database             | database-fundamentals            | P0 DB 도메인 단축 |
-| rdbms                           | database-fundamentals            | P0 DB 도메인 단축 |
-| db-fundamentals                 | database-fundamentals            | P0 DB 도메인 단축 |
-| acid                            | acid-vs-base                     | P0 DB (격리·트랜잭션) |
-| base                            | acid-vs-base                     | P0 DB (eventual consistency) |
-| cap                             | cap-pacelc                       | P0 DB (Brewer CAP) |
-| pacelc                          | cap-pacelc                       | P0 DB (Abadi PACELC) |
-| normalization                   | normalization-1nf-bcnf           | P0 DB (정규화) |
-| isolation-levels                | tx-isolation-levels              | P0 DB (격리 수준) |
-| read-uncommitted                | tx-isolation-levels              | P0 DB |
-| read-committed                  | tx-isolation-levels              | P0 DB |
-| repeatable-read                 | tx-isolation-levels              | P0 DB |
-| serializable                    | tx-isolation-levels              | P0 DB |
-| sharding                        | db-partitioning                  | P0 DB |
-| db-sharding                     | db-partitioning                  | P0 DB |
 | sdlc                            | sdlc-models                      | P0 SDLC 도메인 단축 |
 | waterfall                       | sdlc-waterfall                   | P0 SDLC |
 | v-model                         | sdlc-v-model                     | P0 SDLC |
@@ -389,7 +371,7 @@ dev-advisor SKILL.md `## 호출 인터페이스` 와 동일하게 `list / search
 ## 무결성 검증
 
 `scripts/verify-references.sh` 의 CHECK 9 블록이 이 도메인을 검증:
-- **24 파일 존재** (`index.md` + 23 카테고리 md: solid / grasp / iso25010 / 12-factor / code-smells / type-systems / concurrency-theory / refactoring-techniques / sw-economics / evolutionary-arch / resilience-theory / documentation / process-metrics / performance-metrics / sustainable-sw / database-fundamentals / sdlc-models / scaled-agile / professional-ethics / standards-mapping / configuration-management / hci-methodology / formal-methods)
-- 항목 합계 **214** (`^## [0-9]+\.` 헤더 카운트)
-- 도메인별 카운트: solid=5, grasp=9, iso25010=8, 12-factor=12, code-smells=22, type-systems=10, concurrency-theory=10, refactoring-techniques=25, sw-economics=10, evolutionary-arch=8, resilience-theory=8, documentation=8, process-metrics=10, performance-metrics=10, sustainable-sw=8, database-fundamentals=8, sdlc-models=7, scaled-agile=6, professional-ethics=6, standards-mapping=7, configuration-management=6
+- **23 파일 존재** (`index.md` + 22 카테고리 md: solid / grasp / iso25010 / 12-factor / code-smells / type-systems / concurrency-theory / refactoring-techniques / sw-economics / evolutionary-arch / resilience-theory / documentation / process-metrics / performance-metrics / sustainable-sw / sdlc-models / scaled-agile / professional-ethics / standards-mapping / configuration-management / hci-methodology / formal-methods)
+- 항목 합계 **206** (`^## [0-9]+\.` 헤더 카운트)
+- 도메인별 카운트: solid=5, grasp=9, iso25010=8, 12-factor=12, code-smells=22, type-systems=10, concurrency-theory=10, refactoring-techniques=25, sw-economics=10, evolutionary-arch=8, resilience-theory=8, documentation=8, process-metrics=10, performance-metrics=10, sustainable-sw=8, sdlc-models=7, scaled-agile=6, professional-ethics=6, standards-mapping=7, configuration-management=6
 - **부록 검증** (별도 검사): `micro-principles.md` 존재 + **18** 항목 카운트 (`^## ` 헤더 — 표준 인용·매트릭스·분류 섹션 3 제외). 214 합계에는 포함되지 않음.

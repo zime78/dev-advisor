@@ -26,12 +26,12 @@
 - [distributed.md](distributed.md) — CQRS / Event Sourcing / Saga / Outbox (이미 있음)
 - [`../principles/concurrency-theory.md`](../principles/concurrency-theory.md) — Linearizability / Serializability (이론 본체)
 - [`../algorithms/distributed.md`](../algorithms/distributed.md) — Vector Clock / Gossip / Consistent Hashing
-- [`../algorithms/db-storage-engines.md`](../algorithms/db-storage-engines.md) — WAL / Replication Log
+- [`../algorithms/db-storage-engines.md`](../../../data-advisor/references/algorithms/db-storage-engines.md) — WAL / Replication Log
 
 **관련 원칙·거버넌스 (P0 신설)**:
-- [`../principles/database-fundamentals.md`](../principles/database-fundamentals.md) — ACID/BASE · CAP/PACELC · 정규화 · 격리 수준 · 복제 · 일관성 모델 · 파티셔닝의 이론 기반 (Codd · Brewer · Abadi · Kleppmann)
-- [`master-data-management.md`](master-data-management.md) — 마스터 데이터 정합성: Golden Record · Match-Merge · Reference Data · Hierarchy (데이터 모델링의 거버넌스 보완)
-- [`data-quality-governance.md`](data-quality-governance.md) — 데이터 품질 6 차원 · Data Lineage · OpenLineage · 카탈로그 · 스튜어드십 RACI (모델링 산출물에 적용)
+- [`../principles/database-fundamentals.md`](../../../data-advisor/references/principles/db-fundamentals.md) — ACID/BASE · CAP/PACELC · 정규화 · 격리 수준 · 복제 · 일관성 모델 · 파티셔닝의 이론 기반 (Codd · Brewer · Abadi · Kleppmann)
+- [`master-data-management.md`](../../../data-advisor/references/patterns/mdm.md) — 마스터 데이터 정합성: Golden Record · Match-Merge · Reference Data · Hierarchy (데이터 모델링의 거버넌스 보완)
+- [`data-quality-governance.md`](../../../data-advisor/references/patterns/data-quality.md) — 데이터 품질 6 차원 · Data Lineage · OpenLineage · 카탈로그 · 스튜어드십 RACI (모델링 산출물에 적용)
 
 ---
 
@@ -261,7 +261,7 @@ class SingleLeaderCluster(
 }
 ```
 
-**관련 패턴**: [Multi-Leader Replication](#multi-leader-replication), [Leaderless Replication](#leaderless-replication), [CDC](#cdc), [`../algorithms/db-storage-engines.md`](../algorithms/db-storage-engines.md)
+**관련 패턴**: [Multi-Leader Replication](#multi-leader-replication), [Leaderless Replication](#leaderless-replication), [CDC](#cdc), [`../algorithms/db-storage-engines.md`](../../../data-advisor/references/algorithms/db-storage-engines.md)
 
 ---
 
@@ -1024,6 +1024,6 @@ class OrderDataProduct(
 - Databricks — *Lakehouse: A New Generation of Open Platforms* (CIDR 2021)
 
 **관련 (P1 신설)**:
-- [`data-warehousing-bi.md#kimball-star-snowflake`](data-warehousing-bi.md#kimball-star-snowflake) — OLTP 정규화 모델 ↔ DWH 차원 모델 (Star / Snowflake) 의 양극단 비교
-- [`data-warehousing-bi.md#scd-types`](data-warehousing-bi.md#scd-types) — 시간 차원 변경 추적 (SCD Type 1/2/3/4/6) 은 데이터 모델링 결정과 직결
-- [`data-warehousing-bi.md#lakehouse-iceberg-delta-hudi`](data-warehousing-bi.md#lakehouse-iceberg-delta-hudi) — Lakehouse 의 분석 워크로드 ↔ Lambda / Kappa / Data Mesh 의 위치
+- [`data-warehousing-bi.md#kimball-star-snowflake`](../../../data-advisor/references/patterns/data-warehousing.md#kimball-star-snowflake) — OLTP 정규화 모델 ↔ DWH 차원 모델 (Star / Snowflake) 의 양극단 비교
+- [`data-warehousing-bi.md#scd-types`](../../../data-advisor/references/patterns/data-warehousing.md#scd-types) — 시간 차원 변경 추적 (SCD Type 1/2/3/4/6) 은 데이터 모델링 결정과 직결
+- [`data-warehousing-bi.md#lakehouse-iceberg-delta-hudi`](../../../data-advisor/references/patterns/data-warehousing.md#lakehouse-iceberg-delta-hudi) — Lakehouse 의 분석 워크로드 ↔ Lambda / Kappa / Data Mesh 의 위치

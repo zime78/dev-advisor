@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # verify-references.sh — dev-advisor 스킬의 6 도메인 reference 무결성 검증
 # 검증 항목:
-#   [1] 카테고리별 anchor 수 == 헤더 수 (algorithms base 23 파일 — db-query-optimizer 추가)
+#   [1] 카테고리별 anchor 수 == 헤더 수 (algorithms base 22 파일 — db-query-optimizer data-advisor로 이관)
 #   [2] 전역 anchor unique
 #   [3] index.md 알고리즘 ID 매핑 표 행 == EXPECTED_ALGORITHMS (273)
 #   [4] SKILL.md progressive disclosure 구조 (32 카테고리 진입점)
@@ -201,17 +201,12 @@ check_quality_exposure() {
 check_today_catalog() {
   echo "[T] 오늘 확장 P0/P1/P2/P3 카탈로그 검증"
   TODAY_FILES=(
-    "patterns/master-data-management.md:6"
-    "patterns/data-quality-governance.md:6"
     "patterns/web-performance.md:6"
-    "patterns/data-warehousing-bi.md:6"
     "patterns/graphics-rendering.md:5"
     "patterns/ar-vr-xr.md:5"
     "patterns/serverless-faas.md:5"
     "patterns/hpc-scientific.md:6"
     "patterns/mobile-app.md:15"
-    "algorithms/db-query-optimizer.md:5"
-    "principles/database-fundamentals.md:8"
     "principles/sdlc-models.md:7"
     "principles/scaled-agile.md:6"
     "principles/professional-ethics.md:6"
@@ -676,12 +671,11 @@ expected_count() {
     distributed)          echo 12 ;;
     concurrent)           echo 10 ;;
     parsing)              echo 10 ;;
-    db-query-optimizer)   echo 5  ;;
     *)                    echo 0  ;;
   esac
 }
 
-for cat in sorting searching graph dynamic-programming divide-conquer greedy backtracking string math data-structures geometry flow matching crypto compression game-ai ml probabilistic consensus distributed concurrent parsing db-query-optimizer; do
+for cat in sorting searching graph dynamic-programming divide-conquer greedy backtracking string math data-structures geometry flow matching crypto compression game-ai ml probabilistic consensus distributed concurrent parsing; do
   file="${ALGO_DIR}/${cat}.md"
   expected=$(expected_count "${cat}")
   actual=$(grep -c '<a id=' "${file}" 2>/dev/null || echo 0)
@@ -748,10 +742,10 @@ cat_rows=$(awk '
   END{print c+0}
 ' "${ALGO_INDEX}")
 
-if [ "${cat_rows}" -eq 32 ]; then
+if [ "${cat_rows}" -eq 29 ]; then
   ok "카테고리 진입점 표 행: ${cat_rows}개"
 else
-  fail "카테고리 진입점 표 행: 기대=32, 실제=${cat_rows}"
+  fail "카테고리 진입점 표 행: 기대=29, 실제=${cat_rows}"
 fi
 
 # 4-2. 필수 섹션 3개 헤더 존재 (algorithms/index.md 내)
@@ -977,7 +971,7 @@ echo "[7] patterns reference 무결성 검증"
 
 PATTERNS_DIR="${SKILL_DIR}/references/patterns"
 
-for f in index.md creational.md structural.md behavioral.md architectural.md distributed.md reliability.md concurrency.md integration.md ddd-tactical.md data-access.md testing.md observability.md ai-llm.md deployment.md caching.md master-data-management.md data-quality-governance.md web-performance.md data-warehousing-bi.md graphics-rendering.md ar-vr-xr.md serverless-faas.md hpc-scientific.md; do
+for f in index.md creational.md structural.md behavioral.md architectural.md distributed.md reliability.md concurrency.md integration.md ddd-tactical.md data-access.md testing.md observability.md ai-llm.md deployment.md caching.md web-performance.md graphics-rendering.md ar-vr-xr.md serverless-faas.md hpc-scientific.md; do
   if [ -f "${PATTERNS_DIR}/${f}" ]; then
     ok "파일 존재: references/patterns/${f}"
   else
@@ -1005,18 +999,15 @@ pat_aillm=$(count_pat ai-llm)
 pat_deploy=$(count_pat deployment)
 pat_caching=$(count_pat caching)
 # P0 신설 2 카테고리
-pat_mdm=$(count_pat master-data-management)
-pat_dq=$(count_pat data-quality-governance)
 # P1 신설 2 카테고리
 pat_webperf=$(count_pat web-performance)
-pat_dwh=$(count_pat data-warehousing-bi)
 # P2 신설 3 카테고리
 pat_gfx=$(count_pat graphics-rendering)
 pat_xr=$(count_pat ar-vr-xr)
 pat_faas=$(count_pat serverless-faas)
 # P3 신설 1 카테고리
 pat_hpc=$(count_pat hpc-scientific)
-pat_total=$((pat_creational + pat_structural + pat_behavioral + pat_architectural + pat_distributed + pat_reliability + pat_concurrency + pat_integration + pat_ddd + pat_data + pat_testing + pat_observ + pat_aillm + pat_deploy + pat_caching + pat_mdm + pat_dq + pat_webperf + pat_dwh + pat_gfx + pat_xr + pat_faas + pat_hpc))
+pat_total=$((pat_creational + pat_structural + pat_behavioral + pat_architectural + pat_distributed + pat_reliability + pat_concurrency + pat_integration + pat_ddd + pat_data + pat_testing + pat_observ + pat_aillm + pat_deploy + pat_caching + pat_webperf + pat_gfx + pat_xr + pat_faas + pat_hpc))
 
 check_pat() {
   if [ "$2" -eq "$3" ]; then
@@ -1041,12 +1032,8 @@ check_pat observability                  "${pat_observ}"         10
 check_pat ai-llm                         "${pat_aillm}"          12
 check_pat deployment                     "${pat_deploy}"         9
 check_pat caching                        "${pat_caching}"        9
-# P0 신설 2 카테고리
-check_pat master-data-management         "${pat_mdm}"            6
-check_pat data-quality-governance        "${pat_dq}"             6
 # P1 신설 2 카테고리
 check_pat web-performance                "${pat_webperf}"        6
-check_pat data-warehousing-bi            "${pat_dwh}"            6
 # P2 신설 3 카테고리
 check_pat graphics-rendering             "${pat_gfx}"            5
 check_pat ar-vr-xr                       "${pat_xr}"             5
@@ -1055,10 +1042,10 @@ check_pat serverless-faas                "${pat_faas}"           5
 check_pat hpc-scientific                 "${pat_hpc}"            6
 
 # 15 base + 2 P0 신설 + 2 P1 신설 + 3 P2 신설 + 1 P3 신설 + P2 확장 (architectural +1, integration +1, distributed +2) = 159 + 12 + 12 + 15 + 6 + 4 = 208
-if [ "${pat_total}" -eq 208 ]; then
-  ok "base+P0+P1+P2+P3 패턴 합계: ${pat_total}개"
+if [ "${pat_total}" -eq 190 ]; then
+  ok "base+P1+P2+P3 패턴 합계: ${pat_total}개"
 else
-  fail "base+P0+P1+P2+P3 패턴 합계: 기대=208, 실제=${pat_total}"
+  fail "base+P1+P2+P3 패턴 합계: 기대=190, 실제=${pat_total}"
 fi
 
 # ─────────────────────────────────────────────
@@ -1149,7 +1136,7 @@ else
   fail "디렉토리 누락: references/principles/"
 fi
 
-for f in index.md solid.md grasp.md iso25010.md 12-factor.md code-smells.md database-fundamentals.md sdlc-models.md scaled-agile.md professional-ethics.md standards-mapping.md configuration-management.md hci-methodology.md formal-methods.md; do
+for f in index.md solid.md grasp.md iso25010.md 12-factor.md code-smells.md sdlc-models.md scaled-agile.md professional-ethics.md standards-mapping.md configuration-management.md hci-methodology.md formal-methods.md; do
   if [ -f "${PRINCIPLES_DIR}/${f}" ]; then
     ok "파일 존재: references/principles/${f}"
   else
@@ -1167,7 +1154,6 @@ pri_iso=$(count_pri iso25010)
 pri_12f=$(count_pri 12-factor)
 pri_smells=$(count_pri code-smells)
 # P0 신설 4
-pri_db=$(count_pri database-fundamentals)
 pri_sdlc=$(count_pri sdlc-models)
 pri_scaled=$(count_pri scaled-agile)
 pri_ethics=$(count_pri professional-ethics)
@@ -1177,7 +1163,7 @@ pri_config=$(count_pri configuration-management)
 # P3 신설 2
 pri_hci=$(count_pri hci-methodology)
 pri_formal=$(count_pri formal-methods)
-pri_total=$((pri_solid + pri_grasp + pri_iso + pri_12f + pri_smells + pri_db + pri_sdlc + pri_scaled + pri_ethics + pri_standards + pri_config + pri_hci + pri_formal))
+pri_total=$((pri_solid + pri_grasp + pri_iso + pri_12f + pri_smells + pri_sdlc + pri_scaled + pri_ethics + pri_standards + pri_config + pri_hci + pri_formal))
 
 check_pri() {
   if [ "$2" -eq "$3" ]; then
@@ -1192,8 +1178,6 @@ check_pri grasp                  "${pri_grasp}"   9
 check_pri iso25010               "${pri_iso}"     8
 check_pri 12-factor              "${pri_12f}"    12
 check_pri code-smells            "${pri_smells}" 22
-# P0 신설 4 카테고리
-check_pri database-fundamentals  "${pri_db}"      8
 check_pri sdlc-models            "${pri_sdlc}"    7
 check_pri scaled-agile           "${pri_scaled}"  6
 check_pri professional-ethics    "${pri_ethics}"  6
@@ -1207,10 +1191,10 @@ check_pri formal-methods           "${pri_formal}"     5
 
 # 5 base + 4 P0 신설 + 2 P1 신설 + 2 P3 신설 = 56 + 27 + 11 + 11 = 105
 # + standards-mapping ISO 25010 8특성/DORA 분해 헤더 2 = 107
-if [ "${pri_total}" -eq 107 ]; then
-  ok "base+P0+P1+P3 원칙 합계: ${pri_total}개"
+if [ "${pri_total}" -eq 99 ]; then
+  ok "base+P1+P3 원칙 합계: ${pri_total}개"
 else
-  fail "base+P0+P1+P3 원칙 합계: 기대=107, 실제=${pri_total}"
+  fail "base+P1+P3 원칙 합계: 기대=99, 실제=${pri_total}"
 fi
 
 # 미시 원칙 부록 검증 (Phase 2 확장: 8 → 18 항목)
@@ -1272,8 +1256,6 @@ PHASE2_FILES=(
   "patterns/domains/logistics.md:10"
   "patterns/domains/iot-edge.md:10"
   # algorithms/ (확장 카테고리 9개)
-  "algorithms/db-indexes.md:8"
-  "algorithms/db-storage-engines.md:10"
   "algorithms/spatial.md:8"
   "algorithms/search-systems.md:8"
   "algorithms/load-balancing.md:8"

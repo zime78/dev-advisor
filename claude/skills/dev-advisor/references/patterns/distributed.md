@@ -535,7 +535,7 @@ class TccCoordinator(private val participants: List<PaymentTcc>) {
 **Cross-link**:
 - 메시지 전달 보장: [`patterns/integration.md#message-broker-selection-matrix`](../patterns/integration.md#message-broker-selection-matrix)
 - 합의 알고리즘 (코디네이터 가용성): [`algorithms/consensus.md`](../algorithms/consensus.md)
-- ACID vs BASE 절충: [`principles/database-fundamentals.md#acid-vs-base`](../principles/database-fundamentals.md#acid-vs-base)
+- ACID vs BASE 절충: [`principles/database-fundamentals.md#acid-vs-base`](../../../data-advisor/references/principles/db-fundamentals.md#acid-vs-base)
 - 예약 상태 데이터 모델링: [`patterns/data-modeling.md`](../patterns/data-modeling.md)
 
 ---
@@ -583,7 +583,7 @@ class TccCoordinator(private val participants: List<PaymentTcc>) {
 **Cross-link**:
 - 메시지 전달 보장 / 브로커 선택: [`patterns/integration.md#message-broker-selection-matrix`](../patterns/integration.md#message-broker-selection-matrix)
 - 코디네이터 가용성 / 합의: [`algorithms/consensus.md`](../algorithms/consensus.md)
-- ACID vs BASE 절충 기초: [`principles/database-fundamentals.md#acid-vs-base`](../principles/database-fundamentals.md#acid-vs-base)
+- ACID vs BASE 절충 기초: [`principles/database-fundamentals.md#acid-vs-base`](../../../data-advisor/references/principles/db-fundamentals.md#acid-vs-base)
 - 예약/이벤트 데이터 모델링: [`patterns/data-modeling.md`](../patterns/data-modeling.md)
 
 **관련 패턴**: 2PC, Saga, TCC, Outbox, Idempotency Key

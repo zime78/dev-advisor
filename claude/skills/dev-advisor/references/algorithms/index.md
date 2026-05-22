@@ -4,7 +4,7 @@
 
 소프트웨어 개발에서 자주 사용되는 알고리즘 모음입니다.
 
-## 알고리즘 카테고리 (총 273개, 32 카테고리)
+## 알고리즘 카테고리 (총 250개, 29 카테고리)
 
 | 카테고리 | 알고리즘 수 | 파일 |
 |---------|-----------|------|
@@ -30,8 +30,6 @@
 | [분산 알고리즘](distributed.md) | 12개 | Lamport Clock, Vector Clock, Hybrid Logical Clock, Gossip, SWIM, Anti-Entropy, CRDT(G/PN/OR/LWW), Consistent Hashing, Quorum |
 | [동시성/락 알고리즘](concurrent.md) | 10개 | CAS, LL-SC, RCU, MVCC, Hazard Pointer, Lock-Free Queue, Work-Stealing, Seqlock, Memory Barriers, ABA Problem |
 | [파서/컴파일러](parsing.md) | 10개 | Lexing, LL(k), LR(1), LALR, Earley, Pratt, PEG/Packrat, AST Traversal, SSA, Register Allocation |
-| [DB 인덱스](db-indexes.md) | 8개 | B+Tree, Hash Index, Bitmap, GIN, GiST, BRIN, Covering Index, Partial Index |
-| [DB 스토리지 엔진](db-storage-engines.md) | 10개 | WAL, LSM Tree, SSTable, Compaction, MVCC Vacuum, Buffer Pool, Slotted Page, B-Link Tree, Replication Log, HOT Update |
 | [공간 인덱싱](spatial.md) | 8개 | R-Tree, R*-Tree, QuadTree, KD-Tree, Geohash, H3, S2, BVH |
 | [검색·랭킹](search-systems.md) | 8개 | Inverted Index, TF-IDF, BM25, Vector Search, Hybrid Search, Faceted, Autocomplete, Learning to Rank |
 | [부하 분산](load-balancing.md) | 8개 | Round Robin, WRR, Least Connections, Least Response Time, P2C, Consistent Hashing (LB), Maglev, EWMA |
@@ -39,7 +37,6 @@
 | [이미지 처리](image-processing.md) | 8개 | Convolution, Edge Detection, Hough, Morphology, Histogram Equalization, Segmentation, Feature Detection, Optical Flow |
 | [코덱·미디어](codecs.md) | 8개 | JPEG, PNG, WebP/AVIF/HEIC, H.264, H.265/H.266/AV1, MP3/AAC, Opus, Entropy Coding |
 | [신호 처리](signal-processing.md) | 8개 | FIR Filter, IIR Filter, STFT, Wavelet, Resampling, Kalman, EKF/UKF, Auto/Cross-correlation |
-| [DB 쿼리 최적화](db-query-optimizer.md) | 5개 | Join Algorithms (NLJ/SMJ/Hash), CBO vs Heuristic, Plan Cache, Cardinality Estimation, EXPLAIN ANALYZE |
 
 ---
 
@@ -239,24 +236,6 @@
 | ast-traversal | AST Traversal | AST 순회 | 파서/컴파일러 | [parsing.md#ast-traversal](parsing.md#ast-traversal) |
 | ssa | SSA Form | 정적 단일 할당 | 파서/컴파일러 | [parsing.md#ssa](parsing.md#ssa) |
 | register-allocation | Register Allocation | 레지스터 할당 | 파서/컴파일러 | [parsing.md#register-allocation](parsing.md#register-allocation) |
-| b-plus-tree | B+Tree Index | B+트리 인덱스 | DB 인덱스 | [db-indexes.md#b-plus-tree](db-indexes.md#b-plus-tree) |
-| hash-index | Hash Index | 해시 인덱스 | DB 인덱스 | [db-indexes.md#hash-index](db-indexes.md#hash-index) |
-| bitmap-index | Bitmap Index | 비트맵 인덱스 | DB 인덱스 | [db-indexes.md#bitmap-index](db-indexes.md#bitmap-index) |
-| gin | GIN (Generalized Inverted Index) | 일반화 역색인 | DB 인덱스 | [db-indexes.md#gin](db-indexes.md#gin) |
-| gist | GiST (Generalized Search Tree) | 일반화 검색 트리 | DB 인덱스 | [db-indexes.md#gist](db-indexes.md#gist) |
-| brin | BRIN (Block Range Index) | 블록 범위 인덱스 | DB 인덱스 | [db-indexes.md#brin](db-indexes.md#brin) |
-| covering-index | Covering Index | 커버링 인덱스 (Index-Only Scan) | DB 인덱스 | [db-indexes.md#covering-index](db-indexes.md#covering-index) |
-| partial-index | Partial Index / Filtered Index | 부분 인덱스 | DB 인덱스 | [db-indexes.md#partial-index](db-indexes.md#partial-index) |
-| wal | Write-Ahead Log (WAL) | 선기록 로그 | DB 스토리지 엔진 | [db-storage-engines.md#wal](db-storage-engines.md#wal) |
-| lsm-tree | LSM Tree | 로그 구조 머지 트리 | DB 스토리지 엔진 | [db-storage-engines.md#lsm-tree](db-storage-engines.md#lsm-tree) |
-| sstable | SSTable (Sorted String Table) | 정렬 문자열 테이블 | DB 스토리지 엔진 | [db-storage-engines.md#sstable](db-storage-engines.md#sstable) |
-| compaction-strategy | Compaction Strategy | 컴팩션 전략 | DB 스토리지 엔진 | [db-storage-engines.md#compaction-strategy](db-storage-engines.md#compaction-strategy) |
-| mvcc-vacuum | MVCC Vacuum / GC | MVCC 진공 / 가비지 컬렉션 | DB 스토리지 엔진 | [db-storage-engines.md#mvcc-vacuum](db-storage-engines.md#mvcc-vacuum) |
-| buffer-pool | Buffer Pool / Page Cache | 버퍼 풀 / 페이지 캐시 | DB 스토리지 엔진 | [db-storage-engines.md#buffer-pool](db-storage-engines.md#buffer-pool) |
-| page-layout-slotted | Slotted Page Layout | 슬롯 페이지 레이아웃 | DB 스토리지 엔진 | [db-storage-engines.md#page-layout-slotted](db-storage-engines.md#page-layout-slotted) |
-| b-link-tree | B-Link Tree | 동시성 B-Tree | DB 스토리지 엔진 | [db-storage-engines.md#b-link-tree](db-storage-engines.md#b-link-tree) |
-| replication-log | Replication Log (Binlog / WAL Streaming) | 복제 로그 | DB 스토리지 엔진 | [db-storage-engines.md#replication-log](db-storage-engines.md#replication-log) |
-| hot-update | HOT Update (Heap-Only Tuple) | 힙 전용 튜플 갱신 | DB 스토리지 엔진 | [db-storage-engines.md#hot-update](db-storage-engines.md#hot-update) |
 | r-tree | R-Tree | R-트리 | 공간 인덱싱 | [spatial.md#r-tree](spatial.md#r-tree) |
 | r-star-tree | R*-Tree | R*-트리 | 공간 인덱싱 | [spatial.md#r-star-tree](spatial.md#r-star-tree) |
 | quadtree | QuadTree | 쿼드트리 | 공간 인덱싱 | [spatial.md#quadtree](spatial.md#quadtree) |
@@ -317,11 +296,6 @@
 | kalman-filter | Kalman Filter | 칼만 필터 | 신호 처리 | [signal-processing.md#kalman-filter](signal-processing.md#kalman-filter) |
 | extended-kalman | Extended / Unscented Kalman | EKF / UKF | 신호 처리 | [signal-processing.md#extended-kalman](signal-processing.md#extended-kalman) |
 | autocorrelation | Auto/Cross-correlation | 자기/교차 상관 | 신호 처리 | [signal-processing.md#autocorrelation](signal-processing.md#autocorrelation) |
-| join-algorithms-hash-sortmerge-nestedloop | Join Algorithms (NLJ/SMJ/Hash/Grace) | Join 알고리즘 비교 | DB 쿼리 최적화 | [db-query-optimizer.md#join-algorithms-hash-sortmerge-nestedloop](db-query-optimizer.md#join-algorithms-hash-sortmerge-nestedloop) |
-| cbo-vs-heuristic-optimizer | CBO vs Heuristic Optimizer | 비용기반/규칙기반 옵티마이저 | DB 쿼리 최적화 | [db-query-optimizer.md#cbo-vs-heuristic-optimizer](db-query-optimizer.md#cbo-vs-heuristic-optimizer) |
-| plan-cache | Plan Cache / Prepared Statement | 플랜 캐시 / Prepared Statement | DB 쿼리 최적화 | [db-query-optimizer.md#plan-cache](db-query-optimizer.md#plan-cache) |
-| cardinality-estimation-statistics | Cardinality Estimation / Statistics | 카디널리티 추정 / 통계 | DB 쿼리 최적화 | [db-query-optimizer.md#cardinality-estimation-statistics](db-query-optimizer.md#cardinality-estimation-statistics) |
-| explain-analyze-guide | EXPLAIN ANALYZE 해석 가이드 | EXPLAIN ANALYZE 해석 | DB 쿼리 최적화 | [db-query-optimizer.md#explain-analyze-guide](db-query-optimizer.md#explain-analyze-guide) |
 
 ---
 
@@ -504,8 +478,6 @@
 | 분산 알고리즘 | 12 | [./distributed.md](./distributed.md) |
 | 동시성/락 알고리즘 | 10 | [./concurrent.md](./concurrent.md) |
 | 파서/컴파일러 | 10 | [./parsing.md](./parsing.md) |
-| DB 인덱스 | 8 | [./db-indexes.md](./db-indexes.md) |
-| DB 스토리지 엔진 | 10 | [./db-storage-engines.md](./db-storage-engines.md) |
 | 공간 인덱싱 | 8 | [./spatial.md](./spatial.md) |
 | 검색·랭킹 | 8 | [./search-systems.md](./search-systems.md) |
 | 부하 분산 | 8 | [./load-balancing.md](./load-balancing.md) |
@@ -513,7 +485,6 @@
 | 이미지 처리 | 8 | [./image-processing.md](./image-processing.md) |
 | 코덱·미디어 | 8 | [./codecs.md](./codecs.md) |
 | 신호 처리 | 8 | [./signal-processing.md](./signal-processing.md) |
-| DB 쿼리 최적화 | 5 | [./db-query-optimizer.md](./db-query-optimizer.md) |
 
 각 카테고리 md 의 `## 알고리즘 목차` 표에서 알고리즘별 anchor 점프 가능.
 
@@ -556,10 +527,3 @@
 | lru-cache | lru | data-structures.md |
 | breadth-first-search | bfs | graph.md |
 | depth-first-search | dfs | graph.md |
-| query-optimizer | cbo-vs-heuristic-optimizer | db-query-optimizer.md |
-| join | join-algorithms-hash-sortmerge-nestedloop | db-query-optimizer.md |
-| hash-join | join-algorithms-hash-sortmerge-nestedloop | db-query-optimizer.md |
-| sort-merge-join | join-algorithms-hash-sortmerge-nestedloop | db-query-optimizer.md |
-| nested-loop-join | join-algorithms-hash-sortmerge-nestedloop | db-query-optimizer.md |
-| prepared-statement | plan-cache | db-query-optimizer.md |
-| explain-analyze | explain-analyze-guide | db-query-optimizer.md |

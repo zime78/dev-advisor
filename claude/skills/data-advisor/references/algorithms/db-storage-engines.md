@@ -28,9 +28,9 @@ DB 내부의 정평 있는 10 알고리즘. WAL / LSM / SSTable / Compaction / M
 
 **관련 카탈로그**:
 - [db-indexes.md](db-indexes.md) — B+Tree / Hash / GIN (인덱스 구조)
-- [data-structures.md](data-structures.md) — B-Tree / Skip List / Bloom Filter
-- [concurrent.md](concurrent.md) — MVCC, Hazard Pointer
-- [`../patterns/distributed.md`](../patterns/distributed.md) — Event Sourcing / Outbox (시스템 측 WAL)
+- [data-structures.md](../../../dev-advisor/references/algorithms/data-structures.md) — B-Tree / Skip List / Bloom Filter
+- [concurrent.md](../../../dev-advisor/references/algorithms/concurrent.md) — MVCC, Hazard Pointer
+- [`../patterns/distributed.md`](../../../dev-advisor/references/patterns/distributed.md) — Event Sourcing / Outbox (시스템 측 WAL)
 
 ---
 
@@ -192,7 +192,7 @@ LSM Tree update:
 | TiKV / CockroachDB | RocksDB/Pebble 위 distributed |
 | SQLite (3.x) | B+Tree (LSM 아님) ↔ 차이 명확 |
 
-**관련 알고리즘**: [SSTable](#sstable), [Compaction Strategy](#compaction-strategy), [Skip List](data-structures.md), [Bloom Filter](probabilistic.md), [WAL](#wal)
+**관련 알고리즘**: [SSTable](#sstable), [Compaction Strategy](#compaction-strategy), [Skip List](../../../dev-advisor/references/algorithms/data-structures.md), [Bloom Filter](../../../dev-advisor/references/algorithms/probabilistic.md), [WAL](#wal)
 
 ---
 
@@ -260,7 +260,7 @@ Value* sst_get(SSTable* sst, Key k) {
 | HBase | HFile (SSTable + meta) |
 | Bigtable | Original SSTable |
 
-**관련 알고리즘**: [LSM Tree](#lsm-tree), [Compaction Strategy](#compaction-strategy), [Bloom Filter](probabilistic.md), [Binary Search](searching.md)
+**관련 알고리즘**: [LSM Tree](#lsm-tree), [Compaction Strategy](#compaction-strategy), [Bloom Filter](../../../dev-advisor/references/algorithms/probabilistic.md), [Binary Search](../../../dev-advisor/references/algorithms/searching.md)
 
 ---
 
@@ -320,7 +320,7 @@ L3: 1 GB     non-overlap
 | HBase | Size-Tiered (Stripe 변형) | DateTieredCompactionPolicy |
 | ScyllaDB | Size-Tiered | LCS/TWCS/ICS |
 
-**관련 알고리즘**: [LSM Tree](#lsm-tree), [SSTable](#sstable), [External Merge Sort](sorting.md)
+**관련 알고리즘**: [LSM Tree](#lsm-tree), [SSTable](#sstable), [External Merge Sort](../../../dev-advisor/references/algorithms/sorting.md)
 
 ---
 
@@ -400,7 +400,7 @@ SELECT pid, age(backend_xmin), state, query
  ORDER BY age(backend_xmin) DESC;
 ```
 
-**관련 알고리즘**: [Concurrent MVCC](concurrent.md), [HOT Update](#hot-update), [Buffer Pool](#buffer-pool)
+**관련 알고리즘**: [Concurrent MVCC](../../../dev-advisor/references/algorithms/concurrent.md), [HOT Update](#hot-update), [Buffer Pool](#buffer-pool)
 
 ---
 
@@ -492,7 +492,7 @@ clock_select_victim():               // Second-chance algorithm
 | Oracle | Buffer Cache | LRU-K like (touch count) |
 | SQL Server | Buffer Pool | LRU-K (K=2) |
 
-**관련 알고리즘**: [LRU Cache (data-structures.md)](data-structures.md), [WAL](#wal), [Page Layout](#page-layout-slotted)
+**관련 알고리즘**: [LRU Cache (data-structures.md)](../../../dev-advisor/references/algorithms/data-structures.md), [WAL](#wal), [Page Layout](#page-layout-slotted)
 
 ---
 
@@ -656,7 +656,7 @@ search(root, k):
 | LMDB | COW B+Tree (B-Link 아님, copy-on-write 로 동시성 해결) |
 | InnoDB | B+Tree + latch coupling (B-Link 아님) |
 
-**관련 알고리즘**: [B+Tree](db-indexes.md), [B-Tree](data-structures.md), [Hazard Pointer (concurrent.md)](concurrent.md)
+**관련 알고리즘**: [B+Tree](db-indexes.md), [B-Tree](../../../dev-advisor/references/algorithms/data-structures.md), [Hazard Pointer (concurrent.md)](../../../dev-advisor/references/algorithms/concurrent.md)
 
 ---
 
@@ -748,7 +748,7 @@ on RECEIVE(records):
 | MongoDB | oplog (idempotent statements) |
 | Kafka 기반 CDC | Debezium → Kafka |
 
-**관련 알고리즘**: [WAL](#wal), [Consensus (Raft/Paxos)](consensus.md), [Event Sourcing](../patterns/distributed.md)
+**관련 알고리즘**: [WAL](#wal), [Consensus (Raft/Paxos)](../../../dev-advisor/references/algorithms/consensus.md), [Event Sourcing](../../../dev-advisor/references/patterns/distributed.md)
 
 ---
 
@@ -855,10 +855,10 @@ SELECT relname,
 ## 카탈로그 간 교차 참조
 
 - **인덱스 자료구조** → [db-indexes.md](db-indexes.md) (B+Tree, Hash, GIN, GiST, BRIN, Covering, Partial, Bitmap)
-- **순수 자료구조** → [data-structures.md](data-structures.md) (B-Tree, Skip List, Bloom Filter, LRU)
-- **동시성 원시** → [concurrent.md](concurrent.md) (MVCC, Hazard Pointer, RCU)
-- **분산 합의** → [consensus.md](consensus.md) (Raft, Paxos — 복제 로그 합의)
-- **분산 패턴** → [`../patterns/distributed.md`](../patterns/distributed.md) (Event Sourcing, Outbox, CDC)
-- **검색 알고리즘** → [searching.md](searching.md) (Binary Search — SSTable 내부)
-- **확률 자료구조** → [probabilistic.md](probabilistic.md) (Bloom Filter — SSTable filter block)
-- **정렬** → [sorting.md](sorting.md) (External Merge Sort — compaction)
+- **순수 자료구조** → [data-structures.md](../../../dev-advisor/references/algorithms/data-structures.md) (B-Tree, Skip List, Bloom Filter, LRU)
+- **동시성 원시** → [concurrent.md](../../../dev-advisor/references/algorithms/concurrent.md) (MVCC, Hazard Pointer, RCU)
+- **분산 합의** → [consensus.md](../../../dev-advisor/references/algorithms/consensus.md) (Raft, Paxos — 복제 로그 합의)
+- **분산 패턴** → [`../patterns/distributed.md`](../../../dev-advisor/references/patterns/distributed.md) (Event Sourcing, Outbox, CDC)
+- **검색 알고리즘** → [searching.md](../../../dev-advisor/references/algorithms/searching.md) (Binary Search — SSTable 내부)
+- **확률 자료구조** → [probabilistic.md](../../../dev-advisor/references/algorithms/probabilistic.md) (Bloom Filter — SSTable filter block)
+- **정렬** → [sorting.md](../../../dev-advisor/references/algorithms/sorting.md) (External Merge Sort — compaction)

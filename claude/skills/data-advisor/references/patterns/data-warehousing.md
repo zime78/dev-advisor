@@ -2,7 +2,7 @@
 
 데이터 웨어하우스(DW) / 비즈니스 인텔리전스(BI) 분야에서 검증된 6대 모델링·저장·변환 패턴 묶음. **Kimball Group**(Ralph Kimball, *The Data Warehouse Toolkit* 3판, 2013) + **Inmon CIF**(Bill Inmon, *Building the Data Warehouse* 4판, 2005) + **Data Vault 2.0**(Dan Linstedt, 2013) 3대 학파를 비교 축으로 삼고, 현대 Lakehouse(Iceberg/Delta/Hudi) + dbt(data build tool) 모델링 표준을 통합 정리한다.
 
-**카테고리 위치**: `patterns/`. 분석계(OLAP) 데이터 모델링은 본 문서, 운영계(OLTP) 정규화는 [`principles/database-fundamentals.md#normalization-1nf-bcnf`](../principles/database-fundamentals.md#normalization-1nf-bcnf), 마스터/참조 데이터는 [`patterns/master-data-management.md`](master-data-management.md), 품질·계보는 [`patterns/data-quality-governance.md`](data-quality-governance.md), CAP/replication/CDC 는 [`patterns/data-modeling.md`](data-modeling.md) 분리.
+**카테고리 위치**: `patterns/`. 분석계(OLAP) 데이터 모델링은 본 문서, 운영계(OLTP) 정규화는 [`principles/database-fundamentals.md#normalization-1nf-bcnf`](../principles/db-fundamentals.md#normalization-1nf-bcnf), 마스터/참조 데이터는 [`patterns/master-data-management.md`](mdm.md), 품질·계보는 [`patterns/data-quality-governance.md`](data-quality.md), CAP/replication/CDC 는 [`patterns/data-modeling.md`](../../../dev-advisor/references/patterns/data-modeling.md) 분리.
 
 **Kimball vs Inmon vs Data Vault 비교**:
 
@@ -481,10 +481,10 @@ dbt build                        # run + test + snapshot 한 번에
 
 ### Cross-link
 
-- 데이터 품질 테스트 (dbt test / dbt_expectations / Great Expectations) 전반은 [`patterns/data-quality-governance.md#dq-validation-tools`](data-quality-governance.md#dq-validation-tools) 참조.
-- Lineage / OpenLineage 표준은 [`patterns/data-quality-governance.md#openlineage-standard`](data-quality-governance.md#openlineage-standard) 참조.
-- Master/Reference data 와의 join 전략은 [`patterns/master-data-management.md#mdm-reference-data`](master-data-management.md#mdm-reference-data) 참조.
-- CDC / Materialized View 등 Lambda/Kappa 아키텍처는 [`patterns/data-modeling.md#lambda-kappa-htap`](data-modeling.md#lambda-kappa-htap) 참조.
+- 데이터 품질 테스트 (dbt test / dbt_expectations / Great Expectations) 전반은 [`patterns/data-quality-governance.md#dq-validation-tools`](data-quality.md#dq-validation-tools) 참조.
+- Lineage / OpenLineage 표준은 [`patterns/data-quality-governance.md#openlineage-standard`](data-quality.md#openlineage-standard) 참조.
+- Master/Reference data 와의 join 전략은 [`patterns/master-data-management.md#mdm-reference-data`](mdm.md#mdm-reference-data) 참조.
+- CDC / Materialized View 등 Lambda/Kappa 아키텍처는 [`patterns/data-modeling.md#lambda-kappa-htap`](../../../dev-advisor/references/patterns/data-modeling.md#lambda-kappa-htap) 참조.
 
 ### Data Vault 2.0 (참고)
 

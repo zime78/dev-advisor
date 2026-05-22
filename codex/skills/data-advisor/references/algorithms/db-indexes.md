@@ -1,11 +1,11 @@
 # DB 인덱스 유형 (Database Index Types)
 
-알고리즘 도메인의 신규 카테고리. 기존 [`data-structures.md`](data-structures.md) 의 B-Tree / Skip List / Hash 만으로는 실무 DB 인덱스 선택 의사결정에 부족. 정평 있는 DB 인덱스 8 유형.
+알고리즘 도메인의 신규 카테고리. 기존 [`data-structures.md`](../../../dev-advisor/references/algorithms/data-structures.md) 의 B-Tree / Skip List / Hash 만으로는 실무 DB 인덱스 선택 의사결정에 부족. 정평 있는 DB 인덱스 8 유형.
 
 **관련 카탈로그**:
-- [data-structures.md](data-structures.md) — B-Tree, Hash, Skip List (자료구조 본체)
-- [`../patterns/data-access.md`](../patterns/data-access.md) — Repository, Lazy Load, Query Object (접근 패턴)
-- [string.md](string.md) — Trie, Suffix Array (full-text 인덱스 본체)
+- [data-structures.md](../../../dev-advisor/references/algorithms/data-structures.md) — B-Tree, Hash, Skip List (자료구조 본체)
+- [`../patterns/data-access.md`](../../../dev-advisor/references/patterns/data-access.md) — Repository, Lazy Load, Query Object (접근 패턴)
+- [string.md](../../../dev-advisor/references/algorithms/string.md) — Trie, Suffix Array (full-text 인덱스 본체)
 
 ## 알고리즘 목차
 
@@ -83,7 +83,7 @@ SELECT * FROM orders
  ORDER BY created_at DESC;  -- 인덱스 정렬 그대로 사용
 ```
 
-**관련 알고리즘**: [B-Tree](data-structures.md#b-tree), [Covering Index](#covering-index), [Partial Index](#partial-index)
+**관련 알고리즘**: [B-Tree](../../../dev-advisor/references/algorithms/data-structures.md#b-tree), [Covering Index](#covering-index), [Partial Index](#partial-index)
 
 ---
 
@@ -153,7 +153,7 @@ CREATE TABLE cache (
 ) ENGINE=MEMORY;
 ```
 
-**관련 알고리즘**: [Hash Table Search](searching.md#hash-table-search), [B+Tree](#b-plus-tree)
+**관련 알고리즘**: [Hash Table Search](../../../dev-advisor/references/algorithms/searching.md#hash-table-search), [B+Tree](#b-plus-tree)
 
 ---
 
@@ -226,7 +226,7 @@ SELECT * FROM logs
 -- → BitmapAnd ( BitmapIndexScan idx_level, BitmapIndexScan idx_service )
 ```
 
-**관련 알고리즘**: [B+Tree](#b-plus-tree), [Roaring Bitmap (probabilistic.md)](probabilistic.md), columnstore
+**관련 알고리즘**: [B+Tree](#b-plus-tree), [Roaring Bitmap (probabilistic.md)](../../../dev-advisor/references/algorithms/probabilistic.md), columnstore
 
 ---
 
@@ -306,7 +306,7 @@ CREATE INDEX idx_names_trgm
 SELECT * FROM users WHERE name ILIKE '%john%';
 ```
 
-**관련 알고리즘**: [Trie](string.md#trie), [Inverted Index](string.md), [Suffix Array](string.md)
+**관련 알고리즘**: [Trie](../../../dev-advisor/references/algorithms/string.md#trie), [Inverted Index](../../../dev-advisor/references/algorithms/string.md), [Suffix Array](../../../dev-advisor/references/algorithms/string.md)
 
 ---
 
@@ -381,7 +381,7 @@ SELECT id, name
  LIMIT 5;
 ```
 
-**관련 알고리즘**: R-Tree, [KNN (ml.md)](ml.md), [Range Tree](data-structures.md)
+**관련 알고리즘**: R-Tree, [KNN (ml.md)](../../../dev-advisor/references/algorithms/ml.md), [Range Tree](../../../dev-advisor/references/algorithms/data-structures.md)
 
 ---
 
@@ -648,8 +648,8 @@ CREATE INDEX idx_users_active_email ON users(active_email);
 
 ## 관련 카탈로그
 
-- [data-structures.md](data-structures.md) — B-Tree, Skip List, Hash, Bloom Filter 자료구조 본체
-- [searching.md](searching.md) — Hash Table Search, Binary Search 등 탐색 알고리즘
-- [string.md](string.md) — Trie, Suffix Array, Inverted Index (full-text 본체)
-- [`../patterns/data-access.md`](../patterns/data-access.md) — Repository, Query Object 패턴
-- [probabilistic.md](probabilistic.md) — Roaring Bitmap, Bloom Filter
+- [data-structures.md](../../../dev-advisor/references/algorithms/data-structures.md) — B-Tree, Skip List, Hash, Bloom Filter 자료구조 본체
+- [searching.md](../../../dev-advisor/references/algorithms/searching.md) — Hash Table Search, Binary Search 등 탐색 알고리즘
+- [string.md](../../../dev-advisor/references/algorithms/string.md) — Trie, Suffix Array, Inverted Index (full-text 본체)
+- [`../patterns/data-access.md`](../../../dev-advisor/references/patterns/data-access.md) — Repository, Query Object 패턴
+- [probabilistic.md](../../../dev-advisor/references/algorithms/probabilistic.md) — Roaring Bitmap, Bloom Filter

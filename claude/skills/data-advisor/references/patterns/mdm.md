@@ -23,10 +23,10 @@
 | Centralized (Transaction) | Hub 단일 권한 | CRUD 본체 | 신규 도입 / 클린 슬레이트 |
 
 **관련 카탈로그**:
-- [`data-modeling.md`](data-modeling.md) — CAP / Replication / CDC / Materialized View (분산 일관성 본체)
-- [`data-quality-governance.md`](data-quality-governance.md) — DQ 6 Dimensions / Lineage / Catalog / Stewardship RACI (병렬 카탈로그)
-- [`../principles/database-fundamentals.md`](../principles/database-fundamentals.md) — ACID / BASE / 격리 / 정규화 (이론 본체)
-- [`ddd-strategic.md`](ddd-strategic.md) — Bounded Context / Context Map (MDM 경계 식별)
+- [`data-modeling.md`](../../../dev-advisor/references/patterns/data-modeling.md) — CAP / Replication / CDC / Materialized View (분산 일관성 본체)
+- [`data-quality-governance.md`](data-quality.md) — DQ 6 Dimensions / Lineage / Catalog / Stewardship RACI (병렬 카탈로그)
+- [`../principles/database-fundamentals.md`](../principles/db-fundamentals.md) — ACID / BASE / 격리 / 정규화 (이론 본체)
+- [`ddd-strategic.md`](../../../dev-advisor/references/patterns/ddd-strategic.md) — Bounded Context / Context Map (MDM 경계 식별)
 
 ---
 
@@ -56,7 +56,7 @@
 **단점·trade-off**:
 - 초기 매칭 임계값 튜닝 비용 큼 (over-match → 다른 사람 병합, under-match → 중복 잔존)
 - 권위 시스템(authoritative source) 정치 — 누가 "진짜" 인가 합의 어려움
-- 황금 레코드 갱신 지연 시 다운스트림과의 일시적 불일치 (eventual consistency — [`data-modeling.md#cap-theorem`](data-modeling.md#cap-theorem))
+- 황금 레코드 갱신 지연 시 다운스트림과의 일시적 불일치 (eventual consistency — [`data-modeling.md#cap-theorem`](../../../dev-advisor/references/patterns/data-modeling.md#cap-theorem))
 
 **실제 도구**:
 - **SAP MDG** — SAP S/4HANA Customer / Material / Supplier / Finance Master
@@ -312,7 +312,7 @@ class RecordMatcher(
 - **Apache Atlas + Ranger** — 오픈소스 거버넌스 + 정책
 - **DataHub (LinkedIn)** — 오픈소스 카탈로그 + 스튜어드 ownership
 
-**관련 패턴**: [Golden Record](#mdm-golden-record) — Override, [Survivorship Rules](#mdm-survivorship-rules) — 분쟁 해결, [Match-Merge](#mdm-match-merge) — REVIEW 큐. 데이터 품질 KPI 는 [`data-quality-governance.md`](data-quality-governance.md) 의 *Stewardship RACI* 항목과 연결.
+**관련 패턴**: [Golden Record](#mdm-golden-record) — Override, [Survivorship Rules](#mdm-survivorship-rules) — 분쟁 해결, [Match-Merge](#mdm-match-merge) — REVIEW 큐. 데이터 품질 KPI 는 [`data-quality-governance.md`](data-quality.md) 의 *Stewardship RACI* 항목과 연결.
 
 ---
 
@@ -480,7 +480,7 @@ class HierarchyService(private val repo: OrgUnitRepository) {
 }
 ```
 
-**관련 패턴**: [Reference Data Management](#mdm-reference-data) — 분류 코드 자체의 계층, [Golden Record](#mdm-golden-record) — 마스터 엔터티의 계층 소속, [`data-modeling.md#cdc`](data-modeling.md#cdc) — SCD 변경 캡처. 데이터 품질 차원 *Timeliness* 와 결합은 [`data-quality-governance.md`](data-quality-governance.md) 참조.
+**관련 패턴**: [Reference Data Management](#mdm-reference-data) — 분류 코드 자체의 계층, [Golden Record](#mdm-golden-record) — 마스터 엔터티의 계층 소속, [`data-modeling.md#cdc`](../../../dev-advisor/references/patterns/data-modeling.md#cdc) — SCD 변경 캡처. 데이터 품질 차원 *Timeliness* 와 결합은 [`data-quality-governance.md`](data-quality.md) 참조.
 
 ---
 
@@ -509,7 +509,7 @@ class HierarchyService(private val repo: OrgUnitRepository) {
 1. **Product Information 중심** → Pimcore (오픈소스) / SAP MDG (SAP 환경) / Stibo STEP
 2. **Customer 360 중심** → Reltio (Cloud) / Informatica MDM (On-prem) / IBM (Healthcare)
 3. **Reference Data 중심** → Collibra RDM / TIBCO EBX / TopBraid RDM
-4. **Metadata Catalog (MDM 아님, 거버넌스 보조)** → DataHub / OpenMetadata / Atlas / Amundsen ([`data-quality-governance.md`](data-quality-governance.md) 의 Catalog 항목 참조)
+4. **Metadata Catalog (MDM 아님, 거버넌스 보조)** → DataHub / OpenMetadata / Atlas / Amundsen ([`data-quality-governance.md`](data-quality.md) 의 Catalog 항목 참조)
 5. **매칭 엔진만 필요** (자체 MDM 구축) → Splink (Fellegi-Sunter) / Zingg (ML) / Dedupe.io
 6. **오픈소스 우선** → Pimcore + Apache Atlas + Splink 조합
 
@@ -529,4 +529,4 @@ class HierarchyService(private val repo: OrgUnitRepository) {
 
 ## 한 줄 요약
 
-MDM 6 패턴은 **Golden Record 를 생성·유지하는 파이프라인의 6 단계**: ① SSoT 정의 → ② Survivorship 규칙으로 필드별 값 결정 → ③ Match-Merge 로 동일 엔터티 통합 → ④ Data Steward 가 정책·예외 관리 → ⑤ Reference Data 로 분류 / 표준 정렬 → ⑥ Hierarchy + SCD 로 시간·다관점 정합성 보존. DMBOK 2 KA 10 + ISO 8000 + Fellegi-Sunter 가 표준 이론이며, 도구는 도메인(Product/Customer/Reference) 과 통합 스타일(Registry/Coexistence/Centralized) 로 선택한다. 데이터 품질 차원·거버넌스 RACI 는 [`data-quality-governance.md`](data-quality-governance.md), 분산 일관성·CDC 는 [`data-modeling.md`](data-modeling.md), ACID/정규화 이론은 [`../principles/database-fundamentals.md`](../principles/database-fundamentals.md), Hierarchy 시간 차원 SCD 의 DWH 구현은 [`data-warehousing-bi.md#scd-types`](data-warehousing-bi.md#scd-types) (P1 신설) 참조.
+MDM 6 패턴은 **Golden Record 를 생성·유지하는 파이프라인의 6 단계**: ① SSoT 정의 → ② Survivorship 규칙으로 필드별 값 결정 → ③ Match-Merge 로 동일 엔터티 통합 → ④ Data Steward 가 정책·예외 관리 → ⑤ Reference Data 로 분류 / 표준 정렬 → ⑥ Hierarchy + SCD 로 시간·다관점 정합성 보존. DMBOK 2 KA 10 + ISO 8000 + Fellegi-Sunter 가 표준 이론이며, 도구는 도메인(Product/Customer/Reference) 과 통합 스타일(Registry/Coexistence/Centralized) 로 선택한다. 데이터 품질 차원·거버넌스 RACI 는 [`data-quality-governance.md`](data-quality.md), 분산 일관성·CDC 는 [`data-modeling.md`](../../../dev-advisor/references/patterns/data-modeling.md), ACID/정규화 이론은 [`../principles/database-fundamentals.md`](../principles/db-fundamentals.md), Hierarchy 시간 차원 SCD 의 DWH 구현은 [`data-warehousing-bi.md#scd-types`](data-warehousing.md#scd-types) (P1 신설) 참조.

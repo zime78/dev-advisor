@@ -546,5 +546,5 @@ checks for prod.users:
 - `patterns/master-data-management.md` — Golden Record / Survivorship 의 DQ 측정 측면
 - `principles/database-fundamentals.md` — Consistency / Replication / Isolation 의 DQ 영향
 - `patterns/data-modeling.md` — Normalization / Constraints 가 DQ inherent quality 의 기반
-- [`patterns/data-warehousing-bi.md#dbt-modeling`](data-warehousing-bi.md#dbt-modeling) (P1 신설) — dbt 의 `tests:` / `data tests` / Snapshot 으로 DQ 6 차원을 변환 파이프라인에 정량 통합
+- [`patterns/data-warehousing-bi.md#dbt-modeling`](data-warehousing.md#dbt-modeling) (P1 신설) — dbt 의 `tests:` / `data tests` / Snapshot 으로 DQ 6 차원을 변환 파이프라인에 정량 통합
 - `security/index.md` — PII 탐지·접근 통제와 DQ 의 교차점

@@ -9,7 +9,7 @@ dev-advisor advisor 9 모드 → 트리거 조건 도달 → Claude Code 전문 
 advisor 9 모드는 다음 트리거 조건 도달 시 Claude Code 전문 서브에이전트 또는 후속 OMC 스킬로 hand-off 한다. `architect` / `code-reviewer` / `security-reviewer` / `verifier` / `designer` / `planner` / `test-engineer` 는 Claude Code `Task` 대상이고, `/oh-my-claudecode:ai-slop-cleaner` 는 별도 스킬 호출 대상이다.
 
 ### `architect` — 아키텍처 설계
-- **트리거**: `recommend` 5단계 결과가 아키텍처 영향 ≥ 3 파일 / 계층 재설계 / 도메인 분해 / [database-fundamentals](principles/database-fundamentals.md) (CAP/PACELC/복제/파티셔닝 결정) / [master-data-management](patterns/master-data-management.md) (MDM 통합) / [data-quality-governance](patterns/data-quality-governance.md) (DQ 거버넌스 설계) / [data-warehousing-bi](patterns/data-warehousing-bi.md) (DWH 차원 모델링 / Lakehouse 선택 / SCD 정책) / [standards-mapping](principles/standards-mapping.md) (SWEBOK/CS2023/DMBOK/NIST/ISO 매핑 검증) / [formal-methods](principles/formal-methods.md) (안전 critical / 분산 합의 / 동시성 정합성 — TLA+ / Alloy / Hoare / Model Checking 적용 의사결정) / [hpc-scientific](patterns/hpc-scientific.md) (HPC 도메인 영향 — MPI/CUDA/SLURM 환경 / NUMA 토폴로지 / Roofline 모델 기반 성능 설계) 영향
+- **트리거**: `recommend` 5단계 결과가 아키텍처 영향 ≥ 3 파일 / 계층 재설계 / 도메인 분해 / [database-fundamentals](../../../data-advisor/references/principles/db-fundamentals.md) (CAP/PACELC/복제/파티셔닝 결정) / [master-data-management](../../../data-advisor/references/patterns/mdm.md) (MDM 통합) / [data-quality-governance](../../../data-advisor/references/patterns/data-quality.md) (DQ 거버넌스 설계) / [data-warehousing-bi](../../../data-advisor/references/patterns/data-warehousing.md) (DWH 차원 모델링 / Lakehouse 선택 / SCD 정책) / [standards-mapping](principles/standards-mapping.md) (SWEBOK/CS2023/DMBOK/NIST/ISO 매핑 검증) / [formal-methods](principles/formal-methods.md) (안전 critical / 분산 합의 / 동시성 정합성 — TLA+ / Alloy / Hoare / Model Checking 적용 의사결정) / [hpc-scientific](patterns/hpc-scientific.md) (HPC 도메인 영향 — MPI/CUDA/SLURM 환경 / NUMA 토폴로지 / Roofline 모델 기반 성능 설계) 영향
 - **인풋**: `{ context, candidates_matrix (3~5행), rationale_6fields, project_signals: { language, scale, stack } }`
 - **산출**: ADR (Architecture Decision Record) + 컴포넌트 다이어그램 (Mermaid) + 계층 경계 + 인터페이스 계약
 - **후속**: `executor` 구현. 전역 `CLAUDE.md` OMC 정책에 따라 본 hand-off (분석·설계·리뷰 성격)는 `model="opus"` 강제, 후속 `executor` 도 architecture-impact 또는 5+ 파일 변경 시 `model="opus"` 상향한다.
@@ -21,7 +21,7 @@ advisor 9 모드는 다음 트리거 조건 도달 시 Claude Code 전문 서브
 - **후속**: `verifier` 회귀 확인
 
 ### `security-reviewer` — 보안 통제 검증
-- **트리거**: `security-audit` 5단계 결과가 DREAD ≥ 8 위협 식별 / 컴플라이언스 carve-out 필요 / threat model 신규 등재 / [data-quality-governance](patterns/data-quality-governance.md) (DQ 검증 → 데이터 무결성·리니지 영향) / [security/index.md OWASP Top 10 매핑](security/index.md) (Web/API/Mobile/LLM 매핑표 신규 위협 → 통제 보강) / [standards-mapping](principles/standards-mapping.md) (OWASP·NIST 800·ISO 27001 적합성 검증) 영향
+- **트리거**: `security-audit` 5단계 결과가 DREAD ≥ 8 위협 식별 / 컴플라이언스 carve-out 필요 / threat model 신규 등재 / [data-quality-governance](../../../data-advisor/references/patterns/data-quality.md) (DQ 검증 → 데이터 무결성·리니지 영향) / [security/index.md OWASP Top 10 매핑](security/index.md) (Web/API/Mobile/LLM 매핑표 신규 위협 → 통제 보강) / [standards-mapping](principles/standards-mapping.md) (OWASP·NIST 800·ISO 27001 적합성 검증) 영향
 - **인풋**: `{ stride_table, dread_scores, compliance_mapping, attack_surface_changes }`
 - **산출**: threat model 확정 / 통제 변경 권고 / 컴플라이언스 증거 체크리스트 ([표준 매트릭스](security/index.md))
 - **후속**: `verifier` + `code-reviewer`

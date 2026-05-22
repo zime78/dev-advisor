@@ -49,7 +49,7 @@
 
 **관련**:
 - [paxos](../algorithms/consensus.md#paxos), [raft](../algorithms/consensus.md#raft) — Paxos / Raft 합의는 모두 TLA+ 명세가 공식 배포되어 있음
-- [consistency-models](database-fundamentals.md#consistency-models) — Cosmos DB 의 5 단계 일관성은 TLA+ 명세로 정의
+- [consistency-models](../../../data-advisor/references/principles/db-fundamentals.md#consistency-models) — Cosmos DB 의 5 단계 일관성은 TLA+ 명세로 정의
 - [linearizability](concurrency-theory.md#linearizability) — 선형화 가능성은 TLA+ refinement 로 증명
 
 **표준 인용**:
@@ -319,7 +319,7 @@ MODULE main
 - [model-checking](#model-checking) — SPIN / NuSMV 는 model checking 의 대표 구현
 - [hoare-logic](#hoare-logic) — B-Method / Event-B / Coq 는 Hoare-style 정련 + 증명 결합
 - [paxos](../algorithms/consensus.md#paxos), [raft](../algorithms/consensus.md#raft) — Paxos 는 Z / Event-B / TLA+ 명세 모두 존재
-- [consistency-models](database-fundamentals.md#consistency-models) — 데이터베이스 일관성 모델은 Z / TLA+ 로 정형 명세
+- [consistency-models](../../../data-advisor/references/principles/db-fundamentals.md#consistency-models) — 데이터베이스 일관성 모델은 Z / TLA+ 로 정형 명세
 - [sdlc-v-model](sdlc-models.md#sdlc-v-model) — V-Model 의 좌측(요구 / 설계) ↔ 우측(검증) 매핑은 Z + B-Method 의 *정련 사슬* 과 동형
 
 **표준 인용**:
@@ -376,5 +376,5 @@ MODULE main
 
 - `principles/concurrency-theory.md`: [linearizability](concurrency-theory.md#linearizability), [serializability](concurrency-theory.md#serializability), [liveness-safety](concurrency-theory.md#liveness-safety) — 본 문서의 시간 논리(safety / liveness) 정의와 직접 연결
 - `principles/sdlc-models.md`: [sdlc-v-model](sdlc-models.md#sdlc-v-model) — 안전 critical 검증 단계의 정형기법 도입 매핑
-- `principles/database-fundamentals.md`: [consistency-models](database-fundamentals.md#consistency-models) — DB 일관성 모델은 TLA+ / Z 정형 명세의 산업 적용
+- `principles/database-fundamentals.md`: [consistency-models](../../../data-advisor/references/principles/db-fundamentals.md#consistency-models) — DB 일관성 모델은 TLA+ / Z 정형 명세의 산업 적용
 - `algorithms/consensus.md`: [paxos](../algorithms/consensus.md#paxos), [raft](../algorithms/consensus.md#raft) — 합의 알고리즘의 TLA+ / SPIN / B-Method 형식 증명 사례

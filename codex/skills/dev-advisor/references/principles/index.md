@@ -374,4 +374,4 @@ dev-advisor SKILL.md `## 호출 인터페이스` 와 동일하게 `list / search
 - **23 파일 존재** (`index.md` + 22 카테고리 md: solid / grasp / iso25010 / 12-factor / code-smells / type-systems / concurrency-theory / refactoring-techniques / sw-economics / evolutionary-arch / resilience-theory / documentation / process-metrics / performance-metrics / sustainable-sw / sdlc-models / scaled-agile / professional-ethics / standards-mapping / configuration-management / hci-methodology / formal-methods)
 - 항목 합계 **206** (`^## [0-9]+\.` 헤더 카운트)
 - 도메인별 카운트: solid=5, grasp=9, iso25010=8, 12-factor=12, code-smells=22, type-systems=10, concurrency-theory=10, refactoring-techniques=25, sw-economics=10, evolutionary-arch=8, resilience-theory=8, documentation=8, process-metrics=10, performance-metrics=10, sustainable-sw=8, sdlc-models=7, scaled-agile=6, professional-ethics=6, standards-mapping=7, configuration-management=6
-- **부록 검증** (별도 검사): `micro-principles.md` 존재 + **18** 항목 카운트 (`^## ` 헤더 — 표준 인용·매트릭스·분류 섹션 3 제외). 214 합계에는 포함되지 않음.
+- **부록 검증** (별도 검사): `micro-principles.md` 존재 + **18** 항목 카운트 (`^## ` 헤더 — 표준 인용·매트릭스·분류 섹션 3 제외). 206 합계에는 포함되지 않음.

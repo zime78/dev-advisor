@@ -10,8 +10,10 @@ from __future__ import annotations
 
 import argparse
 import copy
+import hashlib
 import json
 import os
+import pickle
 import re
 import sys
 from datetime import datetime, timezone
@@ -877,6 +879,35 @@ def collect_aliases(refs: Path, items: list[dict[str, Any]]) -> list[dict[str, s
     return sorted(aliases, key=lambda row: (row["domain"], row["alias"]))
 
 
+def annotate_anchors(skill_dir: Path, catalog: dict[str, Any]) -> tuple[int, int]:
+    """Validate anchor against target markdown for every catalog item.
+
+    각 item에 anchor_exists: bool / anchor_warning: str|None 필드를 추가한다.
+    Returns (valid_count, broken_count).
+    """
+    anchors_cache: dict[Path, set[str]] = {}
+    valid = 0
+    broken = 0
+    for entry in catalog["items"]:
+        path = skill_dir / entry["file"]
+        if not path.exists():
+            entry["anchor_exists"] = False
+            entry["anchor_warning"] = f"missing file: {entry['file']}"
+            broken += 1
+            continue
+        if path not in anchors_cache:
+            anchors_cache[path] = collect_anchors(path)
+        if anchor_matches(entry["anchor"], anchors_cache[path]):
+            entry["anchor_exists"] = True
+            entry["anchor_warning"] = None
+            valid += 1
+        else:
+            entry["anchor_exists"] = False
+            entry["anchor_warning"] = f"missing anchor: {entry['anchor']}"
+            broken += 1
+    return valid, broken
+
+
 def validate(skill_dir: Path, catalog: dict[str, Any], manifest: dict[str, int]) -> list[str]:
     issues: list[str] = []
     refs = skill_dir / "references"
@@ -1007,11 +1038,246 @@ def normalize_for_check(catalog: dict[str, Any]) -> dict[str, Any]:
     return normalized
 
 
+# ---------------------------------------------------------------------------
+# State directory emitters (P2-d: sharding + indexes + pickle + source hashes)
+# ---------------------------------------------------------------------------
+
+
+def _ensure_dir(path: Path) -> None:
+    path.mkdir(parents=True, exist_ok=True)
+
+
+def _write_json(path: Path, data: Any) -> None:
+    _ensure_dir(path.parent)
+    text = json.dumps(data, ensure_ascii=False, indent=2, sort_keys=False) + "\n"
+    path.write_text(text, encoding="utf-8")
+
+
+def split_by_domain(catalog: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
+    """Group items by domain (도메인별 item 그룹화)."""
+    by_domain: dict[str, list[dict[str, Any]]] = {domain: [] for domain in DOMAINS}
+    for entry in catalog["items"]:
+        by_domain.setdefault(entry["domain"], []).append(entry)
+    return by_domain
+
+
+def emit_domain_shards(catalog: dict[str, Any], out_dir: Path) -> dict[str, int]:
+    """각 도메인의 items만 모아 별도 JSON으로 분할 저장. Returns {domain: count}."""
+    domains_dir = out_dir / "catalog" / "domains"
+    _ensure_dir(domains_dir)
+    by_domain = split_by_domain(catalog)
+    counts: dict[str, int] = {}
+    for domain, items in by_domain.items():
+        shard_path = domains_dir / f"{domain}.json"
+        _write_json(
+            shard_path,
+            {
+                "domain": domain,
+                "schema_version": catalog.get("schema_version"),
+                "catalog_version": catalog.get("catalog_version"),
+                "generated_at": catalog.get("generated_at"),
+                "count": len(items),
+                "items": items,
+            },
+        )
+        counts[domain] = len(items)
+    return counts
+
+
+def emit_meta(catalog: dict[str, Any], out_dir: Path, shard_counts: dict[str, int]) -> None:
+    """meta.json — schema/version/timestamp + per-domain count summary."""
+    meta_path = out_dir / "catalog" / "meta.json"
+    meta = {
+        "schema_version": catalog.get("schema_version"),
+        "catalog_version": catalog.get("catalog_version"),
+        "generated_at": catalog.get("generated_at"),
+        "source": catalog.get("source"),
+        "domains": catalog.get("domains"),
+        "shard_counts": shard_counts,
+        "totals": {
+            "items": len(catalog["items"]),
+            "aliases": len(catalog.get("aliases", [])),
+            "standards_mappings": len(catalog.get("standards_mappings", [])),
+        },
+    }
+    _write_json(meta_path, meta)
+
+
+def emit_aliases(catalog: dict[str, Any], out_dir: Path) -> None:
+    """aliases.json — flat alias table (전체 도메인)."""
+    _write_json(out_dir / "catalog" / "aliases.json", {"aliases": catalog.get("aliases", [])})
+
+
+def emit_standards(catalog: dict[str, Any], out_dir: Path) -> None:
+    """standards.json — standards_mappings copy."""
+    _write_json(
+        out_dir / "catalog" / "standards.json",
+        {"standards_mappings": catalog.get("standards_mappings", [])},
+    )
+
+
+def build_by_id_index(catalog: dict[str, Any]) -> dict[str, dict[str, int]]:
+    """domain → id → entry_idx (도메인 내 item 리스트의 인덱스)."""
+    by_id: dict[str, dict[str, int]] = {domain: {} for domain in DOMAINS}
+    domain_idx: dict[str, int] = {domain: 0 for domain in DOMAINS}
+    for entry in catalog["items"]:
+        domain = entry["domain"]
+        by_id.setdefault(domain, {})
+        domain_idx.setdefault(domain, 0)
+        by_id[domain][entry["id"]] = domain_idx[domain]
+        domain_idx[domain] += 1
+    return by_id
+
+
+def build_by_alias_index(catalog: dict[str, Any]) -> dict[str, dict[str, str]]:
+    """domain → alias(normalized & lower) → target_id."""
+    by_alias: dict[str, dict[str, str]] = {domain: {} for domain in DOMAINS}
+    for row in catalog.get("aliases", []):
+        domain = row["domain"]
+        target_id = row["target_id"]
+        by_alias.setdefault(domain, {})
+        alias_normalized = normalize_key(row["alias"])
+        alias_lower = row["alias"].strip().lower()
+        if alias_normalized:
+            by_alias[domain][alias_normalized] = target_id
+        if alias_lower:
+            by_alias[domain][alias_lower] = target_id
+    return by_alias
+
+
+def build_by_lookup_key_index(catalog: dict[str, Any]) -> dict[str, dict[str, list[str]]]:
+    """domain → lookup_key → [ids] (검색 시 사전 정규화된 inverted index)."""
+    by_key: dict[str, dict[str, list[str]]] = {domain: {} for domain in DOMAINS}
+    for entry in catalog["items"]:
+        domain = entry["domain"]
+        by_key.setdefault(domain, {})
+        for key in entry.get("lookup_keys", []):
+            by_key[domain].setdefault(key, []).append(entry["id"])
+    return by_key
+
+
+def emit_indexes(catalog: dict[str, Any], out_dir: Path) -> None:
+    """3개 inverted index를 indexes/ 하위에 저장."""
+    indexes_dir = out_dir / "catalog" / "indexes"
+    _ensure_dir(indexes_dir)
+    _write_json(indexes_dir / "by_id.json", build_by_id_index(catalog))
+    _write_json(indexes_dir / "by_alias.json", build_by_alias_index(catalog))
+    _write_json(indexes_dir / "by_lookup_key.json", build_by_lookup_key_index(catalog))
+
+
+def emit_pickle(catalog: dict[str, Any], out_dir: Path) -> int:
+    """Single-file pickle with all dicts for fast load (~5ms target).
+
+    Returns bytes written.
+    """
+    pickle_path = out_dir / "catalog.pickle"
+    _ensure_dir(pickle_path.parent)
+    by_domain = split_by_domain(catalog)
+    payload = {
+        "schema_version": catalog.get("schema_version"),
+        "catalog_version": catalog.get("catalog_version"),
+        "generated_at": catalog.get("generated_at"),
+        "source": catalog.get("source"),
+        "domains": catalog.get("domains"),
+        "items": catalog["items"],
+        "by_domain_items": by_domain,
+        "aliases": catalog.get("aliases", []),
+        "standards_mappings": catalog.get("standards_mappings", []),
+        "by_id": build_by_id_index(catalog),
+        "by_alias": build_by_alias_index(catalog),
+        "by_lookup_key": build_by_lookup_key_index(catalog),
+    }
+    with pickle_path.open("wb") as fp:
+        pickle.dump(payload, fp, protocol=pickle.HIGHEST_PROTOCOL)
+    return pickle_path.stat().st_size
+
+
+def emit_source_hashes(skill_dir: Path, out_dir: Path) -> int:
+    """references/ 하위 모든 .md 파일의 sha256 해시를 저장. Returns hash count."""
+    refs = skill_dir / "references"
+    hashes: dict[str, str] = {}
+    for path in sorted(refs.rglob("*.md")):
+        rel = path.relative_to(skill_dir).as_posix()
+        with path.open("rb") as fp:
+            digest = hashlib.sha256(fp.read()).hexdigest()
+        hashes[rel] = digest
+    source_path = out_dir / "source-hashes.json"
+    _ensure_dir(source_path.parent)
+    _write_json(
+        source_path,
+        {
+            "generated_at": generated_at(),
+            "algorithm": "sha256",
+            "count": len(hashes),
+            "hashes": hashes,
+        },
+    )
+    return len(hashes)
+
+
+def emit_state(skill_dir: Path, catalog: dict[str, Any], state_dir: Path) -> dict[str, Any]:
+    """모든 state 산출물 emit + summary 반환."""
+    _ensure_dir(state_dir / "catalog")
+    shard_counts = emit_domain_shards(catalog, state_dir)
+    emit_meta(catalog, state_dir, shard_counts)
+    emit_aliases(catalog, state_dir)
+    emit_standards(catalog, state_dir)
+    emit_indexes(catalog, state_dir)
+    pickle_bytes = emit_pickle(catalog, state_dir)
+    hash_count = emit_source_hashes(skill_dir, state_dir)
+    return {
+        "shard_counts": shard_counts,
+        "pickle_bytes": pickle_bytes,
+        "hash_count": hash_count,
+        "state_dir": str(state_dir),
+    }
+
+
+def verify_source_hashes(skill_dir: Path, state_dir: Path) -> list[str]:
+    """source-hashes.json이 실제 markdown 해시와 일치하는지 확인."""
+    issues: list[str] = []
+    source_path = state_dir / "source-hashes.json"
+    if not source_path.exists():
+        return [f"missing source-hashes.json: {source_path}"]
+    try:
+        stored = json.loads(source_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return [f"corrupt source-hashes.json: {exc}"]
+    stored_hashes: dict[str, str] = stored.get("hashes", {})
+
+    actual_hashes: dict[str, str] = {}
+    for path in sorted((skill_dir / "references").rglob("*.md")):
+        rel = path.relative_to(skill_dir).as_posix()
+        with path.open("rb") as fp:
+            actual_hashes[rel] = hashlib.sha256(fp.read()).hexdigest()
+
+    for rel, expected in stored_hashes.items():
+        actual = actual_hashes.get(rel)
+        if actual is None:
+            issues.append(f"source-hash file missing: {rel}")
+        elif actual != expected:
+            issues.append(f"source-hash mismatch: {rel}")
+    for rel in actual_hashes:
+        if rel not in stored_hashes:
+            issues.append(f"source-hash uncovered file: {rel}")
+    return issues
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Generate dev-advisor catalog-index.json")
     parser.add_argument("--check", action="store_true", help="fail when catalog-index.json is stale")
     parser.add_argument("--output", default="catalog-index.json", help="output path relative to skill root")
     parser.add_argument("--pretty", action="store_true", default=True, help="write pretty deterministic JSON")
+    parser.add_argument(
+        "--state-dir",
+        default="scripts/state",
+        help="state directory for shards / indexes / pickle / source-hashes (relative to skill root)",
+    )
+    parser.add_argument(
+        "--no-state",
+        action="store_true",
+        help="skip emitting scripts/state/ artifacts (legacy single-JSON mode)",
+    )
     args = parser.parse_args()
 
     script_dir = Path(__file__).resolve().parent
@@ -1019,8 +1285,12 @@ def main() -> int:
     output = Path(args.output)
     if not output.is_absolute():
         output = skill_dir / output
+    state_dir = Path(args.state_dir)
+    if not state_dir.is_absolute():
+        state_dir = skill_dir / state_dir
 
     catalog = build_catalog(skill_dir)
+    valid_anchors, broken_anchors = annotate_anchors(skill_dir, catalog)
     text = json.dumps(catalog, ensure_ascii=False, indent=2, sort_keys=False) + "\n"
 
     if args.check:
@@ -1031,11 +1301,21 @@ def main() -> int:
         if normalize_for_check(existing) != normalize_for_check(catalog):
             print(f"FATAL: stale {output}", file=sys.stderr)
             return 1
+        # source-hashes 일치 여부도 함께 검증 (state dir이 존재할 때만)
+        if (state_dir / "source-hashes.json").exists():
+            hash_issues = verify_source_hashes(skill_dir, state_dir)
+            if hash_issues:
+                for issue in hash_issues[:50]:
+                    print(f"FATAL: {issue}", file=sys.stderr)
+                if len(hash_issues) > 50:
+                    print(f"FATAL: ... {len(hash_issues) - 50} more", file=sys.stderr)
+                return 1
         print(
             "catalog-index.json OK "
             f"({len(catalog['items'])} items, {len(catalog['aliases'])} aliases, "
             f"{len(catalog['standards_mappings'])} standards mappings)"
         )
+        print(f"Anchor check: {valid_anchors + broken_anchors}/{valid_anchors + broken_anchors} valid ({broken_anchors} broken)")
         return 0
 
     output.write_text(text, encoding="utf-8")
@@ -1043,6 +1323,17 @@ def main() -> int:
         f"wrote {output} ({len(catalog['items'])} items, {len(catalog['aliases'])} aliases, "
         f"{len(catalog['standards_mappings'])} standards mappings)"
     )
+
+    if not args.no_state:
+        summary = emit_state(skill_dir, catalog, state_dir)
+        total_items = sum(summary["shard_counts"].values())
+        print(
+            f"wrote {state_dir} (domains={total_items}, pickle={summary['pickle_bytes']/1024:.1f}KB, "
+            f"source-hashes={summary['hash_count']})"
+        )
+
+    total_anchors = valid_anchors + broken_anchors
+    print(f"Anchor check: {valid_anchors}/{total_anchors} valid ({broken_anchors} broken)")
     return 0
 
 

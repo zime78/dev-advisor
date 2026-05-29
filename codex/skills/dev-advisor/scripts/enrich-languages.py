@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Enrich dev-advisor language references with docs links and practical examples."""
+"""dev-advisor 언어 reference에 공식 문서 링크와 실사용 예제를 보강한다."""
 
 from __future__ import annotations
 
@@ -1637,12 +1637,14 @@ def paidRevenue (orders : List Order) : Nat :=
 
 
 def section(text: str, heading: str) -> str:
+    """지정한 2단계 Markdown 섹션 본문만 추출한다."""
     pattern = rf"(?ms)^## {re.escape(heading)}\n(.*?)(?=^## |\Z)"
     match = re.search(pattern, text)
     return match.group(1).strip() if match else ""
 
 
 def title_of(text: str) -> str:
+    """언어 문서의 최상위 제목을 읽어 표시 이름으로 사용한다."""
     match = re.search(r"^# (.+)$", text, re.MULTILINE)
     if not match:
         raise ValueError("missing title")
@@ -1650,20 +1652,24 @@ def title_of(text: str) -> str:
 
 
 def list_items(text: str) -> list[str]:
+    """Markdown bullet 목록을 순서 보존 리스트로 변환한다."""
     return [line[2:].strip() for line in text.splitlines() if line.startswith("- ")]
 
 
 def paragraph(text: str) -> str:
+    """목록이 아닌 문장 줄을 하나의 문단 문자열로 합친다."""
     return " ".join(line.strip() for line in text.splitlines() if line.strip() and not line.startswith("- "))
 
 
 def before_marker(value: str, marker: str) -> str:
+    """반복 생성 문구 앞부분만 남겨 기존 문장 중복을 줄인다."""
     if marker in value:
         return value.split(marker, 1)[0].strip()
     return value.strip()
 
 
 def dedupe(items: list[str]) -> list[str]:
+    """입력 순서를 보존하면서 중복 항목을 제거한다."""
     seen = set()
     result = []
     for item in items:
@@ -1675,6 +1681,7 @@ def dedupe(items: list[str]) -> list[str]:
 
 
 def build_doc(lang_id: str, old: str) -> str:
+    """기존 언어 문서를 품질 게이트를 만족하는 표준 문서로 재구성한다."""
     title = title_of(old)
     judgement = before_marker(paragraph(section(old, "핵심 판단")), f". {title} 도입 판단").rstrip(".")
     uses = before_marker(paragraph(section(old, "사용처")), ". 실무에서는").rstrip(".")
@@ -1821,6 +1828,7 @@ def build_doc(lang_id: str, old: str) -> str:
 
 
 def main() -> None:
+    """75개 언어 문서 전체를 재생성하고 누락된 메타데이터를 검증한다."""
     files = sorted(p for p in LANG_DIR.glob("*.md") if p.name not in {"index.md", "domains.md"})
     file_ids = {p.stem for p in files}
     missing_docs = file_ids - DOCS.keys()

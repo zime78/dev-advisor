@@ -158,7 +158,7 @@ User: /dev-advisor maintain src/legacy/
 - **적용 조건**: P1 부채 = sprint 우선순위 큐 진입
 - **수용 가능 조건**: deprecated 예정 모듈 또는 외부 contract 고정 → 부채 그대로 둬도 OK
 
-**6단계 hand-off**: `ai-slop-cleaner` deslop → `code-reviewer` PR 리뷰.
+**6단계 hand-off**: `$ai-slop-cleaner` deslop → `code-reviewer` PR 리뷰.
 
 ---
 
@@ -324,17 +324,17 @@ log.info('booking created for user=${user.id.hashed}'); // 의사익명화
 User: /dev-advisor swarm packages/data/lib/src/repositories/booking_repository_impl.dart
 ```
 
-**ULW 발사** (7 + 1 = 8 agent 병렬):
+**ULW 발사** (7 + 1 = 8 Codex 서브에이전트 병렬):
 
-```
-spawn_agent(agent_type="executor", message="recommend booking_repository_impl") — 후보 매트릭스 4행
-spawn_agent(agent_type="executor", message="validate booking_repository_impl") — 위반 P1×3, P2×6, P3×11
-spawn_agent(agent_type="executor", message="security-audit booking_repository_impl") — STRIDE 6 + DREAD
-spawn_agent(agent_type="executor", message="qa booking_repository_impl") — traceability / release readiness
-spawn_agent(agent_type="executor", message="qc booking_repository_impl") — quality gate / test evidence
-spawn_agent(agent_type="executor", message="maintain booking_repository_impl") — 부채 9행 + 5 그룹 분포
-spawn_agent(agent_type="executor", message="refactor booking_repository_impl") — Top 5 부채 Before/After
-spawn_agent(agent_type="verifier", message="통합 우선순위 정렬 + cross-link 매트릭스") — 7 결과 reviewer
+```text
+spawn_agent(agent_type="executor", message="recommend: recommend booking_repository_impl") — 후보 매트릭스 4행
+spawn_agent(agent_type="executor", message="validate: validate booking_repository_impl") — 위반 P1×3, P2×6, P3×11
+spawn_agent(agent_type="executor", message="security-audit: security-audit booking_repository_impl") — STRIDE 6 + DREAD
+spawn_agent(agent_type="executor", message="qa: qa booking_repository_impl") — traceability / release readiness
+spawn_agent(agent_type="executor", message="qc: qc booking_repository_impl") — quality gate / test evidence
+spawn_agent(agent_type="executor", message="maintain: maintain booking_repository_impl") — 부채 9행 + 5 그룹 분포
+spawn_agent(agent_type="executor", message="refactor: refactor booking_repository_impl") — Top 5 부채 Before/After
+spawn_agent(agent_type="verifier", message="synthesis: 통합 우선순위 정렬 + cross-link 매트릭스") — 7 결과 reviewer
 ```
 
 **reviewer 통합 결과**:
@@ -442,3 +442,221 @@ User: /dev-advisor qc src/checkout
 - **표준 인용**: [Quality QC](quality/qc.md), [Testing Strategies](patterns/testing-strategies.md), [Process Metrics](principles/process-metrics.md)
 - **적용 조건**: merge/release gate와 CI 증거가 있는 배포 후보.
 - **차단·재검증 조건**: high severity scanner failure, critical path test failure, 증거 누락.
+
+---
+
+### K. research 모드 — Transformer SOTA 추적 (정상 케이스)
+
+```
+User: /dev-advisor research transformer
+```
+
+**출력**:
+
+```markdown
+## Research — transformer
+
+> anonymous mode — rate limit 적용 가능 (무료 API 키 옵션 있음)
+> (API 키 없이도 완전 동작. 키는 선택적 무료 옵션)
+
+### 1. 검색 쿼리
+- arXiv: `transformer attention` (카테고리: cs.LG, 연도: 2020-2026)
+- Semantic Scholar: `transformer architecture` (field: "Machine Learning")
+- OpenAlex: `transformer` (topic: T10320 ✓verified Neural Networks and Applications)
+
+### 2. 논문 매트릭스 (Primary, Top 5)
+| # | 제목 | 저자 (1st+) | 연도 | 발표처 | 인용수 | 무료PDF | 카탈로그 매핑 | 신뢰도 | 3-source | 관련성 |
+|:-:|------|------------|:----:|--------|:-----:|:------:|--------------|:------:|:--------:|:------:|
+| 1 | Attention Is All You Need | Vaswani et al. (8) | 2017 | NeurIPS | 120,000+ | [arXiv](https://arxiv.org/abs/1706.03762) | `/algorithm transformer` | HIGH | A✓ S✓ O✓ | ★★★★★ |
+| 2 | An Image is Worth 16x16 Words (ViT) [시뮬레이션] | Dosovitskiy et al. | 2021 | ICLR | 25,000+ | [arXiv](https://arxiv.org/abs/2010.11929) | `/algorithm transformer` | HIGH | A✓ S✓ O✓ | ★★★★ |
+| 3 | BERT: Pre-training of Deep Bidirectional Transformers [시뮬레이션] | Devlin et al. (4) | 2019 | NAACL | 80,000+ | [arXiv](https://arxiv.org/abs/1810.04805) | `/algorithm transformer` | HIGH | A✓ S✓ O✓ | ★★★★ |
+| 4 | Exploring the Limits of Transfer Learning (T5) [시뮬레이션] | Raffel et al. | 2020 | JMLR | 15,000+ | [arXiv](https://arxiv.org/abs/1910.10683) | `/algorithm transformer` | MED | A✓ S✓ O✓ | ★★★ |
+| 5 | Training language models to follow instructions (InstructGPT) [시뮬레이션] | Ouyang et al. | 2022 | NeurIPS | 9,000+ | [arXiv](https://arxiv.org/abs/2203.02155) | `/algorithm transformer` | MED | A✓ S✓ O✓ | ★★★ |
+
+### 3. 카탈로그 Cross-Reference
+| 매핑된 카탈로그 항목 | 매핑 논문 # | 매핑 신뢰도 |
+|---------------------|------------|:----------:|
+| `/algorithm transformer` | #1, #2, #3 | HIGH |
+| `/pattern attention-mechanism` | #1 | MED |
+
+### 4. 6 필드 산출
+**선택/판정**: Vaswani 2017 "Attention Is All You Need"가 NLP/Vision/멀티모달 SOTA의 표준 기반. 후속 ViT/BERT/T5/InstructGPT로 도메인 전반 확장됨.
+
+**근거 (Why)**: #1은 120K+ 인용, NeurIPS 2017 게재, 7년간 후속 연구가 지속 발표됨. #3(BERT)은 80K+로 NLP fine-tuning 표준. #2(ViT)는 Vision 도메인으로 Transformer 적용 범위 확장의 근거.
+
+**대안 비교**: Transformer vs RNN(LSTM/GRU) — Transformer는 병렬 학습 가능 + 장거리 의존성에 강하나 메모리 O(n²). vs SSM(Mamba 2023) — 시퀀스 길이 확장 효율에 강하나 표준화 초기 단계.
+
+**표준 인용**: `doi:10.48550/arXiv.1706.03762` / `arXiv:1706.03762` / NeurIPS 2017
+
+**적용 조건**: 시퀀스 데이터, GPU 자원 충분, 학습 데이터 규모 1M+ tokens
+
+**신뢰성·재현성 조건**: 코드 공개(github.com/tensorflow/tensor2tensor), peer review 완료, 재현 보고 다수, `is_retracted: false` (OpenAlex 확인)
+
+### 5. 3-source 교차 검증 로그
+- 총: arXiv 47 / S2 89 / OpenAlex 124 → 중복 제거 후 38편
+- 3중 검증 통과: 5편 / 단일 소스 only: 12편
+- API 응답: arXiv 200 / S2 200 / OpenAlex 200 (정상)
+
+### 6. Hand-off 후보
+- 매핑 신뢰도 HIGH ≥ 3 → `/algorithm transformer` lookup 권장
+- 구현 요청 시 → `spawn_agent(agent_type="executor", message="...")`
+```
+
+---
+※ 본 결과는 외부 API 응답 원문 기반이며, [시뮬레이션] 표기 행은 실제 API 호출 없이 사례 설명 목적으로 작성된 시뮬레이션입니다. 인용 전 사용자 검증을 권장합니다.
+
+---
+
+### L. research 모드 — 자유 질문 ("LLM code generation evaluation")
+
+```
+User: /dev-advisor research "LLM code generation evaluation"
+```
+
+**출력**:
+
+```markdown
+## Research — LLM code generation evaluation
+
+> anonymous mode — rate limit 적용 가능 (무료 API 키 옵션 있음)
+> (API 키 없이도 완전 동작. 키는 선택적 무료 옵션)
+
+### 1. 검색 쿼리
+- arXiv: `LLM code generation benchmark evaluation` (카테고리: cs.SE cs.LG, 연도: 2021-2026)
+- Semantic Scholar: `LLM code generation evaluation` (field: "Computer Science", TLDR 포함)
+- OpenAlex: `code generation evaluation` (topic: T11516 ✓verified Software Engineering)
+
+### 2. 논문 매트릭스 (Primary, Top 5)
+| # | 제목 | 저자 (1st+) | 연도 | 발표처 | 인용수 | 무료PDF | 카탈로그 매핑 | 신뢰도 | 3-source | 관련성 |
+|:-:|------|------------|:----:|--------|:-----:|:------:|--------------|:------:|:--------:|:------:|
+| 1 | Evaluating Large Language Models Trained on Code (HumanEval) [시뮬레이션] | Chen et al. | 2021 | arXiv | 5,200+ | [arXiv](https://arxiv.org/abs/2107.03374) | `/principle evaluation` | MED | A✓ S✓ O✓ | ★★★★★ |
+| 2 | Program Synthesis with Large Language Models (MBPP) [시뮬레이션] | Austin et al. | 2021 | arXiv | 1,800+ | [arXiv](https://arxiv.org/abs/2108.07732) | `/principle evaluation` | MED | A✓ S✓ O✓ | ★★★★ |
+| 3 | CodeXGLUE: A Machine Learning Benchmark Dataset for Code [시뮬레이션] | Lu et al. | 2021 | NeurIPS | 1,200+ | [arXiv](https://arxiv.org/abs/2102.04664) | `/pattern testing-strategies` | MED | A✓ S✓ O✓ | ★★★★ |
+| 4 | BigCodeBench: Benchmarking Code Generation with Diverse Function Calls [시뮬레이션] | Zhuo et al. | 2024 | arXiv | 300+ | [arXiv](https://arxiv.org/abs/2406.15877) | `/principle evaluation` | MED | A✓ S✓ O✓ | ★★★ |
+| 5 | SWE-bench: Can Language Models Resolve Real GitHub Issues? [시뮬레이션] | Jimenez et al. | 2024 | ICLR | 450+ | [arXiv](https://arxiv.org/abs/2310.06770) | `/principle evaluation` | MED | A✓ S✓ O✓ | ★★★ |
+
+### 3. 카탈로그 Cross-Reference
+| 매핑된 카탈로그 항목 | 매핑 논문 # | 매핑 신뢰도 |
+|---------------------|------------|:----------:|
+| `/principle evaluation` | #1, #2, #4, #5 | MED |
+| `/pattern testing-strategies` | #3 | MED |
+
+### 4. 6 필드 산출
+**선택/판정**: HumanEval(#1)이 LLM 코드 생성 평가의 사실상 표준이며, MBPP·SWE-bench 등 후속 벤치마크로 복잡도·현실성 측면이 강화되는 추세.
+
+**근거 (Why)**: #1(HumanEval)은 5,200+ 인용으로 pass@k 지표를 업계 표준으로 확립. #4(BigCodeBench)·#5(SWE-bench)는 2024년 발표로 최신 평가 패러다임(다양한 함수 호출, 실제 GitHub 이슈 해결) 반영.
+
+**대안 비교**: HumanEval(함수 단위, 간단) vs SWE-bench(저장소 수준, 고난도) vs MBPP(입문 수준). 실용 목적에 따라 선택 — 빠른 모델 비교에는 HumanEval, 현실 엔지니어링 능력 평가에는 SWE-bench 권장.
+
+**표준 인용**: `arXiv:2107.03374` (HumanEval, 2021) / `arXiv:2310.06770` (SWE-bench, ICLR 2024)
+
+**적용 조건**: LLM 코드 생성 모델 평가, CI 파이프라인 통합 벤치마크 구성
+
+**신뢰성·재현성 조건**: HumanEval 데이터셋 공개(github.com/openai/human-eval), peer review 완료(일부), `is_retracted: false`
+
+### 5. 3-source 교차 검증 로그
+- 총: arXiv 61 / S2 104 / OpenAlex 88 → 중복 제거 후 52편
+- 3중 검증 통과: 5편 / 단일 소스 only: 19편
+- API 응답: arXiv 200 / S2 200 / OpenAlex 200 (정상)
+
+### 6. Hand-off 후보
+- 매핑 신뢰도 MED — 카탈로그 lookup 직접 권장 기준(HIGH) 미만
+- 추가 탐색 옵션: `/dev-advisor research "HumanEval pass@k benchmark"` (검색어 재정제)
+- 구현/분석 위임: `spawn_agent(agent_type="document-specialist", message="LLM code generation evaluation 논문 5편 정리 및 비교")`
+```
+
+---
+※ [시뮬레이션] 표기 행은 실제 API 호출 없이 사례 설명 목적으로 작성된 시뮬레이션입니다. 인용 전 사용자 검증을 권장합니다.
+
+---
+
+### M. research 모드 — 0건 대응 + Degraded Mode
+
+#### M-1. 검색 결과 0건 대응
+
+```
+User: /dev-advisor research "비존재하는키워드xyz123"
+```
+
+**출력**:
+
+```markdown
+## Research — 비존재하는키워드xyz123
+
+### 검색 결과 없음
+
+3-source 모두 0건. 다음을 시도해보세요:
+
+1. **검색어 재정제**: 한국어 → 영어 변환, 약어 풀어쓰기, 카탈로그 ID 사용
+2. **연도 범위 확장**: `--years 2010-2026`
+3. **카탈로그 lookup 먼저**: `/pattern search <키워드>` 또는 `/principle search <키워드>`
+4. **document-specialist 에이전트 위임**: 외부 학술 사이트 다중 소스 교차 검증
+
+추천 다음 명령:
+- `/dev-advisor research "<재정제된 검색어>"`
+- `spawn_agent(agent_type="document-specialist", message="<query> 학술 논문 5편 정리")`
+
+검색 로그:
+- arXiv: 0건
+- Semantic Scholar: 0건
+- OpenAlex: 0건
+- API 응답: arXiv 200 / S2 200 / OpenAlex 200 (모두 정상, 결과만 0건)
+```
+
+#### M-2. Degraded Mode — 부분 API 장애 케이스
+
+```
+User: /dev-advisor research "neural architecture search"
+```
+(시뮬레이션: Semantic Scholar 503 응답)
+
+**출력**:
+
+```markdown
+## Research — neural architecture search
+
+> ⚠️ degraded mode: Semantic Scholar unavailable (HTTP 503)
+> arXiv + OpenAlex 데이터만으로 산출. 인용수는 OpenAlex 값 사용.
+
+### 1. 검색 쿼리
+- arXiv: `neural architecture search` (카테고리: cs.LG cs.NE, 연도: 2019-2026)
+- Semantic Scholar: ❌ 503 응답 — 제외
+- OpenAlex: `neural architecture search` (topic: T10320 ✓verified)
+
+### 2. 논문 매트릭스 (Primary, Top 3 — 2-source)
+| # | 제목 | 저자 (1st+) | 연도 | 발표처 | 인용수 (OA) | 무료PDF | 카탈로그 매핑 | 신뢰도 | 3-source | 관련성 |
+|:-:|------|------------|:----:|--------|:-----------:|:------:|--------------|:------:|:--------:|:------:|
+| 1 | Neural Architecture Search with Reinforcement Learning [시뮬레이션] | Zoph & Le | 2017 | ICLR | 7,800+ | [arXiv](https://arxiv.org/abs/1611.01578) | `/algorithm nas` | HIGH | A✓ S✗ O✓ | ★★★★★ |
+| 2 | DARTS: Differentiable Architecture Search [시뮬레이션] | Liu et al. | 2019 | ICLR | 5,400+ | [arXiv](https://arxiv.org/abs/1806.09055) | `/algorithm nas` | HIGH | A✓ S✗ O✓ | ★★★★ |
+| 3 | Efficient Neural Architecture Search via Parameter Sharing [시뮬레이션] | Pham et al. | 2018 | ICML | 3,200+ | [arXiv](https://arxiv.org/abs/1802.03268) | `/algorithm nas` | HIGH | A✓ S✗ O✓ | ★★★★ |
+
+### 3. 카탈로그 Cross-Reference
+| 매핑된 카탈로그 항목 | 매핑 논문 # | 매핑 신뢰도 |
+|---------------------|------------|:----------:|
+| `/algorithm nas` | #1, #2, #3 | HIGH |
+
+### 4. 6 필드 산출
+**선택/판정**: NAS 분야는 RL 기반(Zoph 2017) → Gradient 기반(DARTS) → Weight Sharing(ENAS) 순으로 효율성이 진화.
+
+**근거 (Why)**: 인용수(OpenAlex): #1 7,800+ / #2 5,400+ / #3 3,200+. Semantic Scholar 응답 없어 S2 인용수 권위 약화 — 수치는 단일 소스(OpenAlex) 기준.
+
+**대안 비교**: RL 기반(#1, GPU 수천 시간) vs 미분 가능(#2, GPU 수 시간) vs 파라미터 공유(#3, GPU 수 시간 + 공유 파라미터).
+
+**표준 인용**: `arXiv:1611.01578` (NAS-RL, ICLR 2017) / `arXiv:1806.09055` (DARTS, ICLR 2019)
+
+**적용 조건**: 특정 도메인에 최적 아키텍처 자동 탐색 필요, 탐색 비용 허용 가능한 GPU 환경
+
+**신뢰성·재현성 조건**: Semantic Scholar 응답 없음 — 인용수 권위 약화. arXiv + OpenAlex 2-source만으로 산출. S2 복구 후 재검색 권장.
+
+### 5. 3-source 교차 검증 로그
+- 총: arXiv 38 / S2 ❌ / OpenAlex 71 → 중복 제거 후 29편
+- 2중 검증 통과: 3편 / 단일 소스 only: 14편
+- API 응답: arXiv 200 / **S2 503** / OpenAlex 200
+
+### 6. Hand-off 후보
+- 2-source 결과 — S2 복구 후 `/dev-advisor research "neural architecture search"` 재실행 권장
+- 또는: `spawn_agent(agent_type="document-specialist", message="neural architecture search 학술 논문 5편 정리")`
+```
+
+---
+※ [시뮬레이션] 표기 행은 실제 API 호출 없이 사례 설명 목적으로 작성된 시뮬레이션입니다. M-2의 S2 503 응답도 시뮬레이션입니다.

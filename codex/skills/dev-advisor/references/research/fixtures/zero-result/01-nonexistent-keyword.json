@@ -1,0 +1,49 @@
+{
+  "fixture_id": "zero-result-01-nonexistent",
+  "description": "3-source 모두 200 응답 + 결과 0건 — 0건 대응 출력 및 재정제 제안 검증",
+  "query": "비존재하는키워드xyz123",
+  "expected_behavior": "검색 결과 없음 안내 + 검색어 재정제 제안 3가지 + document-specialist hand-off 옵션 제공",
+  "api_responses": {
+    "arxiv": {
+      "http_status": 200,
+      "atom_xml_sample": "<feed xmlns=\"http://www.w3.org/2005/Atom\"><opensearch:totalResults xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\">0</opensearch:totalResults><opensearch:startIndex xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\">0</opensearch:startIndex><opensearch:itemsPerPage xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\">10</opensearch:itemsPerPage></feed>",
+      "result_count": 0
+    },
+    "semantic_scholar": {
+      "http_status": 200,
+      "json_sample": {
+        "data": [],
+        "total": 0,
+        "offset": 0
+      },
+      "result_count": 0
+    },
+    "openalex": {
+      "http_status": 200,
+      "json_sample": {
+        "results": [],
+        "meta": {
+          "count": 0,
+          "page": 1,
+          "per_page": 25
+        }
+      },
+      "result_count": 0
+    }
+  },
+  "expected_output": {
+    "result_count": 0,
+    "zero_result_message": "❌ 검색 결과 없음: '비존재하는키워드xyz123'에 해당하는 논문을 찾지 못했습니다.",
+    "suggested_refinements": [
+      "영어 키워드로 변환 후 재시도 (예: 개념어 → 영문 전문 용어)",
+      "검색어 범위 축소 (복합어 → 핵심 단어 1-2개)",
+      "유사 개념 동의어 검색 (예: 다른 표기법·약어)"
+    ],
+    "handoff_option": "document-specialist에게 위임하여 broader context 탐색 가능"
+  },
+  "expected_validation": {
+    "HR-05_zero_result_handling": "PASS",
+    "HR-07_refinement_suggestion": "PASS"
+  },
+  "notes": "모든 source가 HTTP 200이지만 result_count=0인 케이스. HTTP 에러와 구별하여 처리해야 함. 재시도 없이 0건 상태로 즉시 제안 출력."
+}

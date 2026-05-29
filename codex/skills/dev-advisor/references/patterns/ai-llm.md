@@ -206,7 +206,7 @@ class ReActAgent(private val llm: AnthropicClient, private val tools: List<Tool>
 - 무한 ping-pong 루프 위험
 
 **활용 예시**:
-- Anthropic 의 oh-my-codex `team` 모드 (explore + architect + executor)
+- OMX `team` 모드 (explore + architect + executor)
 - AutoGen GroupChat
 - Devin (Cognition AI) sub-agent fleet
 

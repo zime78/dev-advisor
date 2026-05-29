@@ -533,7 +533,7 @@ jobs:
 **활용 예시**:
 - GitHub Copilot Business + `.copilotignore`
 - Cursor `.cursorignore` + Privacy Mode (코드 미저장)
-- Codex 사용 시 secret 파일 제외 정책(예: .gitignore, 사내 exclude 정책) + project-level 환경변수 redaction
+- AI 코드 어시스턴트 사용 시 secret 파일 제외 정책(예: .gitignore, 사내 exclude 정책) + project-level 환경변수 redaction
 - 사내 LLM gateway 에서 정규식 기반 redaction (`OPENAI_API_KEY=...` → `REDACTED`)
 
 **난이도**: 낮음~중간 | **사용 빈도**: ★★★★☆ (AI 도입 조직 필수)

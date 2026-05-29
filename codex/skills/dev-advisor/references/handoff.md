@@ -1,4 +1,4 @@
-# OMX/Codex 에이전트 hand-off 상세
+# OMX 에이전트 hand-off 상세
 
 dev-advisor advisor 9 모드 → 트리거 조건 도달 → Codex 전문 서브에이전트 또는 후속 OMX 스킬 hand-off. 각 대상의 정식 입출력 계약. SKILL.md `## OMX hand-off` 요약 표에서 참조.
 
@@ -6,13 +6,13 @@ dev-advisor advisor 9 모드 → 트리거 조건 도달 → Codex 전문 서브
 
 ## OMX hand-off
 
-advisor 9 모드는 다음 트리거 조건 도달 시 Codex 전문 서브에이전트 또는 후속 OMX 스킬로 hand-off 한다. `architect` / `code-reviewer` / `security-reviewer` / `verifier` / `designer` / `planner` / `test-engineer` 는 Codex `spawn_agent` 대상이고, `$ai-slop-cleaner` 는 별도 스킬 호출 대상이다. 서브에이전트는 사용자가 `swarm`, 병렬 점검, 서브에이전트 사용을 명시했거나 상위 지침이 허용한 경우에만 사용한다.
+advisor 9 모드는 다음 트리거 조건 도달 시 Codex 전문 서브에이전트 또는 후속 OMX 스킬로 hand-off 한다. `architect` / `code-reviewer` / `security-reviewer` / `verifier` / `designer` / `planner` / `test-engineer` 는 Codex/OMX 역할 서브에이전트 대상이고, `$ai-slop-cleaner` 는 별도 스킬 호출 대상이다.
 
 ### `architect` — 아키텍처 설계
 - **트리거**: `recommend` 5단계 결과가 아키텍처 영향 ≥ 3 파일 / 계층 재설계 / 도메인 분해 / [database-fundamentals](../../data-advisor/references/principles/db-fundamentals.md) (CAP/PACELC/복제/파티셔닝 결정) / [master-data-management](../../data-advisor/references/patterns/mdm.md) (MDM 통합) / [data-quality-governance](../../data-advisor/references/patterns/data-quality.md) (DQ 거버넌스 설계) / [data-warehousing-bi](../../data-advisor/references/patterns/data-warehousing.md) (DWH 차원 모델링 / Lakehouse 선택 / SCD 정책) / [standards-mapping](principles/standards-mapping.md) (SWEBOK/CS2023/DMBOK/NIST/ISO 매핑 검증) / [formal-methods](principles/formal-methods.md) (안전 critical / 분산 합의 / 동시성 정합성 — TLA+ / Alloy / Hoare / Model Checking 적용 의사결정) / [hpc-scientific](patterns/hpc-scientific.md) (HPC 도메인 영향 — MPI/CUDA/SLURM 환경 / NUMA 토폴로지 / Roofline 모델 기반 성능 설계) 영향
 - **인풋**: `{ context, candidates_matrix (3~5행), rationale_6fields, project_signals: { language, scale, stack } }`
 - **산출**: ADR (Architecture Decision Record) + 컴포넌트 다이어그램 (Mermaid) + 계층 경계 + 인터페이스 계약
-- **후속**: `executor` 구현. Codex 역할 에이전트의 기본 모델 정책을 우선하고, 별도 `model` 파라미터는 사용자가 명시적으로 요구하거나 작업상 필요성이 분명한 경우에만 지정한다.
+- **후속**: `executor` 구현. 전역 `AGENTS.md` OMX 정책에 따라 분석·설계·리뷰 성격 hand-off 는 xhigh 계열 역할(`architect`, `critic`, `planner`, `code-reviewer`, `security-reviewer`)을 우선하고, 구현 전용 후속 작업은 변경 규모와 위험도에 맞춰 분리한다.
 
 ### `code-reviewer` — 변경 검토
 - **트리거**: `refactor` 6단계 후 PR / `validate` 식별 P1 위반 수정 후 PR / [professional-ethics](principles/professional-ethics.md) (ACM/IEEE 코드·다크패턴) 영향 검토 필요 / [configuration-management](principles/configuration-management.md) (CCB 의사결정 검증·Baseline 변경 / SPL Variant 영향) 영향 / [mobile-app#app-store-compliance](patterns/mobile-app.md#app-store-compliance) (Apple App Store / Google Play 심사 거부 사유 사전 점검 — Guideline 2.5.13 ATT / 3.1.1 IAP / 5.1.1 Privacy / Target API Level) / [mobile-app#mobile-advertising-attribution](patterns/mobile-app.md#mobile-advertising-attribution) (IDFA / AAID / ATT 프롬프트 / Data Safety Form / SKAdNetwork 4 등 광고 SDK 통합 검토)
@@ -61,4 +61,95 @@ spawn_agent(
 )
 ```
 
-Codex 역할 에이전트의 고정 모델 정책을 우선한다. 별도 `model` 파라미터는 사용자가 명시적으로 요구하거나 작업상 필요성이 분명한 경우에만 지정한다.
+분석·설계·리뷰 성격의 hand-off 는 전역 `AGENTS.md`의 OMX 정책에 따라 xhigh 계열 역할을 우선한다. 구현 전용 후속 작업은 `executor` / `writer` / `test-engineer` 라우팅 정책을 따른다.
+
+---
+
+## research 모드 전용 hand-off (v0.5)
+
+research 모드(`/dev-advisor research <topic>`)에서 외부 학술 API 호출 결과를 기반으로 다음 시나리오에서 hand-off:
+
+### `document-specialist`
+
+**OMX subagent**: `document-specialist`
+**모델 정책**: 외부 문서 검색은 분석 성격이므로 xhigh 계열 역할 우선
+
+**트리거**:
+- research 모드가 3-source 모두 0건 + 사용자가 재시도 요청
+- 한국어 논문 명시 요청 (RISS/DBpia/KCI 등 — research 모드 본 PLAN scope 외)
+- 환각 검증 통과 실패가 반복되어 외부 문서 다중 소스 교차 검증이 필요한 경우
+
+**입력 계약**:
+- 검색어 (영문 정규화된 키워드 + 한국어 원본)
+- 도메인 태그 (CS/AI/SE/Security/...)
+- 이전 research 시도 로그 (어느 API 응답 / 0건 사유)
+- 카탈로그 매핑 후보 (있으면)
+
+**출력 계약**:
+- 다중 소스 교차 검증된 논문 5~10편 매트릭스
+- 식별자(DOI/arXiv ID/등) 1개+ 포함 (§11.1 정규식 검증)
+- 출처별 신뢰도 레벨 (HIGH/MED/LOW)
+- 한국어 논문 사이트(RISS/DBpia/KCI) 결과는 별도 섹션으로 분리
+
+**후속**:
+- research 모드 재실행 (정상 카탈로그 매핑 가능 시)
+- 카탈로그 lookup (HIGH 매핑 ≥ 3)
+
+### `analyst`
+
+**OMX subagent**: `analyst`
+**모델 정책**: 비교 분석 성격이므로 xhigh 계열 역할 우선
+
+**트리거**:
+- research 결과 다수 논문(5~10편)의 심층 비교/요약 분석 요청
+- "이 두 논문 차이점 분석해줘" 같은 비교 질의
+- 카탈로그 항목과 검색 결과의 관계 분석
+
+**입력 계약**:
+- research 매트릭스 (Primary + Weak Evidence)
+- 6 필드 산출 (선택/판정, 근거, 대안 비교, ...)
+- 사용자의 분석 초점 (성능/메서드/적용 가능성/etc)
+
+**출력 계약**:
+- 비교 매트릭스 (논문 × 분석 축)
+- 합의 vs 이견 영역 식별
+- 사용자 의사결정에 도움이 되는 권고
+
+**후속**:
+- 사용자에게 보고 (executor 위임 X — analyst는 분석만)
+
+### `scientist`
+
+**OMX subagent**: `scientist`
+**모델 정책**: 데이터 분석 성격이므로 xhigh 계열 역할 우선
+
+**트리거**:
+- research 결과의 통계적 분석 요청 (인용수 분포, 시간 추이, 저자 네트워크)
+- "이 분야 trend 분석" 요청
+- 다년간 발표 추이 분석
+
+**입력 계약**:
+- research 매트릭스 (raw API 응답 포함)
+- 분석 대상 메트릭 (citation_count, year, venue, ...)
+- 시각화 옵션 (선택)
+
+**출력 계약**:
+- 통계 요약 (mean/median/percentile)
+- 시간 추이 분석 (연도별 발표 수, 평균 인용수)
+- 의미 있는 패턴 (특정 venue 집중도, 저자 네트워크 등)
+
+**후속**:
+- 사용자에게 보고 (executor 위임 X — scientist는 분석만)
+
+### 공통 정책 (research 모드 hand-off)
+
+- 모든 3개 에이전트는 AGENTS.md OMX/ULW 분석·설계 정책에 따라 xhigh 계열 역할 우선
+- 호출 형식: `spawn_agent(agent_type="<name>", message="<역할 + 입력 + 산출 형식>")`
+- bare ID 사용 금지 (pre-tool-enforcer 차단됨)
+- 무료 정책 절대 준수 — 에이전트가 추가 외부 API 호출 시에도 anonymous 동작 보장 요구
+
+### 무료 정책 (research 모드 전체)
+
+🆓 **사용자에게 API 키 발급/유료 결제 요구 메시지 절대 금지**.
+키 누락 시 anonymous fallback + 1줄 소극적 안내만:
+> "anonymous mode 사용 중 — rate limit 적용 가능. 무료 API 키 옵션 있음."

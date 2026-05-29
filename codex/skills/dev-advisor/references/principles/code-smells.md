@@ -579,7 +579,7 @@ class Square extends Shape { void render(Canvas c) { /* ... */ } }
 - **Rename Variable** (의도가 이름에 드러나게)
 - **Introduce Assertion** (전제 조건 주석 → 실행 가능한 검증)
 
-**예외**: *왜* (의도, 이유, 외부 제약, 라이선스) 를 적는 주석은 가치 있음. AGENTS.md 정책상 *한국어 함수 docstring* 은 필수.
+**예외**: *왜* (의도, 이유, 외부 제약, 라이선스) 를 적는 주석은 가치 있음. 전역 `AGENTS.md` 정책상 *한국어 함수 docstring* 은 필수.
 
 **난이도**: 낮음 | **사용 빈도**: ★★★★☆
 

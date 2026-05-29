@@ -1,0 +1,93 @@
+{
+  "fixture_id": "schema-drift-01-s2-missing-tldr",
+  "description": "S2 응답에서 TLDR 필드 누락 — fallback 정책 (abstract 첫 문장 또는 n/a) 검증",
+  "query": "graph neural network semi-supervised",
+  "expected_behavior": "TLDR 필드 없을 때 abstract 첫 문장을 TLDR로 대체. abstract도 없으면 'n/a' 출력.",
+  "api_responses": {
+    "arxiv": {
+      "http_status": 200,
+      "atom_xml_sample": "<feed xmlns=\"http://www.w3.org/2005/Atom\"><entry><id>http://arxiv.org/abs/1609.02907v4</id><title>Semi-Supervised Classification with Graph Convolutional Networks</title><summary>We present a scalable approach for semi-supervised classification on graph-structured data that is based on an efficient variant of convolutional neural networks which operate directly on graphs. We motivate the choice of our convolutional architecture via a localized first-order approximation of spectral graph convolutions.</summary><author><name>Thomas N. Kipf</name></author><author><name>Max Welling</name></author><published>2016-09-09T00:00:00Z</published><updated>2017-02-22T00:00:00Z</updated><category term=\"cs.LG\"/><category term=\"stat.ML\"/></entry></feed>",
+      "result_count": 22
+    },
+    "semantic_scholar": {
+      "http_status": 200,
+      "json_sample": {
+        "data": [
+          {
+            "paperId": "36eff562f65125511b5dfab68ce7f7a943c27478",
+            "title": "Semi-Supervised Classification with Graph Convolutional Networks",
+            "year": 2017,
+            "citationCount": 25000,
+            "influentialCitationCount": 5000,
+            "venue": "ICLR",
+            "publicationVenue": {
+              "name": "International Conference on Learning Representations"
+            },
+            "externalIds": {
+              "ArXiv": "1609.02907",
+              "DOI": "10.48550/arXiv.1609.02907"
+            },
+            "fieldsOfStudy": ["Computer Science", "Mathematics"],
+            "abstract": "We present a scalable approach for semi-supervised classification on graph-structured data that is based on an efficient variant of convolutional neural networks which operate directly on graphs. We motivate the choice of our convolutional architecture via a localized first-order approximation of spectral graph convolutions. Our model scales linearly in the number of graph edges and learns hidden layer representations that encode both local graph structure and features of nodes.",
+            "authors": [
+              {"authorId": "145430701", "name": "Thomas N. Kipf"},
+              {"authorId": "1740807", "name": "Max Welling"}
+            ]
+          }
+        ],
+        "total": 58,
+        "offset": 0,
+        "next": 1
+      },
+      "note": "tldr 필드 완전 누락 (키 자체가 없음) — fallback 정책 적용 필요",
+      "result_count": 58,
+      "schema_drift_detail": "S2 API v2 일부 응답에서 tldr 키 자체가 생략되는 경우 발생. null이 아니라 키 부재(key absent) 케이스."
+    },
+    "openalex": {
+      "http_status": 200,
+      "json_sample": {
+        "results": [
+          {
+            "id": "https://openalex.org/W2287716261",
+            "doi": "https://doi.org/10.48550/arxiv.1609.02907",
+            "title": "Semi-Supervised Classification with Graph Convolutional Networks",
+            "publication_year": 2017,
+            "cited_by_count": 27000,
+            "is_retracted": false,
+            "is_paratext": false,
+            "ids": {
+              "openalex": "https://openalex.org/W2287716261",
+              "doi": "https://doi.org/10.48550/arxiv.1609.02907",
+              "arxiv": "https://arxiv.org/abs/1609.02907"
+            }
+          }
+        ],
+        "meta": {
+          "count": 63,
+          "page": 1,
+          "per_page": 25
+        }
+      },
+      "result_count": 63
+    }
+  },
+  "expected_fallback": {
+    "tldr_field_present": false,
+    "fallback_chain": [
+      "1st: S2 tldr.text → 누락",
+      "2nd: S2 abstract 첫 문장 → 'We present a scalable approach for semi-supervised classification on graph-structured data that is based on an efficient variant of convolutional neural networks which operate directly on graphs.'",
+      "3rd: arXiv summary 첫 문장 (S2 abstract도 없을 경우)",
+      "4th: 'n/a' (모든 소스 summary/abstract 없을 경우)"
+    ],
+    "applied_fallback": "2nd",
+    "final_tldr": "We present a scalable approach for semi-supervised classification on graph-structured data that is based on an efficient variant of convolutional neural networks which operate directly on graphs."
+  },
+  "expected_validation": {
+    "HR-01_identifiers": "PASS",
+    "HR-02_regex": "PASS",
+    "HR-03_url_whitelist": "PASS",
+    "HR-04_schema_drift_fallback": "PASS",
+    "HR-10_not_retracted": "PASS"
+  },
+  "notes": "tldr 키 부재(key absent)와 tldr: null을 동일하게 처리해야 함. Python: data.get('tldr', {}).get('text') or fallback_chain."
+}

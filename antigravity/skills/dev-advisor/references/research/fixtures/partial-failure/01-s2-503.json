@@ -1,0 +1,65 @@
+{
+  "fixture_id": "partial-failure-01-s2-503",
+  "description": "Semantic Scholar 503 응답 — degraded mode 진입 (2-of-3 source 응답)",
+  "query": "neural architecture search",
+  "expected_behavior": "⚠️ degraded mode: Semantic Scholar unavailable 배너 출력 + 인용수는 OpenAlex 값만 사용 + TLDR fallback to abstract",
+  "api_responses": {
+    "arxiv": {
+      "http_status": 200,
+      "atom_xml_sample": "<feed xmlns=\"http://www.w3.org/2005/Atom\"><entry><id>http://arxiv.org/abs/1611.01578v2</id><title>Neural Architecture Search with Reinforcement Learning</title><summary>Neural networks are powerful and flexible models that work well for many difficult learning tasks in image, speech and natural language understanding. Despite their success, neural networks are still hard to design. In this paper, we use a recurrent network to generate the model descriptions of neural networks and train this RNN with reinforcement learning to maximize the expected accuracy of the generated architectures on a validation set.</summary><author><name>Barret Zoph</name></author><author><name>Quoc V. Le</name></author><published>2016-11-05T00:00:00Z</published><updated>2017-02-15T00:00:00Z</updated><category term=\"cs.LG\"/><category term=\"cs.AI\"/></entry></feed>",
+      "result_count": 15
+    },
+    "semantic_scholar": {
+      "http_status": 503,
+      "error": "Service Unavailable",
+      "error_detail": "Semantic Scholar API is temporarily unavailable. Please retry after a few minutes.",
+      "retry_after_seconds": 120,
+      "result_count": 0
+    },
+    "openalex": {
+      "http_status": 200,
+      "json_sample": {
+        "results": [
+          {
+            "id": "https://openalex.org/W2573824843",
+            "doi": "https://doi.org/10.48550/arxiv.1611.01578",
+            "title": "Neural Architecture Search with Reinforcement Learning",
+            "display_name": "Neural Architecture Search with Reinforcement Learning",
+            "publication_year": 2017,
+            "cited_by_count": 7800,
+            "is_retracted": false,
+            "is_paratext": false,
+            "ids": {
+              "openalex": "https://openalex.org/W2573824843",
+              "doi": "https://doi.org/10.48550/arxiv.1611.01578",
+              "arxiv": "https://arxiv.org/abs/1611.01578"
+            }
+          }
+        ],
+        "meta": {
+          "count": 32,
+          "page": 1,
+          "per_page": 25
+        }
+      },
+      "result_count": 32
+    }
+  },
+  "expected_degradation": {
+    "sources_available": 2,
+    "sources_total": 3,
+    "missing_source": "semantic_scholar",
+    "mode": "degraded",
+    "citation_count_source": "openalex_only",
+    "tldr_source": "none (fallback to abstract first sentence)",
+    "banner_message": "⚠️ 검색 결과 부분 제공: Semantic Scholar 일시적으로 응답하지 않음. 인용 수는 OpenAlex 기준."
+  },
+  "expected_validation": {
+    "HR-01_identifiers": "PASS (arXiv + OpenAlex)",
+    "HR-02_regex": "PASS",
+    "HR-03_url_whitelist": "PASS",
+    "HR-06_degraded_mode": "PASS",
+    "HR-10_not_retracted": "PASS"
+  },
+  "notes": "S2 503 시 재시도 없이 즉시 degraded mode 전환. 사용자에게 배너로 S2 누락 사실 고지 필수."
+}

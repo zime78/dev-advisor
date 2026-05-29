@@ -13,17 +13,19 @@ usage() {
 dev-advisor skill installer
 
 Usage:
-  scripts/install-skills.sh [--dry-run] [--only codex|claude]
+  scripts/install-skills.sh [--dry-run] [--only codex|claude|antigravity]
 
 Options:
   --dry-run          Show what would be installed without copying files.
   --only codex       Install only the Codex skill.
   --only claude      Install only the Claude Code skill.
+  --only antigravity Install only the Antigravity skill.
   -h, --help         Show this help.
 
 Environment:
   CODEX_HOME         Override Codex home directory. Default: ~/.codex
   CLAUDE_HOME        Override Claude Code home directory. Default: ~/.claude
+  ANTIGRAVITY_HOME   Override Antigravity home directory. Default: ~/.gemini/config/plugins/antigravity-cli-plugin
 EOF
 }
 
@@ -34,8 +36,8 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     --only)
-      if [[ $# -lt 2 || ! "$2" =~ ^(codex|claude)$ ]]; then
-        echo "error: --only requires 'codex' or 'claude'" >&2
+      if [[ $# -lt 2 || ! "$2" =~ ^(codex|claude|antigravity)$ ]]; then
+        echo "error: --only requires 'codex', 'claude' or 'antigravity'" >&2
         exit 2
       fi
       ONLY="$2"
@@ -127,6 +129,19 @@ install_claude() {
   copy_skill "$source_dir" "$target_dir" "Claude Code"
 }
 
+install_antigravity() {
+  local antigravity_home="${ANTIGRAVITY_HOME:-${HOME}/.gemini/config/plugins/antigravity-cli-plugin}"
+  local source_dir="${REPO_ROOT}/antigravity/skills/${SKILL_NAME}"
+  local target_dir="${antigravity_home}/skills/${SKILL_NAME}"
+
+  if [[ ! -d "$antigravity_home" && -z "${ANTIGRAVITY_HOME:-}" ]]; then
+    echo "↷ Antigravity: not detected, skipped"
+    return 0
+  fi
+
+  copy_skill "$source_dir" "$target_dir" "Antigravity"
+}
+
 main() {
   echo "dev-advisor skill installer"
   echo "repo: ${REPO_ROOT}"
@@ -144,9 +159,13 @@ main() {
       claude)
         install_claude
         ;;
+      antigravity)
+        install_antigravity
+        ;;
       "")
         install_codex
         install_claude
+        install_antigravity
         ;;
     esac
   done

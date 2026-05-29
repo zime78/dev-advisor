@@ -1,0 +1,13 @@
+# dev-advisor 카탈로그 카운트 단일 source
+# 양쪽 verify-references.sh가 이 파일을 source 하여 expected 값으로 사용
+# Last updated: 2026-05-22 (data-advisor 분리: DMBOK KA 클러스터 49항목 이관)
+
+EXPECTED_PATTERNS=529
+EXPECTED_ALGORITHMS=250
+EXPECTED_LANGUAGES=75
+EXPECTED_SECURITY=106
+EXPECTED_PRINCIPLES=206
+EXPECTED_QUALITY=20
+EXPECTED_MICRO_PRINCIPLES=18
+EXPECTED_TOTAL=1186  # patterns + algorithms + languages + security + principles + quality (micro 부록 제외)
+EXPECTED_TOTAL_WITH_MICRO=1204

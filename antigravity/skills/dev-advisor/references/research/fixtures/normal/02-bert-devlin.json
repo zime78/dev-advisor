@@ -1,0 +1,112 @@
+{
+  "fixture_id": "normal-02-bert-devlin",
+  "description": "정상 케이스 — BERT 논문 (Devlin et al. 2019) 3-source 모두 응답",
+  "query": "BERT pre-training language model",
+  "expected_top_match": {
+    "title": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+    "first_author": "Devlin",
+    "year": 2019,
+    "venue": "NAACL",
+    "doi": "10.18653/v1/N19-1423",
+    "arxiv_id": "1810.04805",
+    "confidence": "HIGH",
+    "catalog_mapping": "/algorithm bert"
+  },
+  "api_responses": {
+    "arxiv": {
+      "http_status": 200,
+      "atom_xml_sample": "<feed xmlns=\"http://www.w3.org/2005/Atom\"><entry><id>http://arxiv.org/abs/1810.04805v2</id><title>BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding</title><summary>We introduce a new language representation model called BERT, which stands for Bidirectional Encoder Representations from Transformers. Unlike recent language representation models, BERT is designed to pre-train deep bidirectional representations from unlabeled text by jointly conditioning on both left and right context in all layers.</summary><author><name>Jacob Devlin</name></author><author><name>Ming-Wei Chang</name></author><author><name>Kenton Lee</name></author><author><name>Kristina Toutanova</name></author><published>2018-10-11T00:00:00Z</published><updated>2019-05-24T00:00:00Z</updated><category term=\"cs.CL\"/></entry></feed>",
+      "result_count": 31
+    },
+    "semantic_scholar": {
+      "http_status": 200,
+      "json_sample": {
+        "data": [
+          {
+            "paperId": "df2b0e26d0599ce3e70df8a9da02e51594e0e992",
+            "title": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+            "year": 2019,
+            "citationCount": 90000,
+            "influentialCitationCount": 14000,
+            "venue": "NAACL",
+            "publicationVenue": {
+              "name": "North American Chapter of the Association for Computational Linguistics"
+            },
+            "externalIds": {
+              "DOI": "10.18653/v1/N19-1423",
+              "ArXiv": "1810.04805",
+              "ACL": "N19-1423"
+            },
+            "fieldsOfStudy": ["Computer Science"],
+            "tldr": {
+              "text": "A new language representation model called BERT is introduced, which stands for Bidirectional Encoder Representations from Transformers, which obtains new state-of-the-art results on eleven natural language processing tasks."
+            },
+            "authors": [
+              {"authorId": "2056203", "name": "Jacob Devlin"},
+              {"authorId": "1744400", "name": "Ming-Wei Chang"},
+              {"authorId": "3119263", "name": "Kenton Lee"},
+              {"authorId": "1706002", "name": "Kristina Toutanova"}
+            ]
+          }
+        ],
+        "total": 62,
+        "offset": 0,
+        "next": 1
+      },
+      "result_count": 62
+    },
+    "openalex": {
+      "http_status": 200,
+      "json_sample": {
+        "results": [
+          {
+            "id": "https://openalex.org/W2963718709",
+            "doi": "https://doi.org/10.18653/v1/N19-1423",
+            "title": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+            "display_name": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+            "publication_year": 2019,
+            "publication_date": "2019-06-01",
+            "cited_by_count": 95000,
+            "is_retracted": false,
+            "is_paratext": false,
+            "ids": {
+              "openalex": "https://openalex.org/W2963718709",
+              "doi": "https://doi.org/10.18653/v1/N19-1423",
+              "arxiv": "https://arxiv.org/abs/1810.04805"
+            },
+            "primary_location": {
+              "source": {
+                "display_name": "NAACL-HLT"
+              }
+            },
+            "topics": [
+              {
+                "id": "https://openalex.org/T10037",
+                "display_name": "Natural Language Processing and Text Mining",
+                "score": 0.99
+              }
+            ],
+            "open_access": {
+              "is_oa": true,
+              "oa_url": "https://arxiv.org/abs/1810.04805"
+            }
+          }
+        ],
+        "meta": {
+          "count": 88,
+          "page": 1,
+          "per_page": 25
+        }
+      },
+      "result_count": 88
+    }
+  },
+  "expected_validation": {
+    "HR-01_identifiers": "PASS",
+    "HR-02_regex": "PASS",
+    "HR-03_url_whitelist": "PASS",
+    "HR-08_catalog_mapping": "PASS",
+    "HR-10_not_retracted": "PASS"
+  },
+  "notes": "arXiv ID regex: ^[0-9]{4}\\.[0-9]{4,5}$ → 1810.04805 PASS. DOI regex: ^10\\.\\d{4,9}/\\S+$ → 10.18653/v1/N19-1423 PASS. NAACL 2019 = NAACL-HLT 2019."
+}

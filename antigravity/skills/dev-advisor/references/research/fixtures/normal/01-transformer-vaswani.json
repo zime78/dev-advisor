@@ -1,0 +1,111 @@
+{
+  "fixture_id": "normal-01-transformer-vaswani",
+  "description": "정상 케이스 — Transformer 논문 (Vaswani et al. 2017) 3-source 모두 응답",
+  "query": "transformer attention mechanism",
+  "expected_top_match": {
+    "title": "Attention Is All You Need",
+    "first_author": "Vaswani",
+    "year": 2017,
+    "venue": "NeurIPS",
+    "doi": "10.48550/arXiv.1706.03762",
+    "arxiv_id": "1706.03762",
+    "confidence": "HIGH",
+    "catalog_mapping": "/algorithm transformer"
+  },
+  "api_responses": {
+    "arxiv": {
+      "http_status": 200,
+      "atom_xml_sample": "<feed xmlns=\"http://www.w3.org/2005/Atom\"><entry><id>http://arxiv.org/abs/1706.03762v7</id><title>Attention Is All You Need</title><summary>The dominant sequence transduction models are based on complex recurrent or convolutional neural networks that include an encoder and a decoder. The best performing models also connect the encoder and decoder through an attention mechanism. We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely.</summary><author><name>Ashish Vaswani</name></author><author><name>Noam Shazeer</name></author><author><name>Niki Parmar</name></author><author><name>Jakob Uszkoreit</name></author><author><name>Llion Jones</name></author><author><name>Aidan N. Gomez</name></author><author><name>Lukasz Kaiser</name></author><author><name>Illia Polosukhin</name></author><published>2017-06-12T17:57:34Z</published><updated>2023-08-02T00:00:00Z</updated><category term=\"cs.CL\"/><category term=\"cs.LG\"/></entry></feed>",
+      "result_count": 47
+    },
+    "semantic_scholar": {
+      "http_status": 200,
+      "json_sample": {
+        "data": [
+          {
+            "paperId": "204e3073870fae3d05bcbc2f6a8e263d9b72e776",
+            "title": "Attention Is All You Need",
+            "year": 2017,
+            "citationCount": 120000,
+            "influentialCitationCount": 18000,
+            "venue": "NeurIPS",
+            "publicationVenue": {
+              "name": "Neural Information Processing Systems"
+            },
+            "externalIds": {
+              "DOI": "10.48550/arXiv.1706.03762",
+              "ArXiv": "1706.03762",
+              "DBLP": "conf/nips/VaswaniSPUJGKP17"
+            },
+            "fieldsOfStudy": ["Computer Science"],
+            "tldr": {
+              "text": "A new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely, which achieves state of the art on English-to-German and English-to-French translation tasks."
+            },
+            "authors": [
+              {"authorId": "1701686", "name": "Ashish Vaswani"},
+              {"authorId": "1736753", "name": "Noam Shazeer"},
+              {"authorId": "3846320", "name": "Niki Parmar"}
+            ]
+          }
+        ],
+        "total": 89,
+        "offset": 0,
+        "next": 1
+      },
+      "result_count": 89
+    },
+    "openalex": {
+      "http_status": 200,
+      "json_sample": {
+        "results": [
+          {
+            "id": "https://openalex.org/W2963403868",
+            "doi": "https://doi.org/10.48550/arxiv.1706.03762",
+            "title": "Attention Is All You Need",
+            "display_name": "Attention Is All You Need",
+            "publication_year": 2017,
+            "publication_date": "2017-06-12",
+            "cited_by_count": 128000,
+            "is_retracted": false,
+            "is_paratext": false,
+            "ids": {
+              "openalex": "https://openalex.org/W2963403868",
+              "doi": "https://doi.org/10.48550/arxiv.1706.03762",
+              "arxiv": "https://arxiv.org/abs/1706.03762"
+            },
+            "primary_location": {
+              "source": {
+                "display_name": "arXiv (Cornell University)"
+              }
+            },
+            "topics": [
+              {
+                "id": "https://openalex.org/T10320",
+                "display_name": "Neural Networks and Applications",
+                "score": 0.99
+              }
+            ],
+            "open_access": {
+              "is_oa": true,
+              "oa_url": "https://arxiv.org/abs/1706.03762"
+            }
+          }
+        ],
+        "meta": {
+          "count": 124,
+          "page": 1,
+          "per_page": 25
+        }
+      },
+      "result_count": 124
+    }
+  },
+  "expected_validation": {
+    "HR-01_identifiers": "PASS",
+    "HR-02_regex": "PASS",
+    "HR-03_url_whitelist": "PASS",
+    "HR-08_catalog_mapping": "PASS",
+    "HR-10_not_retracted": "PASS"
+  },
+  "notes": "arXiv ID regex: ^[0-9]{4}\\.[0-9]{4,5}$ → 1706.03762 PASS. DOI regex: ^10\\.\\d{4,9}/\\S+$ → 10.48550/arXiv.1706.03762 PASS."
+}

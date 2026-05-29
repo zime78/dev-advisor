@@ -4,7 +4,9 @@ dev-advisor 스킬 무결성 검증 도구.
 
 ## verify-references.sh (권장)
 
-**6 도메인 reference 무결성 검증** — 패턴 / 알고리즘 / 언어 / 보안 / 원칙 / 품질. 총 1,253 항목.
+<!-- Counts are synced from .counts.manifest via bin/sync-skill-counts.sh. Do not edit count numbers manually. -->
+
+**6 도메인 reference 무결성 검증** — 패턴 / 알고리즘 / 언어 / 보안 / 원칙 / 품질. 총 <!--counts:total-with-micro-->1204<!--/--> 항목.
 
 ```bash
 bash scripts/verify-references.sh
@@ -19,14 +21,14 @@ bash scripts/verify-references.sh --check today
 0B. patterns/security/principles/quality 실제 항목 합계와 manifest 직접 대조
 1. 카테고리별 anchor 수 == 헤더 수 (algorithms base 23 파일)
 2. 전역 anchor unique
-3. index.md 알고리즘 ID 매핑 표 행 == 273
+3. index.md 알고리즘 ID 매핑 표 행 == <!--counts:algorithms-->250<!--/-->
 4. SKILL.md progressive disclosure 구조 (32 카테고리 진입점, 필수 섹션 헤더, 별칭 표)
 5. languages reference 무결성 (≥60 언어 파일, 레거시 잔존 표현 0건)
 6. languages 표준 14 섹션 헤더 spot-check (python/kotlin/rust/go/swift 누락 ≥ 2 면 fail)
    - languages 전체 품질 게이트: 75개 언어 파일 정확성, `## 관련 문서` 존재, Markdown 링크 3개 이상, 외부 공식 문서 후보 링크 2개 이상, `실사용 예제` 코드 블록 1개 이상, 예제 섹션 25단어 이상
 7. patterns base reference 무결성 (base/P0/P1/P2/P3 카테고리, 부분 합계 == 208; 전체 547은 10번과 합산)
 8. security base reference 무결성 (base 13 보안 파일, base 합계 == 97; 전체 106은 10번과 합산)
-9. **principles reference 무결성** (base/P0/P1/P3 원칙 파일, 부분 합계 == 107; 전체 214 + 18 부록은 10번과 합산)
+9. **principles reference 무결성** (base/P0/P1/P3 원칙 파일, 부분 합계 == 107; 전체 <!--counts:principles-->206<!--/--> + <!--counts:micro-->18<!--/--> 부록은 10번과 합산)
 10. Phase 2 확장 신규 카탈로그 anchor/header 일관성
 11. SKILL.md 통합 모드 (`qa` / `qc` / `full` / `swarm`) 등록 검증
 12. 핵심 Markdown 내부 링크/anchor 검증
@@ -42,13 +44,13 @@ bash scripts/verify-references.sh --check today
 
 | 도메인 | 파일 수 | 항목 수 |
 |--------|--------:|--------:|
-| Patterns   | 55 + index           | 547 |
-| Algorithms | 32 + index           | 273 |
-| Languages  | ≥75 + index + domains | 75 |
-| Security   | 14 + index           | 106 |
-| Principles | 23 + index + micro appendix | 214 + 18 appendix |
-| Quality    | 2 + index            | 20 |
-| **합계**   |                      | **1,253** |
+| Patterns   | 55 + index           | <!--counts:patterns-->529<!--/--> |
+| Algorithms | 32 + index           | <!--counts:algorithms-->250<!--/--> |
+| Languages  | ≥75 + index + domains | <!--counts:languages-->75<!--/--> |
+| Security   | 14 + index           | <!--counts:security-->106<!--/--> |
+| Principles | 23 + index + micro appendix | <!--counts:principles-->206<!--/--> + <!--counts:micro-->18<!--/--> appendix |
+| Quality    | 2 + index            | <!--counts:quality-->20<!--/--> |
+| **합계**   |                      | **<!--counts:total-with-micro-->1204<!--/-->** |
 
 새 항목 추가 후 반드시 실행. CI 또는 pre-commit hook 통합 권장:
 
@@ -112,9 +114,11 @@ python3 scripts/lookup-catalog.py standard "OWASP LLM05"
 - `<domain> list [category]`: JSON item 목록 출력. `--type entry|category|appendix` 필터 지원
 - `standard <query>`: `standards_mappings[]`에서 표준 코드/명칭을 역조회하고 연결된 dev-advisor references 반환
 
-## verify-anchors.sh (deprecated wrapper)
+## verify-anchors.sh (제거됨)
 
-호환성을 위해 유지되는 wrapper. `verify-references.sh` 로 그대로 위임한다. 신규 사용처는 `verify-references.sh` 를 직접 호출한다.
+P3 정리 단계에서 `scripts/verify-anchors.sh` deprecated wrapper는 삭제되었다. anchor 검증은 `verify-references.sh` (또는 직접 `scripts/verify/verify-anchors.sh --check anchors`)를 사용한다.
+
+실제 anchor 무결성 검사 로직은 `scripts/verify/verify-anchors.sh` 에 있으며 `verify-all.sh`의 [2/5] 단계로 실행된다.
 
 ## 신규 항목 추가 시 절차
 

@@ -64,3 +64,94 @@ Task(
 ```
 
 분석·설계·리뷰 성격의 hand-off 는 전역 `CLAUDE.md`의 OMC 모델 정책에 따라 `model="opus"` 를 명시한다. 구현 전용 후속 작업은 `executor` / `writer` / `test-engineer` 라우팅 정책을 따른다.
+
+---
+
+## research 모드 전용 hand-off (v0.5)
+
+research 모드(`/dev-advisor research <topic>`)에서 외부 학술 API 호출 결과를 기반으로 다음 시나리오에서 hand-off:
+
+### `document-specialist`
+
+**OMC subagent**: `oh-my-claudecode:document-specialist`
+**모델 정책**: `model="opus"` 강제 (외부 문서 검색은 분析 성격)
+
+**트리거**:
+- research 모드가 3-source 모두 0건 + 사용자가 재시도 요청
+- 한국어 논문 명시 요청 (RISS/DBpia/KCI 등 — research 모드 본 PLAN scope 외)
+- 환각 검증 통과 실패가 반복되어 외부 문서 다중 소스 교차 검증이 필요한 경우
+
+**입력 계약**:
+- 검색어 (영문 정규화된 키워드 + 한국어 원본)
+- 도메인 태그 (CS/AI/SE/Security/...)
+- 이전 research 시도 로그 (어느 API 응답 / 0건 사유)
+- 카탈로그 매핑 후보 (있으면)
+
+**출력 계약**:
+- 다중 소스 교차 검증된 논문 5~10편 매트릭스
+- 식별자(DOI/arXiv ID/등) 1개+ 포함 (§11.1 정규식 검증)
+- 출처별 신뢰도 레벨 (HIGH/MED/LOW)
+- 한국어 논문 사이트(RISS/DBpia/KCI) 결과는 별도 섹션으로 분리
+
+**후속**:
+- research 모드 재실행 (정상 카탈로그 매핑 가능 시)
+- 카탈로그 lookup (HIGH 매핑 ≥ 3)
+
+### `analyst`
+
+**OMC subagent**: `oh-my-claudecode:analyst`
+**모델 정책**: `model="opus"` 강제 (비교 분析은 분析 성격)
+
+**트리거**:
+- research 결과 다수 논문(5~10편)의 심층 비교/요약 분析 요청
+- "이 두 논문 차이점 분析해줘" 같은 비교 질의
+- 카탈로그 항목과 검색 결과의 관계 분析
+
+**입력 계약**:
+- research 매트릭스 (Primary + Weak Evidence)
+- 6 필드 산출 (선택/판정, 근거, 대안 비교, ...)
+- 사용자의 분析 초점 (성능/메서드/적용 가능성/etc)
+
+**출력 계약**:
+- 비교 매트릭스 (논문 × 분析 축)
+- 합의 vs 이견 영역 식별
+- 사용자 의사결정에 도움이 되는 권고
+
+**후속**:
+- 사용자에게 보고 (executor 위임 X — analyst는 분析만)
+
+### `scientist`
+
+**OMC subagent**: `oh-my-claudecode:scientist`
+**모델 정책**: `model="opus"` 강제 (데이터 분析은 분析 성격)
+
+**트리거**:
+- research 결과의 통계적 분析 요청 (인용수 분布, 시간 추이, 저자 네트워크)
+- "이 분야 trend 분析" 요청
+- 다년간 발표 추이 분析
+
+**입력 계약**:
+- research 매트릭스 (raw API 응답 포함)
+- 분析 대상 메트릭 (citation_count, year, venue, ...)
+- 시각화 옵션 (선택)
+
+**출력 계약**:
+- 통계 요약 (mean/median/percentile)
+- 시간 추이 분析 (연도별 발표 수, 평균 인용수)
+- 의미 있는 패턴 (특정 venue 집중도, 저자 네트워크 등)
+
+**후속**:
+- 사용자에게 보고 (executor 위임 X — scientist는 분析만)
+
+### 공통 정책 (research 모드 hand-off)
+
+- 모든 3개 에이전트에 `model="opus"` 명시 (CLAUDE.md OMC/ULW 분析·설계 모델 정책)
+- 호출 형식: `Task(subagent_type="oh-my-claudecode:<name>", model="opus", description="...", prompt="...")`
+- bare ID 사용 금지 (pre-tool-enforcer 차단됨)
+- 무료 정책 절대 준수 — 에이전트가 추가 외부 API 호출 시에도 anonymous 동작 보장 요구
+
+### 무료 정책 (research 모드 전체)
+
+🆓 **사용자에게 API 키 발급/유료 결제 요구 메시지 절대 금지**.
+키 누락 시 anonymous fallback + 1줄 소극적 안내만:
+> "anonymous mode 사용 중 — rate limit 적용 가능. 무료 API 키 옵션 있음."

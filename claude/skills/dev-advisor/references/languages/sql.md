@@ -83,6 +83,8 @@ ORDER BY month DESC, rank_in_month;
 - [SQL Standard](https://www.iso.org/standard/76583.html)
 - [PostgreSQL SQL Commands](https://www.postgresql.org/docs/current/sql-commands.html)
 - [SQLite Documentation](https://www.sqlite.org/docs.html)
+- [database-fundamentals (cross-skill `data-advisor`)](../../../data-advisor/references/principles/db-fundamentals.md) — SQL 표준 격리수준·정규화(1NF~BCNF)·ANSI anomaly 의미론
+- [db-query-optimizer (cross-skill `data-advisor`)](../../../data-advisor/references/algorithms/db-query-optimizer.md) — EXPLAIN/CBO 기반 쿼리 진단
 
 ## 비교 포인트
 

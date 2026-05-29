@@ -81,6 +81,8 @@ COMMIT TRANSACTION;
 - [Transact-SQL Reference](https://learn.microsoft.com/sql/t-sql/language-reference)
 - [SQL Server Documentation](https://learn.microsoft.com/sql/sql-server/)
 - [sqlcmd Utility](https://learn.microsoft.com/sql/tools/sqlcmd/sqlcmd-utility)
+- [database-fundamentals (cross-skill `data-advisor`)](../../../data-advisor/references/principles/db-fundamentals.md) — SQL 표준 격리수준·정규화(1NF~BCNF)·ANSI anomaly 의미론
+- [db-query-optimizer (cross-skill `data-advisor`)](../../../data-advisor/references/algorithms/db-query-optimizer.md) — EXPLAIN/CBO 기반 쿼리 진단
 
 ## 비교 포인트
 

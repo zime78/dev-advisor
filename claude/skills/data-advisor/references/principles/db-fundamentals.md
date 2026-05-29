@@ -582,6 +582,11 @@ ring = hash 공간 (0 ~ 2^160 - 1)
 **관련 (P1 신설)**:
 - [`../patterns/data-warehousing-bi.md`](../patterns/data-warehousing.md) — OLTP/ACID 원리의 OLAP 측면 — Kimball Star / SCD / Lakehouse / dbt 으로 분석 워크로드의 일관성 모델 결정 (Snapshot Isolation, Idempotent Materialization)
 
+**관련 언어 채택 가이드 (cross-skill `dev-advisor`)**:
+- [`sql.md`](../../../dev-advisor/references/languages/sql.md) — 표준 SQL 언어 채택·비교 (격리수준·정규화·anomaly 의미론을 언어 선택 관점에서)
+- [`pl-sql.md`](../../../dev-advisor/references/languages/pl-sql.md) — Oracle PL/SQL 언어 채택·비교
+- [`t-sql.md`](../../../dev-advisor/references/languages/t-sql.md) — SQL Server T-SQL 언어 채택·비교
+
 ---
 
 **문서 끝**. *원리* 가 흔들리면 *패턴* 도 무너지며, 결국 *시스템 보장* 의 거짓 광고로 이어진다 — 본 8 항목을 *증명의 언어* 로 다룰 때 비로소 트랜잭션·복제·파티셔닝의 trade-off 가 합의 가능한 설계 결정으로 환원된다.

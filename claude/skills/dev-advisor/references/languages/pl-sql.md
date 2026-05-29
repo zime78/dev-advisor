@@ -86,6 +86,7 @@ END;
 - [PL/SQL Language Reference](https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/)
 - [Oracle Database Documentation](https://docs.oracle.com/en/database/oracle/oracle-database/)
 - [Oracle SQL Developer](https://www.oracle.com/database/sqldeveloper/)
+- [database-fundamentals (cross-skill `data-advisor`)](../../../data-advisor/references/principles/db-fundamentals.md) — SQL 표준 격리수준·정규화(1NF~BCNF)·ANSI anomaly 의미론
 
 ## 비교 포인트
 

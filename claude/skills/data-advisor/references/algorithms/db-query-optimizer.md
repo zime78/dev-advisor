@@ -20,6 +20,8 @@
 - [`../patterns/data-warehousing-bi.md`](../patterns/data-warehousing.md) — OLAP / Star Schema / Lakehouse (대규모 분석 쿼리)
 - [`searching.md`](../../../dev-advisor/references/algorithms/searching.md) — Binary Search / Interpolation Search (옵티마이저의 lookup 기반)
 - [`sorting.md`](../../../dev-advisor/references/algorithms/sorting.md) — Merge Sort / External Sort (Sort-Merge Join 기반)
+- [`sql.md`](../../../dev-advisor/references/languages/sql.md) — 표준 SQL 언어 채택 가이드 (EXPLAIN/CBO 진단을 언어 선택 관점에서) (cross-skill `dev-advisor`)
+- [`t-sql.md`](../../../dev-advisor/references/languages/t-sql.md) — SQL Server T-SQL 언어 채택 가이드 (Query Store / 실행 계획 진단) (cross-skill `dev-advisor`)
 
 ## 알고리즘 목차
 

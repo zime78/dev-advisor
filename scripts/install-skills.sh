@@ -131,19 +131,27 @@ main() {
   echo "dev-advisor skill installer"
   echo "repo: ${REPO_ROOT}"
 
-  case "$ONLY" in
-    codex)
-      install_codex
-      ;;
-    claude)
-      install_claude
-      ;;
-    "")
-      install_codex
-      install_claude
-      ;;
-  esac
+  local skills=("dev-advisor" "data-advisor")
 
+  for skill in "${skills[@]}"; do
+    SKILL_NAME="$skill"
+    echo "----------------------------------------"
+    echo "Installing skill: ${SKILL_NAME}"
+    case "$ONLY" in
+      codex)
+        install_codex
+        ;;
+      claude)
+        install_claude
+        ;;
+      "")
+        install_codex
+        install_claude
+        ;;
+    esac
+  done
+
+  echo "----------------------------------------"
   echo "done"
 }
 

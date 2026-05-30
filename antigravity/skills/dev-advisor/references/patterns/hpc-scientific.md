@@ -611,3 +611,140 @@ int main(void) {
 | `slurm-workload-manager` | Slurm | Partition / QoS / Job Array / GRES / sbatch | SchedMD Slurm 24.05 |
 | `blas-lapack-scalapack` | BLAS/LAPACK/ScaLAPACK | Level 1/2/3 / 2D block-cyclic / 분산 솔버 | BLAS 4.1 / LAPACK 3.12 / ScaLAPACK 2.2 |
 | `numa-roofline-model` | NUMA + Roofline | first-touch / hwloc / AI / ridge point | Williams 2009, Lameter 2013 |
+
+---
+
+<a id="cpu-microarchitecture"></a>
+## 7. CPU Microarchitecture & SIMD (CPU 마이크로아키텍처 / SIMD)
+
+**정의**: 현대 슈퍼스칼라·비순차(out-of-order) CPU 코어의 내부 동작(파이프라인·분기예측·실행포트·캐시 계층)을 이해하고, 단일 명령으로 다중 데이터를 처리하는 **SIMD(Single Instruction Multiple Data)** 벡터 ISA(AVX-512 / Arm SVE·SVE2 / NEON)를 활용하여 단일 코어 처리량을 극대화하는 마이크로아키텍처 인식 최적화 기법. HPC 노드 성능의 토대 — Roofline 의 peak compute(π)는 본질적으로 `코어 수 × 클럭 × SIMD 폭 × FMA 처리량`으로 결정된다. 출처: Hennessy & Patterson, "Computer Architecture: A Quantitative Approach" 6th ed. (2017); Intel SDM Vol.1 §15 (AVX-512); Arm ARM DDI 0487 (SVE).
+
+**메커니즘 - 코어 파이프라인**:
+- **파이프라이닝**: fetch → decode → rename → dispatch → execute → writeback → retire 단계를 중첩. Intel Golden Cove 는 ~15+ 단계, ROB(ReOrder Buffer) ~512 entry.
+- **Hazard(위험)**: 명령 간 의존성으로 파이프라인 stall 유발.
+  - **Data hazard**: RAW(read-after-write) — 진짜 의존. WAR/WAW 는 register renaming 으로 제거.
+  - **Control hazard**: 분기로 인한 fetch 불확실성 → 분기예측으로 완화.
+  - **Structural hazard**: 실행포트/유닛 부족 (예: 포트당 1 FMA).
+- **분기예측(branch prediction)**: TAGE / perceptron 예측기. 적중 시 stall 0, **오예측 시 ~15~20 cycle penalty**(파이프라인 flush). 예측 불가 데이터 의존 분기는 **branchless**(predication / `cmov` / SIMD mask)로 제거.
+- **비순차·슈퍼스칼라 실행**: 한 cycle 에 다중 명령 발사(Golden Cove ~6-wide), Tomasulo 식 reservation station + 다중 실행포트(ALU/AGU/FMA)로 의존성 없는 명령을 재배열 실행. ILP(Instruction-Level Parallelism) 추출.
+- **Speculative execution + memory disambiguation**: load 를 store 보다 앞서 추측 실행. (Spectre/Meltdown 의 근원.)
+
+**메커니즘 - SIMD 벡터화**:
+- **벡터 ISA**: SSE(128b) → AVX/AVX2(256b) → **AVX-512(512b, 8×FP64 / 16×FP32)** + mask 레지스터 `k0~k7`. Arm **NEON(128b 고정)**, **SVE/SVE2(128~2048b, VLA: Vector-Length-Agnostic)**.
+- **FMA(Fused Multiply-Add)**: `a*b+c` 를 1 명령·1 rounding 으로. peak FLOPS 의 2 배 원천.
+- **자동 벡터화(auto-vectorization)**: 컴파일러가 루프를 SIMD 화. `-O3 -march=native`(GCC/Clang), `-xHost`(ICX). 데이터 의존·aliasing·비연속 접근이 방해 → `restrict`, `#pragma omp simd`, `-fopt-info-vec` 로 진단.
+- **gather/scatter**: 비연속 인덱스 벡터 load/store(AVX-512 `vgatherdpd`) — 편리하나 느림. 가능하면 SoA 로 연속화.
+- **prefetch**: `__builtin_prefetch` / `_mm_prefetch` 로 캐시라인을 미리 fetch — 메모리 지연 은닉. HW prefetcher 가 못 잡는 stride/포인터 추적에 보조.
+
+**메커니즘 - 캐시 지역성·데이터 레이아웃**:
+- **캐시 계층**: L1d(~48 KB, ~4 cycle) / L2(~1.25 MB, ~14 cycle) / L3(공유, ~50 cycle) / DRAM(~200+ cycle). cacheline = **64 byte**(x86/ARM 대부분).
+- **시간적/공간적 지역성**: 같은 데이터 재사용 + 인접 데이터 순차 접근 → 캐시 적중률 ↑.
+- **False sharing**: 서로 다른 스레드가 **같은 cacheline**의 다른 변수에 write → cacheline ping-pong(MESI invalidation)으로 성능 급락. 해결: 64-byte padding / `alignas(64)` / per-thread 변수 분리.
+- **AoS vs SoA (Data-Oriented Design)**: Array-of-Structs(`{x,y,z}[]`)는 한 필드만 쓸 때 캐시·SIMD 낭비. Struct-of-Arrays(`x[] y[] z[]`)는 연속·벡터화 친화 → 핫 루프는 SoA 로.
+
+**성능 모델 (peak compute & CPI)**:
+```
+Peak_FLOPS = cores × clock × (SIMD_width / sizeof(elem)) × FMA_units × 2(FMA)
+  예) 1코어 3.0 GHz AVX-512 FP64: 3e9 × (512/64) × 2(port0+5) × 2 = 192 GFLOPS
+
+CPI(Cycles Per Instruction) = ideal_CPI + stall_cycles
+  branch_stall = mispredict_rate × misprediction_penalty(~18 cyc)
+  cache_stall  = miss_rate × miss_penalty(L1→L2 ~10, →DRAM ~200 cyc)
+유효 처리량은 stall 이 지배 — 벡터 폭만큼 빨라지지 않는 핵심 이유.
+```
+
+**예시 (AVX-512 SoA SAXPY + branchless, C + intrinsics)**:
+```c
+#include <immintrin.h>
+#include <stdalign.h>
+
+/* SoA 연속 배열 → 완전 벡터화. y = a*x + y (8×FP64 / 명령) */
+void saxpy_avx512(double *restrict y, const double *restrict x,
+                  double a, size_t n) {
+    __m512d va = _mm512_set1_pd(a);
+    size_t i = 0;
+    for (; i + 8 <= n; i += 8) {
+        _mm_prefetch((const char *)(x + i + 64), _MM_HINT_T0); /* 미리 fetch */
+        __m512d vx = _mm512_load_pd(x + i);      /* 64B 정렬 load */
+        __m512d vy = _mm512_load_pd(y + i);
+        vy = _mm512_fmadd_pd(va, vx, vy);        /* FMA: a*x+y, 1 rounding */
+        _mm512_store_pd(y + i, vy);
+    }
+    /* mask 로 꼬리(tail) 처리 — 분기 없이 잔여 원소 */
+    if (i < n) {
+        __mmask8 m = (__mmask8)((1u << (n - i)) - 1);
+        __m512d vx = _mm512_maskz_load_pd(m, x + i);
+        __m512d vy = _mm512_maskz_load_pd(m, y + i);
+        vy = _mm512_fmadd_pd(va, vx, vy);
+        _mm512_mask_store_pd(y + i, m, vy);
+    }
+}
+```
+
+**예시 (False sharing 제거 — per-thread 카운터 padding, C + OpenMP)**:
+```c
+#include <omp.h>
+#include <stdalign.h>
+
+/* 잘못: int counts[T]; 인접 원소가 같은 cacheline → ping-pong
+   올바름: 각 카운터를 64B cacheline 으로 분리 */
+typedef struct { alignas(64) long v; } PaddedCounter;  /* 64B 패딩 */
+
+long count_parallel(const int *data, size_t n, int T) {
+    PaddedCounter c[T];
+    for (int t = 0; t < T; t++) c[t].v = 0;
+    #pragma omp parallel num_threads(T)
+    {
+        int id = omp_get_thread_num();
+        #pragma omp for schedule(static)
+        for (size_t i = 0; i < n; i++)
+            c[id].v += data[i] & 1;     /* 각 스레드 자기 cacheline 만 write */
+    }
+    long sum = 0;
+    for (int t = 0; t < T; t++) sum += c[t].v;
+    return sum;
+}
+```
+
+**예시 (Arm SVE — Vector-Length-Agnostic, 컴파일 타임 폭 불문)**:
+```c
+#include <arm_sve.h>
+/* svcntd() 가 런타임에 벡터 폭 반환 → 128~2048b 어디서나 동일 바이너리 */
+void saxpy_sve(double *y, const double *x, double a, long n) {
+    svfloat64_t va = svdup_f64(a);
+    for (long i = 0; i < n; i += svcntd()) {       /* HW 폭만큼 진행 */
+        svbool_t pg = svwhilelt_b64(i, n);          /* predicate: tail 자동 */
+        svfloat64_t vx = svld1_f64(pg, x + i);
+        svfloat64_t vy = svld1_f64(pg, y + i);
+        vy = svmla_f64_x(pg, vy, va, vx);           /* FMA under mask */
+        svst1_f64(pg, y + i, vy);
+    }
+}
+```
+
+**비교 — SIMD ISA**:
+| 항목 | SSE/AVX2 | AVX-512 | NEON | SVE/SVE2 |
+|------|----------|---------|------|----------|
+| 벤더 | x86 (Intel/AMD) | x86 (Intel, AMD Zen4+) | Arm (모든 AArch64) | Arm (서버/HPC) |
+| 폭 | 128/256b 고정 | 512b 고정 | 128b 고정 | 128~2048b 가변(VLA) |
+| Mask 레지스터 | ✗ (blend 흉내) | ✓ `k0~k7` | ✗ | ✓ predicate `p0~p15` |
+| Tail 처리 | 수동 스칼라 루프 | mask | 수동 | predicate 자동 |
+| 이식성 | 폭 고정 재컴파일 | 폭 고정 | 폭 고정 | 한 바이너리 다폭 |
+
+**비교 — 데이터 레이아웃**:
+| 레이아웃 | 단일 필드 순회 | SIMD 친화 | 캐시 효율 | 대표 용도 |
+|---------|---------------|-----------|-----------|----------|
+| **AoS** (`Particle p[]`) | 낮음(stride) | 낮음(gather 필요) | 낮음 | OOP 친화·임의 접근 |
+| **SoA** (`x[] y[] z[]`) | 높음(연속) | **높음**(연속 load) | 높음 | 핫 루프·물리 시뮬 |
+| **AoSoA** (타일 혼합) | 중간 | 높음 | 높음 | 캐시 타일 + 벡터 동시 |
+
+**튜닝 도구**:
+- **Intel VTune / `perf`**: PMU 카운터 — `branch-misses`, `cache-misses`, `cycles`, `instructions`(IPC), `stalled-cycles`.
+- **`perf stat -d ./app`**: IPC·L1/LLC miss·branch miss 한눈에.
+- **llvm-mca / Intel IACA**: 정적 파이프라인 분석 — 포트 압력·예상 throughput.
+- **컴파일러 벡터화 리포트**: GCC `-fopt-info-vec-missed`, Clang `-Rpass=loop-vectorize`, ICX `-qopt-report`.
+- **Compiler Explorer (godbolt)**: 생성 어셈블리에서 `zmm`/`ymm`·`vfmadd` 확인.
+
+**표준 인용**: Hennessy & Patterson, "Computer Architecture: A Quantitative Approach" 6th ed. (Morgan Kaufmann, 2017), Ch.3 (ILP), Appendix C (Pipelining). Intel, "Intel 64 and IA-32 Architectures Software Developer's Manual" Vol.1 §14-15 (AVX/AVX-512), "Intel 64 Optimization Reference Manual" (2024). Arm, "Arm Architecture Reference Manual for A-profile" (DDI 0487, SVE/SVE2). Drepper, "What Every Programmer Should Know About Memory" (2007).
+
+**관련 패턴**: [`#numa-roofline-model`](#numa-roofline-model) — peak compute(π)·AI 의 마이크로아키텍처 근거, [`#openmp-parallel`](#openmp-parallel) — `#pragma omp simd` / first-touch, [`#blas-lapack-scalapack`](#blas-lapack-scalapack) — Level 3 GEMM 의 캐시·벡터 포화, [`../algorithms/concurrent.md`](../algorithms/concurrent.md) — false sharing·memory barrier.

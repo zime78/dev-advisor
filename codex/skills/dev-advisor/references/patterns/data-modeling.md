@@ -1027,3 +1027,91 @@ class OrderDataProduct(
 - [`data-warehousing-bi.md#kimball-star-snowflake`](../../../data-advisor/references/patterns/data-warehousing.md#kimball-star-snowflake) — OLTP 정규화 모델 ↔ DWH 차원 모델 (Star / Snowflake) 의 양극단 비교
 - [`data-warehousing-bi.md#scd-types`](../../../data-advisor/references/patterns/data-warehousing.md#scd-types) — 시간 차원 변경 추적 (SCD Type 1/2/3/4/6) 은 데이터 모델링 결정과 직결
 - [`data-warehousing-bi.md#lakehouse-iceberg-delta-hudi`](../../../data-advisor/references/patterns/data-warehousing.md#lakehouse-iceberg-delta-hudi) — Lakehouse 의 분석 워크로드 ↔ Lambda / Kappa / Data Mesh 의 위치
+
+---
+
+<a id="harvest-yield-akf"></a>
+
+## 13. Harvest & Yield / AKF Scale Cube (수확·산출 / AKF 확장 큐브)
+
+**정의**: 두 개의 보완 모델을 묶은 항목.
+- **Harvest & Yield** — Armando Fox & Eric Brewer 가 1999 HotOS 논문 *Harvest, Yield, and Scalable Tolerant Systems* 에서 제시. CAP 의 이분법 (C 또는 A) 을 **연속적 스펙트럼**으로 정련한다. **Harvest** = 응답에 반영된 데이터의 비율 (`완전성 = 반영된 데이터 / 전체 데이터`), **Yield** = 성공적으로 응답된 요청의 비율 (`yield = 완료 요청 / 전체 요청`, availability 의 정련된 측정치). 분할/장애 시 시스템을 통째로 죽이는 대신 **harvest 나 yield 중 하나를 점진적으로 낮춰 부분 가용성 (graceful degradation) 을 제공**한다.
+- **AKF Scale Cube** — Abbott & Fisher 가 *The Art of Scalability* (2009) 에서 제시한 확장 모델. 시스템 확장을 직교하는 3 축으로 분해한다. **X축 = 복제 (clone)**, **Y축 = 기능 분할 (functional decomposition)**, **Z축 = 데이터 샤딩 (data partitioning)**. 세 축은 독립적으로 적용 가능하며 동시에 적용하면 cube 의 한 점 (예: X+Y+Z) 으로 표현된다.
+
+두 모델은 한 축으로 묶인다: AKF 큐브로 **확장**해 부하/장애 영향을 작은 단위에 가두고, Harvest/Yield 로 그 단위가 깨졌을 때 **어떻게 우아하게 저하시킬지**를 정량적으로 결정한다.
+
+**메커니즘**:
+
+### Harvest & Yield (CAP 정련)
+- **Yield 우선 (high-yield)** — 검색 엔진처럼 일부 노드 응답이 빠져도 "있는 데이터만으로" 응답 반환. 100 개 shard 중 95 개만 응답 → harvest 95%, yield 는 유지. 누락 데이터는 "approximate result" 로 명시
+- **Harvest 우선 (high-harvest)** — 결제/잔액처럼 완전한 데이터가 아니면 차라리 응답을 거부. harvest 100% 를 보장하고 yield 를 희생 (요청 거부)
+- **DQ Principle** — Fox/Brewer 의 보조 원리. `Data per query × Queries per second ≈ 상수`. 시스템 용량이 고정이면 harvest (D) 와 throughput (Q) 사이에 trade-off 가 존재 → 부하 폭증 시 harvest 를 낮춰 yield 를 지킨다
+- **적용 단위** — 요청별/필드별로 다르게 설정 가능 (graceful degradation 의 입도)
+
+### AKF Scale Cube (3축)
+- **X축 (Replication / Clone)** — 동일한 전체 시스템을 복제하고 load balancer 로 분산. 가장 쉬움. 무상태 서비스/read replica. 한계: 데이터/캐시는 여전히 전체를 복제 → 데이터 증가에 한계
+- **Y축 (Functional Decomposition / Split by service)** — 기능/리소스/동사 기준 분리. 모놀리식 → 마이크로서비스 (users-service, orders-service). 팀 독립성 ↑, 배포 단위 ↓
+- **Z축 (Data Sharding / Split by customer-data)** — 동일 코드를 데이터 기준으로 분할. tenant_id, region, customer_id 로 샤딩 ([Sharding](#sharding-partitioning) 의 조직적 표현). 무한 확장 가능, 운영 복잡
+
+**장점**:
+- CAP 의 "all-or-nothing" 을 **정량 스펙트럼**으로 바꿔 SLA/제품 결정과 직접 연결 (예: "검색은 yield 99.9% + harvest 95%, 결제는 harvest 100%")
+- AKF 큐브는 확장 논의를 **공통 어휘 (X/Y/Z)** 로 통일 — 아키텍처 리뷰의 체크리스트로 사용
+- 세 축이 직교 → 병목 종류에 맞는 축만 선택적으로 적용 가능
+- 부분 장애를 "전면 장애" 가 아닌 "harvest 저하" 로 흡수 → 가용성 체감 ↑
+
+**단점·trade-off**:
+- harvest 를 낮춘 응답은 **불완전함을 호출자에게 알려야** 함 (조용한 부분 응답은 데이터 신뢰를 해침)
+- harvest/yield 측정·노출 인프라 (per-shard 성공률 집계) 가 추가로 필요
+- Z축 샤딩은 cross-shard 쿼리/트랜잭션 비용 ([Sharding](#sharding-partitioning) 의 단점) 을 그대로 상속
+- Y축 분할은 분산 트랜잭션·서비스 간 일관성 (Saga / Outbox) 문제를 새로 만든다
+- X축만 확장하면 데이터 계층 병목은 해소되지 않음 (착시) — 큐브의 흔한 함정
+
+**실제 시스템·예시**:
+- **High-yield (harvest 희생)** — Google/Elasticsearch 검색 (일부 shard timeout 시 `timed_out: true` + 부분 결과), Netflix 추천 (개인화 실패 시 fallback 인기 목록)
+- **High-harvest (yield 희생)** — 은행 잔액 조회, 재고 차감 (불완전 데이터면 거부)
+- **X축** — stateless web tier + ALB, PostgreSQL read replica
+- **Y축** — 마이크로서비스 분해 (Amazon, Netflix)
+- **Z축** — Shopify pod (shop 단위 샤딩), Slack/Salesforce 멀티테넌시 tenant 샤딩, Instagram user_id 샤딩
+
+**Kotlin 예제 (Scatter-gather with Harvest/Yield degradation)**:
+```kotlin
+data class PartialResult<T>(
+    val data: List<T>,
+    val harvest: Double,   // 반영된 데이터 비율 (응답 shard / 전체 shard)
+    val complete: Boolean, // harvest == 1.0 인가
+)
+
+class HarvestYieldQuery<T>(
+    private val shards: List<Node>,          // AKF Z축: 데이터 샤드들
+    private val minHarvest: Double = 0.8,    // 이 미만이면 yield 포기(거부)
+    private val perShardTimeoutMs: Long = 200,
+) {
+    suspend fun query(sql: String): PartialResult<T> = coroutineScope {
+        // 각 shard 에 병렬 요청, 타임아웃된 shard 는 harvest 에서 제외
+        val responses = shards.map { shard ->
+            async {
+                runCatching {
+                    withTimeout(perShardTimeoutMs) { shard.query(sql) as List<T> }
+                }.getOrNull()
+            }
+        }.awaitAll()
+
+        val succeeded = responses.filterNotNull()
+        val harvest = succeeded.size.toDouble() / shards.size
+
+        // high-harvest 정책: harvest 가 임계 미만이면 yield 를 포기(거부)
+        require(harvest >= minHarvest) {
+            "harvest=$harvest < $minHarvest — 불완전 결과 거부 (yield 희생)"
+        }
+
+        // high-yield 정책: 임계 이상이면 부분 결과라도 반환 (불완전성 명시)
+        PartialResult(
+            data = succeeded.flatten(),
+            harvest = harvest,
+            complete = harvest == 1.0,
+        )
+    }
+}
+```
+
+**관련 패턴**: [CAP Theorem](#cap-theorem), [PACELC](#pacelc), [Sharding / Partitioning](#sharding-partitioning), [Consistent Hashing](#consistent-hashing-sharding)

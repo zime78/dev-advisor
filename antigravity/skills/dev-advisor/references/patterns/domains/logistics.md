@@ -290,7 +290,7 @@ class EtaService(
 
 **관련 패턴·알고리즘**:
 - `algorithms/graph.md` — Dijkstra / A* / Contraction Hierarchies (도로 그래프)
-- `algorithms/ml.md` — Gradient Boosting, Quantile Regression
+- `algorithms/ml.md` — Gradient Boosting (잔차 보정 회귀); Quantile Regression 으로 P10/P90 구간 추정
 - [`realtime-tracking`](#realtime-tracking) (실시간 위치 → ETA 재계산 트리거)
 - [`vrp-route-optimization`](#vrp-route-optimization) (ETA 가 distance matrix 의 시간 축)
 
@@ -806,7 +806,7 @@ class CapacityAllocator(
 - Incentive engine 은 **회귀 한도** (예산 cap) 설정 — 폭주 방지
 
 **관련 패턴·알고리즘**:
-- `algorithms/ml.md` — ARIMA / Prophet / Gradient Boosting / LSTM
+- `algorithms/ml.md` — Gradient Boosting (수요 회귀); 시계열 보강은 ARIMA / Prophet / LSTM 계열
 - `algorithms/dynamic-programming.md` — Shift scheduling DP
 - [`fleet-dispatch`](#fleet-dispatch) (실시간 surge 의 입력)
 - [`vrp-route-optimization`](#vrp-route-optimization) (차량 수 결정 입력)

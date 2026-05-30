@@ -939,3 +939,201 @@ customElements.define("cart-widget", CartWidget);
 - [patterns/web-rendering.md](./web-rendering.md) — SSR/CSR/Streaming 과 MFE 통합 시 렌더링 전략
 - [patterns/integration.md](./integration.md) — Strangler Fig / API Gateway 와 MFE 통합 경로
 - [patterns/web-performance.md](./web-performance.md) — Module Federation singleton, 코드 스플리팅, 런타임 의존성 비용 최적화
+
+---
+
+<a id="microkernel-plugin"></a>
+
+## 18. Microkernel / Plugin Architecture (마이크로커널/플러그인 아키텍처)
+
+**목적**: 최소 기능만 갖춘 코어 시스템(Microkernel)과, 확장점(extension point)을 통해 동적으로 부착되는 플러그인(Plug-in) 모듈로 시스템을 분리하여, 코어를 건드리지 않고 기능을 추가/교체/제거할 수 있게 합니다.
+
+**특징**:
+- 코어는 공통 흐름 + 플러그인 레지스트리(plug-in registry)만 담당, 도메인 기능은 플러그인에 위임
+- 플러그인은 코어가 정의한 인터페이스(확장점/계약)를 구현하여 등록
+- 플러그인 간 직접 의존 금지 (격리) — 통신은 코어를 경유
+- Mark Richards 분류상 Layered / Microservices 와 동급의 시스템 아키텍처 스타일
+
+**장점**:
+- 핵심 코드 변경 없이 기능 확장 (OCP 충족)
+- 서드파티 생태계 형성 용이 (플러그인 마켓플레이스)
+- 플러그인 단위 격리로 장애 전파 차단 / 독립 배포
+- 제품 특화/지역화 등 변형을 플러그인 조합으로 표현
+
+**단점**:
+- 확장점/플러그인 계약 설계가 어렵고, 한 번 공개하면 버전 호환 부담
+- 플러그인 등록/탐색(디스커버리)·버전·의존성 관리 인프라 필요
+- 플러그인 간 협업이 필요한 cross-cutting 기능은 표현이 어색
+- 동적 로딩 시 보안/샌드박싱·성능(클래스로딩) 고려 필요
+
+**활용 예시**:
+- IDE / 에디터: Eclipse(OSGi), VS Code(Extension API), IntelliJ Platform
+- 브라우저 확장 (Chrome/Firefox Extensions)
+- 결제 시스템의 청구 규칙 엔진, 태스크 스케줄러의 잡 타입 플러그인
+
+**난이도**: 높음 | **사용 빈도**: ★★★☆☆
+
+**Kotlin 예제**:
+```kotlin
+// 1. 확장점(계약) — 코어가 정의, 플러그인이 구현
+interface Plugin {
+    val id: String
+    fun supports(command: String): Boolean
+    fun execute(arg: String): String
+}
+
+// 2. 플러그인 레지스트리 — 코어가 보유 (플러그인 간 직접 의존 없음)
+class PluginRegistry {
+    private val plugins = mutableListOf<Plugin>()
+    fun register(plugin: Plugin) { plugins += plugin }     // 동적 등록
+    fun resolve(command: String): Plugin? =
+        plugins.firstOrNull { it.supports(command) }       // 확장점 탐색
+}
+
+// 3. 마이크로커널(코어) — 공통 흐름만, 도메인 기능은 플러그인에 위임
+class Microkernel(private val registry: PluginRegistry) {
+    fun dispatch(command: String, arg: String): String =
+        registry.resolve(command)?.execute(arg)
+            ?: error("No plugin for command: $command")
+}
+
+// 4. 플러그인 구현 (코어 재컴파일 없이 추가 가능)
+class UpperCasePlugin : Plugin {
+    override val id = "upper"
+    override fun supports(command: String) = command == "upper"
+    override fun execute(arg: String) = arg.uppercase()
+}
+
+fun main() {
+    val kernel = Microkernel(PluginRegistry().apply { register(UpperCasePlugin()) })
+    println(kernel.dispatch("upper", "hello"))   // HELLO
+}
+```
+
+**관련 패턴**: [Modular Monolith](#12-modular-monolith), [Hexagonal](#10-hexagonal-architecture-ports-adapters), [Layered Architecture](#8-layered-architecture-n-tier), Strategy
+
+---
+
+<a id="space-based"></a>
+## 19. Space-Based Architecture (공간 기반 아키텍처)
+
+**목적**: 중앙 데이터베이스를 동기 트랜잭션 경로에서 제거하고, 복제된 인메모리 데이터 그리드(In-Memory Data Grid)와 다수의 처리 유닛(Processing Unit) 복제본으로 작업을 분산하여, 가변적이고 예측 불가능한 부하에서도 극단적 확장성과 일정한 응답 시간을 달성합니다.
+
+**특징**:
+- 이름은 Tuple Space(Linda 모델: read/write/take 연산)에서 유래
+- 처리 유닛(웹 계층 + 인메모리 데이터 그리드)을 통째로 복제해 수평 확장
+- 가상 미들웨어 구성: Messaging Grid(요청 분배), Data Grid(복제·파티셔닝), Processing Grid(유닛 간 조율), Deployment Manager(유닛 동적 증감)
+- DB 쓰기는 비동기 Data Pump를 통해 백그라운드로만 반영 (동기 경로에서 분리)
+
+**장점**:
+- 동적 가변 부하(폭발적 트래픽 스파이크)에 탄력적 대응
+- DB 병목 제거로 매우 높은 처리량·낮은 지연
+- 인스턴스 추가만으로 선형에 가까운 확장
+- 단일 DB 장애에 강건 (인메모리 복제본으로 서비스 지속)
+
+**단점**:
+- 아키텍처·운영 복잡성 매우 높음 (캐싱 토폴로지, 복제 충돌 관리)
+- 최종 일관성(eventual consistency) 수용 필요 — DB 반영 지연 동안 데이터 불일치 가능
+- 초기 데이터 그리드 적재(warm-up)와 메모리 비용 큼
+- 디버깅·테스트 난해 (분산 인메모리 상태 재현 어려움)
+
+**활용 예시**:
+- 콘서트 티켓 예매, 경매, 입찰 등 순간 폭증 트래픽 시스템
+- 실시간 입찰(RTB) 광고 거래 플랫폼
+- Hazelcast, GigaSpaces XAP, Apache Ignite, Oracle Coherence 기반 시스템
+
+**난이도**: 매우 높음 | **사용 빈도**: ★★☆☆☆
+
+**Kotlin 예제**:
+```kotlin
+// Hazelcast 분산 Map 을 인메모리 데이터 그리드로 사용하는 처리 유닛
+import com.hazelcast.core.Hazelcast
+import com.hazelcast.config.Config
+
+data class Seat(val id: String, val reservedBy: String? = null)
+
+class ReservationUnit {
+    // 1. 클러스터 합류 — 동일 그리드를 모든 처리 유닛 복제본이 공유
+    private val hz = Hazelcast.newHazelcastInstance(Config("seats-cluster"))
+    private val grid = hz.getMap<String, Seat>("seats")          // 복제·파티셔닝되는 Data Grid
+    private val queue = hz.getQueue<String>("db-write-queue")    // 비동기 Data Pump 입력
+
+    // 2. 동기 경로: DB 가 아닌 인메모리 그리드에만 반영 → 일정한 응답 시간
+    fun reserve(seatId: String, userId: String): Boolean {
+        grid.lock(seatId)                                        // 그리드 단위 분산 락
+        try {
+            val seat = grid[seatId] ?: return false
+            if (seat.reservedBy != null) return false           // 이미 예약됨
+            grid[seatId] = seat.copy(reservedBy = userId)
+            queue.offer(seatId)                                  // 3. DB 반영은 백그라운드로 위임
+            return true
+        } finally {
+            grid.unlock(seatId)
+        }
+    }
+}
+```
+
+**관련 패턴**: Event-Driven, Microservices, CQRS, Serverless
+
+---
+
+<a id="broker-architecture"></a>
+## 20. Broker Architecture (POSA) (브로커 아키텍처)
+
+**목적**: 분산된 컴포넌트 사이에 Broker(중개자)를 두어, 클라이언트가 서버의 물리적 위치나 통신 방식을 알지 못해도 원격 서비스를 마치 로컬 호출처럼 사용하게 합니다(위치 투명성, location transparency). POSA Vol.1 (Buschmann 외, 1996)의 대표 분산 패턴입니다.
+
+**특징**:
+- Broker가 요청 라우팅, 메시지 전달, 결과 반환을 중개
+- 클라이언트 측 Proxy(또는 Stub)가 원격 호출을 로컬 인터페이스로 위장
+- 서버 측 Skeleton(server-side proxy)이 들어온 요청을 실제 서비스 호출로 역마샬링
+- 서버는 Broker에 자신의 서비스를 등록(register)하고 위치는 동적으로 결정
+
+**장점**:
+- 위치 투명성 — 클라이언트가 서버 위치/배포 변경의 영향을 받지 않음
+- 컴포넌트의 독립적 배포·교체·재배치 용이
+- 이기종 환경(다른 언어/플랫폼) 상호운용성 (계약 기반 IDL)
+
+**단점**:
+- Broker가 단일 장애점(SPOF) 및 성능 병목이 될 수 있음
+- 원격 호출 지연(latency)과 마샬링 오버헤드
+- Proxy/Stub/Skeleton 생성·관리 복잡도 증가
+
+**활용 예시**:
+- CORBA ORB(Object Request Broker), Java RMI, .NET Remoting
+- 메시지 브로커 (RabbitMQ, ActiveMQ)의 라우팅 코어
+- gRPC/Thrift의 stub-skeleton 기반 RPC 골격
+
+**난이도**: 높음 | **사용 빈도**: ★★★☆☆
+
+**Kotlin 예제**:
+```kotlin
+// 원격 서비스 계약 (IDL 역할)
+interface AccountService { fun balance(id: String): Int }
+
+// Broker: 서비스 등록 + 위치 투명한 lookup
+object Broker {
+    private val registry = mutableMapOf<String, Any>()
+    fun register(name: String, service: Any) { registry[name] = service }
+    fun lookup(name: String): Any? = registry[name] // 위치/구현 은닉
+}
+
+// 서버 측 실제 구현 (Skeleton이 이 호출을 역마샬링하여 위임)
+class AccountServiceImpl : AccountService {
+    override fun balance(id: String) = 1000
+}
+
+// 클라이언트 측 Proxy(Stub): 로컬 인터페이스처럼 보이지만 Broker 경유
+class AccountProxy : AccountService {
+    private val remote = Broker.lookup("AccountService") as AccountService
+    override fun balance(id: String): Int = remote.balance(id) // 원격 호출 위장
+}
+
+fun main() {
+    Broker.register("AccountService", AccountServiceImpl()) // 서버 등록
+    val svc: AccountService = AccountProxy()                // 위치 모른 채 사용
+    println(svc.balance("acc-1"))                           // -> 1000
+}
+```
+
+**관련 패턴**: Proxy, Microservices, API Gateway, Service Mesh

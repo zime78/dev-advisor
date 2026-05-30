@@ -895,3 +895,137 @@ println(apdex.score())  // (1 + 0.5) / 4 = 0.375 — Unacceptable
   - [`../algorithms/`](../algorithms/) — Big-O 별 알고리즘 분류
   - [code-smells.md](code-smells.md) — Long Method, Large Class (간접 — 측정 결과의 신호)
   - [`../patterns/web-performance.md`](../patterns/web-performance.md) (P1 신설) — Core Web Vitals / RUM / Lighthouse 로 클라이언트 성능 메트릭의 사용자 체감 신호와 합치
+
+---
+
+<a id="amdahl-usl"></a>
+## 11. Amdahl’s Law / Gustafson / Universal Scalability Law (확장성 정량 법칙 (암달/구스타프슨/USL))
+
+**정의**: 프로세서·노드 수를 늘릴 때 *실제로 얻는 speedup* 이 얼마인지 정량화하는 3 대 법칙. Gene Amdahl 이 *Validity of the single processor approach to achieving large scale computing capabilities* (AFIPS Spring Joint Computer Conference, 1967) 에서 직렬 부분에 의한 speedup 상한을 제시했고, John Gustafson 이 *Reevaluating Amdahl's Law* (CACM, 1988) 에서 문제 크기가 함께 커지는 weak scaling 관점을 제시했으며, Neil Gunther 가 *Universal Scalability Law* (Guerrilla Capacity Planning, 2007) 에서 직렬화(contention) 와 일관성(coherency) 두 항을 모두 반영해 *역행 확장(retrograde scaling)* 까지 모델링했다. 수평 확장(scale-out) 의 ROI 와 노드 추가의 손익분기점을 종이 위에서 판단하는 근거.
+
+**핵심 수식**:
+```
+Amdahl (strong scaling, 문제 크기 고정):
+  S(P) = 1 / ( s + (1 - s) / P )
+       s     = 직렬(병렬화 불가) 부분 비율
+       1 - s = 병렬화 가능 부분 비율
+       P     = 프로세서 수
+  상한: P → ∞ 이면 S → 1 / s   (직렬 부분이 천장)
+
+Gustafson (weak scaling, 노드 수에 비례해 문제 크기 증가):
+  S(P) = P - s · (P - 1)  = s + P · (1 - s)
+       (s = 직렬 부분 비율, scaled speedup — P 에 선형 증가)
+
+Gunther USL (contention + coherency):
+  C(N) = N / ( 1 + α(N - 1) + β·N·(N - 1) )
+       α = contention(직렬화·큐잉) 계수
+       β = coherency(노드 간 데이터 일관성·crosstalk) 계수
+       N = 부하/노드 수
+  α 만 있고 β = 0 → Amdahl 과 동형 (단조 증가, 상한 1/α)
+  β > 0 → 어느 지점에서 처리량이 *감소* (retrograde)
+  최대 처리량 변곡점:  N* = √( (1 - α) / β )
+```
+
+**핵심 통찰**: **세 법칙은 "무엇을 고정하느냐"로 갈린다**. Amdahl 은 *문제 크기 고정* (같은 일을 더 빨리 — strong scaling) 이라 직렬 부분 `s` 가 즉시 천장이 된다. `s = 5%` 면 P 가 아무리 커도 speedup 은 `1/0.05 = 20×` 를 못 넘는다 (1,000 코어를 써도 ~19.6×). Gustafson 은 *문제 크기를 노드에 비례해 키운다* (같은 시간에 더 많은 일 — weak scaling) 라 speedup 이 P 에 선형 증가한다 — 빅데이터·HPC 에서 더 현실적. **Gunther USL 은 둘을 넘어 유일하게 "노드를 더 넣으면 오히려 느려지는" 현상을 설명한다**: β(coherency) 항이 있으면 노드 간 동기화·캐시 일관성 비용이 `N(N-1)` 으로 제곱 증가해, 변곡점 `N*` 이후 처리량이 *하락* 한다(retrograde scaling). 즉 "노드를 늘릴수록 좋다"는 직관은 β 가 0 일 때만 성립한다.
+
+**3 법칙 비교**:
+
+| 법칙 | 저자·연도 | 무엇을 고정 | 천장/거동 | 적용 영역 |
+|------|----------|------------|----------|----------|
+| **Amdahl** | Amdahl, 1967 | 문제 크기 (strong scaling) | 단조 증가, 상한 `1/s` | 고정 작업 가속 (실시간 응답) |
+| **Gustafson** | Gustafson, 1988 | 시간 (weak scaling) | `P` 에 선형 증가 | 데이터 병렬, HPC, 배치 |
+| **USL** | Gunther, 2007 | — (α·β 회귀 적합) | 증가 후 *역행 하락* | 실측 기반 capacity planning |
+
+**핵심 통찰 — Amdahl 직렬 부분의 위력 (s 별 speedup 상한)**:
+
+| 직렬 비율 s | P=8 | P=64 | P=1024 | 상한 (P→∞) |
+|------------:|----:|-----:|-------:|----------:|
+| 0% (완전 병렬) | 8.0 | 64.0 | 1024.0 | ∞ |
+| 1% | 7.5 | 39.3 | 91.2 | 100× |
+| 5% | 5.9 | 15.4 | 19.6 | 20× |
+| 10% | 4.7 | 8.8 | 9.9 | 10× |
+| 25% | 2.9 | 3.8 | 4.0 | 4× |
+
+**측정/적용 도구**: USL 계수 회귀 적합 — Neil Gunther 의 `usl` R 패키지, Baron Schwartz 의 *usl* (Python/Go) 라이브러리, Excel 비선형 최소제곱(LINEST/Solver). 부하 데이터 수집 — `wrk2`, `k6`, `Locust`, `sysbench`, JMeter (동시성 N 별 throughput 측정 후 C(N) 적합).
+
+**장점**:
+- 수평 확장 ROI 를 *실측 전에* 추산 — "노드 2× 로 처리량 1.8× 만 오른다" 같은 손익 예측
+- USL 은 소수의 측정점(보통 6~10 개 동시성 레벨)으로 *전체 곡선* 을 외삽 — 무한정 부하 테스트 불필요
+- retrograde 변곡점 `N*` 을 산출 → "최적 노드 수" 의 정량 근거 (과다 프로비저닝 방지)
+- 코드 리뷰·아키텍처 회의에서 *어디를 병렬화해야 하는지* (Amdahl 의 `s` 를 줄이는 작업) 우선순위 결정
+
+**한계**:
+- Amdahl/Gustafson 은 *오버헤드(통신·동기화) 0* 을 가정 — 실측 USL 의 α·β 가 이를 보정하지만 회귀 신뢰도는 측정점 수·분포에 의존
+- `s`(직렬 비율) 추정 자체가 어렵다 — profiling (→ [Profiling 기법](#profiling-techniques)) 으로 직렬 구간 실측 필요
+- USL 의 α·β 는 *현 아키텍처* 의 적합치 — 락 제거·샤딩 등 구조 변경 후엔 재측정 필요
+- weak vs strong scaling 혼동 시 잘못된 결론 — "응답 시간 단축"(strong, Amdahl) 인지 "처리량 증대"(weak, Gustafson) 인지 먼저 명확히
+
+**실무 적용**:
+- **scale-out 의사결정**: 부하 테스트로 동시성 N 별 throughput 수집 → USL 적합 → β > 0 이고 현재 N 이 `N*` 근처면 *노드 추가 중단*, 대신 coherency(공유 상태·분산 락) 제거에 투자
+- **병렬화 우선순위**: Amdahl 의 `s` 를 profiling 으로 측정 → 직렬 구간(전역 락, 단일 writer, 동기 I/O)부터 제거해야 천장(`1/s`)이 올라감
+- **HPC/배치 설계**: 데이터가 노드에 비례해 커지면 Gustafson 으로 평가 (Amdahl 로 평가하면 비관적 과소추정)
+- **DB/분산 시스템**: USL 의 β 가 큰 시스템(많은 cross-node coordination)은 샤딩·CQRS 로 coherency 비용 분리
+
+```python
+# USL 적합 및 retrograde 변곡점 산출 (Gunther Universal Scalability Law)
+#
+# C(N) = N / (1 + α(N-1) + β·N·(N-1))
+#   α = contention(직렬화),  β = coherency(노드 간 일관성)
+#
+# 입력: 동시성 N 별 실측 throughput (k6/wrk2/JMeter 등으로 수집)
+import numpy as np
+from scipy.optimize import curve_fit
+
+def usl(N, alpha, beta):
+    return N / (1 + alpha * (N - 1) + beta * N * (N - 1))
+
+# 실측 데이터 예시 (N=동시성, X=초당 처리량)
+N = np.array([1,  4,   8,   16,  32,   48,   64])
+X = np.array([100, 380, 700, 1180, 1620, 1500, 1300])  # 48 이후 역행(하락)
+
+# 정규화: C(N) = X(N) / X(1)  (X(1) 기준 상대 speedup)
+C = X / X[0]
+(alpha, beta), _ = curve_fit(usl, N, C, bounds=(0, [1, 1]))
+
+print(f"α(contention) = {alpha:.4f}")   # 직렬화 비율
+print(f"β(coherency)  = {beta:.6f}")    # 노드 간 일관성 비용
+
+# 최대 처리량 변곡점 N* = sqrt((1 - α) / β)
+if beta > 0:
+    n_star = np.sqrt((1 - alpha) / beta)
+    print(f"최적 동시성 N* = {n_star:.1f}  → 이후는 retrograde(하락)")
+else:
+    print(f"β=0 → Amdahl 동형, 상한 = 1/α = {1/alpha:.1f}×")
+
+# 의사결정:
+#   현재 N 이 N* 근처/초과 → 노드 추가 중단, coherency(β) 비용 제거에 투자
+#   β ≈ 0 이고 N << 1/α    → 노드 추가가 여전히 유효 (선형 영역)
+```
+
+```kotlin
+// Amdahl / Gustafson 비교 — scale-out napkin math
+//
+// 시나리오: 배치 작업의 직렬 부분 s = 5% (전역 집계·정렬), 나머지는 병렬화 가능
+//
+// (1) Amdahl — strong scaling: "같은 작업을 더 빨리" (실시간 응답 목표)
+fun amdahl(serialFraction: Double, p: Int): Double =
+    1.0 / (serialFraction + (1.0 - serialFraction) / p)
+// amdahl(0.05, 8)    ≈ 5.9×    (이상 8× 대비 74%)
+// amdahl(0.05, 64)   ≈ 15.4×   (이상 64× 대비 24% — 효율 급락)
+// amdahl(0.05, 1024) ≈ 19.6×   (상한 1/0.05 = 20× 에 근접 — 노드 낭비)
+// → 결론: s=5% 면 ~16 노드 이후 추가는 비효율. 직렬 5% 를 줄여야 천장이 오른다.
+
+// (2) Gustafson — weak scaling: "같은 시간에 더 많은 작업" (데이터가 노드에 비례)
+fun gustafson(serialFraction: Double, p: Int): Double =
+    serialFraction + p * (1.0 - serialFraction)
+// gustafson(0.05, 64)   ≈ 60.8×   (P 에 선형 — 데이터 병렬에 현실적)
+// gustafson(0.05, 1024) ≈ 972.8×
+// → 결론: 처리량(throughput)이 목표라면 Gustafson 으로 평가해야 과소추정 회피.
+
+// 적용 가이드:
+//   응답 시간 단축이 목표  → Amdahl  (직렬 s 제거가 핵심)
+//   처리량 증대가 목표     → Gustafson (노드 추가가 유효)
+//   실측 기반 한계 예측    → USL      (β>0 면 retrograde 변곡점 N* 존재)
+```
+
+**관련 항목**: [Big-O Notation](#big-o-practical) (단일 노드 알고리즘 복잡도 — 병렬화 *전* 의 기준선), [Latency Numbers](#latency-numbers) (RTT·동기화 비용이 USL 의 α·β 를 키우는 물리적 근원), [Latency Percentile](#latency-percentile) (fan-out tail amplification — USL 의 coherency 와 동전의 양면), [Profiling 기법](#profiling-techniques) (Amdahl 직렬 비율 `s` 의 실측 수단), [iso-performance-efficiency](iso25010.md#2-performance-efficiency), [`../patterns/testing-strategies.md`](../patterns/testing-strategies.md) (USL 적합용 Load / Stress 부하 곡선 수집)

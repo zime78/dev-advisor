@@ -1,7 +1,7 @@
 {
   "schema_version": "1.1",
   "catalog_version": "2026-05",
-  "generated_at": "2026-05-29T00:23:00Z",
+  "generated_at": "2026-05-30T09:49:25Z",
   "source": {
     "root": "references",
     "generator": "scripts/generate-catalog-index.py",
@@ -10,20 +10,20 @@
   "domains": {
     "patterns": {
       "index": "references/patterns/index.md",
-      "expected_count": 529,
-      "actual_count": 529,
-      "lookup_count": 529,
+      "expected_count": 543,
+      "actual_count": 543,
+      "lookup_count": 543,
       "item_type_counts": {
-        "entry": 529
+        "entry": 543
       }
     },
     "algorithms": {
       "index": "references/algorithms/index.md",
-      "expected_count": 250,
-      "actual_count": 250,
-      "lookup_count": 250,
+      "expected_count": 292,
+      "actual_count": 292,
+      "lookup_count": 292,
       "item_type_counts": {
-        "entry": 250
+        "entry": 292
       }
     },
     "languages": {
@@ -46,13 +46,13 @@
     },
     "principles": {
       "index": "references/principles/index.md",
-      "expected_count": 206,
-      "actual_count": 206,
-      "lookup_count": 246,
+      "expected_count": 211,
+      "actual_count": 211,
+      "lookup_count": 254,
       "item_type_counts": {
-        "appendix": 18,
-        "category": 22,
-        "entry": 206
+        "appendix": 20,
+        "category": 23,
+        "entry": 211
       }
     },
     "quality": {
@@ -99,6 +99,32 @@
         "cfs",
         "cfs-completely-fair-scheduler",
         "완전-공정-스케줄러"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "disk-scheduling",
+      "item_type": "entry",
+      "title": "Disk / I/O Scheduling (SCAN / C-SCAN / SSTF)",
+      "title_ko": "디스크 스케줄링",
+      "category": "OS 기초",
+      "file": "references/algorithms/os-foundations.md",
+      "anchor": "disk-scheduling",
+      "aliases": [
+        "c-scan",
+        "elevator-algorithm",
+        "sstf"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "c-scan",
+        "disk-i-o-scheduling-scan-c-scan-sstf",
+        "disk-scheduling",
+        "elevator-algorithm",
+        "sstf",
+        "디스크-스케줄링"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -234,6 +260,32 @@
     },
     {
       "domain": "algorithms",
+      "id": "process-vs-thread",
+      "item_type": "entry",
+      "title": "Process vs Thread Execution Model",
+      "title_ko": "프로세스 vs 스레드",
+      "category": "OS 기초",
+      "file": "references/algorithms/os-foundations.md",
+      "anchor": "process-vs-thread",
+      "aliases": [
+        "green-thread",
+        "thread-model",
+        "virtual-thread"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "green-thread",
+        "process-vs-thread",
+        "process-vs-thread-execution-model",
+        "thread-model",
+        "virtual-thread",
+        "프로세스-vs-스레드"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
       "id": "round-robin-scheduling",
       "item_type": "entry",
       "title": "Round-Robin Scheduling",
@@ -264,6 +316,34 @@
       "lookup_keys": [
         "slab-allocator",
         "슬랩-할당자"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "virtual-memory",
+      "item_type": "entry",
+      "title": "Virtual Memory (Paging / TLB / CoW)",
+      "title_ko": "가상 메모리",
+      "category": "OS 기초",
+      "file": "references/algorithms/os-foundations.md",
+      "anchor": "virtual-memory",
+      "aliases": [
+        "copy-on-write",
+        "demand-paging",
+        "paging",
+        "tlb"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "copy-on-write",
+        "demand-paging",
+        "paging",
+        "tlb",
+        "virtual-memory",
+        "virtual-memory-paging-tlb-cow",
+        "가상-메모리"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -659,6 +739,162 @@
     },
     {
       "domain": "algorithms",
+      "id": "amortized-analysis",
+      "item_type": "entry",
+      "title": "Amortized Analysis",
+      "title_ko": "분할 상환 분석",
+      "category": "계산 복잡도·분석",
+      "file": "references/algorithms/complexity.md",
+      "anchor": "amortized-analysis",
+      "aliases": [
+        "accounting-method",
+        "aggregate-analysis",
+        "potential-method"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "accounting-method",
+        "aggregate-analysis",
+        "amortized-analysis",
+        "potential-method",
+        "분할-상환-분석"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "approximation-algorithms",
+      "item_type": "entry",
+      "title": "Approximation Algorithms",
+      "title_ko": "근사 알고리즘",
+      "category": "계산 복잡도·분석",
+      "file": "references/algorithms/complexity.md",
+      "anchor": "approximation-algorithms",
+      "aliases": [
+        "approximation-ratio",
+        "fptas",
+        "ptas"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "approximation-algorithms",
+        "approximation-ratio",
+        "fptas",
+        "ptas",
+        "근사-알고리즘"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "complexity-classes",
+      "item_type": "entry",
+      "title": "Computational Complexity Classes & NP-completeness",
+      "title_ko": "복잡도 클래스·NP-완전성",
+      "category": "계산 복잡도·분석",
+      "file": "references/algorithms/complexity.md",
+      "anchor": "complexity-classes",
+      "aliases": [
+        "cook-levin",
+        "np-complete",
+        "np-hard",
+        "p-vs-np"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "complexity-classes",
+        "computational-complexity-classes-np-completeness",
+        "cook-levin",
+        "np-complete",
+        "np-hard",
+        "p-vs-np",
+        "복잡도-클래스-np-완전성"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "computability",
+      "item_type": "entry",
+      "title": "Computability & Decidability",
+      "title_ko": "계산 가능성·결정 가능성",
+      "category": "계산 복잡도·분석",
+      "file": "references/algorithms/complexity.md",
+      "anchor": "computability",
+      "aliases": [
+        "decidability",
+        "halting-problem",
+        "rice-theorem",
+        "turing-machine"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "computability",
+        "computability-decidability",
+        "decidability",
+        "halting-problem",
+        "rice-theorem",
+        "turing-machine",
+        "계산-가능성-결정-가능성"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "master-theorem",
+      "item_type": "entry",
+      "title": "Master Theorem & Recurrence Solving",
+      "title_ko": "마스터 정리·점화식 해법",
+      "category": "계산 복잡도·분석",
+      "file": "references/algorithms/complexity.md",
+      "anchor": "master-theorem",
+      "aliases": [
+        "akra-bazzi",
+        "recurrence-solving"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "akra-bazzi",
+        "master-theorem",
+        "master-theorem-recurrence-solving",
+        "recurrence-solving",
+        "마스터-정리-점화식-해법"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "randomized-algorithms",
+      "item_type": "entry",
+      "title": "Randomized Algorithms (Las Vegas / Monte Carlo)",
+      "title_ko": "무작위 알고리즘 분류",
+      "category": "계산 복잡도·분석",
+      "file": "references/algorithms/complexity.md",
+      "anchor": "randomized-algorithms",
+      "aliases": [
+        "las-vegas",
+        "monte-carlo",
+        "randomized-algorithm"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "las-vegas",
+        "monte-carlo",
+        "randomized-algorithm",
+        "randomized-algorithms",
+        "randomized-algorithms-las-vegas-monte-carlo",
+        "무작위-알고리즘-분류"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
       "id": "bvh",
       "item_type": "entry",
       "title": "BVH (Bounding Volume Hierarchy)",
@@ -923,6 +1159,27 @@
     },
     {
       "domain": "algorithms",
+      "id": "centroid-decomposition",
+      "item_type": "entry",
+      "title": "Centroid Decomposition",
+      "title_ko": "센트로이드 분할",
+      "category": "그래프",
+      "file": "references/algorithms/graph.md",
+      "anchor": "centroid-decomposition",
+      "aliases": [
+        "centroid-decomp"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "centroid-decomp",
+        "centroid-decomposition",
+        "센트로이드-분할"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
       "id": "dfs",
       "item_type": "entry",
       "title": "DFS (Depth-First Search)",
@@ -994,6 +1251,30 @@
       "lookup_keys": [
         "floyd-warshall",
         "플로이드-워셜"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "heavy-light-decomposition",
+      "item_type": "entry",
+      "title": "Heavy-Light Decomposition (HLD)",
+      "title_ko": "헤비-라이트 분해",
+      "category": "그래프",
+      "file": "references/algorithms/graph.md",
+      "anchor": "heavy-light-decomposition",
+      "aliases": [
+        "heavy-path-decomposition",
+        "hld"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "heavy-light-decomposition",
+        "heavy-light-decomposition-hld",
+        "heavy-path-decomposition",
+        "hld",
+        "헤비-라이트-분해"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -1349,6 +1630,36 @@
     },
     {
       "domain": "algorithms",
+      "id": "queue-spinlock",
+      "item_type": "entry",
+      "title": "Queue-based Spinlocks (Ticket / MCS / CLH)",
+      "title_ko": "큐 기반 스핀락",
+      "category": "동시성/락",
+      "file": "references/algorithms/concurrent.md",
+      "anchor": "queue-spinlock",
+      "aliases": [
+        "clh",
+        "clh-lock",
+        "mcs",
+        "mcs-lock",
+        "ticket-lock"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "clh",
+        "clh-lock",
+        "mcs",
+        "mcs-lock",
+        "queue-based-spinlocks-ticket-mcs-clh",
+        "queue-spinlock",
+        "ticket-lock",
+        "큐-기반-스핀락"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
       "id": "rcu",
       "item_type": "entry",
       "title": "RCU (Read-Copy-Update)",
@@ -1380,6 +1691,34 @@
       "lookup_keys": [
         "seqlock",
         "시퀀스-락"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "two-phase-locking",
+      "item_type": "entry",
+      "title": "Two-Phase Locking + Deadlock Detection",
+      "title_ko": "2단계 잠금 + 교착 검출",
+      "category": "동시성/락",
+      "file": "references/algorithms/concurrent.md",
+      "anchor": "two-phase-locking",
+      "aliases": [
+        "2pl",
+        "deadlock-detection",
+        "strict-2pl",
+        "wait-for-graph"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "2pl",
+        "2단계-잠금-교착-검출",
+        "deadlock-detection",
+        "strict-2pl",
+        "two-phase-locking",
+        "two-phase-locking-deadlock-detection",
+        "wait-for-graph"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -1452,6 +1791,36 @@
       "lookup_keys": [
         "digit-dp",
         "자릿수-dp"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "dp-optimizations",
+      "item_type": "entry",
+      "title": "DP Optimizations (Convex Hull Trick / Knuth / D&C DP)",
+      "title_ko": "DP 최적화 기법",
+      "category": "동적 프로그래밍",
+      "file": "references/algorithms/dynamic-programming.md",
+      "anchor": "dp-optimizations",
+      "aliases": [
+        "cht",
+        "convex-hull-trick",
+        "divide-and-conquer-dp",
+        "knuth-optimization",
+        "li-chao-tree"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "cht",
+        "convex-hull-trick",
+        "divide-and-conquer-dp",
+        "dp-optimizations",
+        "dp-optimizations-convex-hull-trick-knuth-d-c-dp",
+        "dp-최적화-기법",
+        "knuth-optimization",
+        "li-chao-tree"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -1659,6 +2028,30 @@
     },
     {
       "domain": "algorithms",
+      "id": "hungarian",
+      "item_type": "entry",
+      "title": "Hungarian (Kuhn-Munkres)",
+      "title_ko": "헝가리안 할당 (최소 비용 할당)",
+      "category": "매칭",
+      "file": "references/algorithms/matching.md",
+      "anchor": "hungarian",
+      "aliases": [
+        "assignment-problem",
+        "kuhn-munkres"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "assignment-problem",
+        "hungarian",
+        "hungarian-kuhn-munkres",
+        "kuhn-munkres",
+        "헝가리안-할당-최소-비용-할당"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
       "id": "stable-marriage",
       "item_type": "entry",
       "title": "Stable Marriage (Gale-Shapley)",
@@ -1691,6 +2084,38 @@
         "attention",
         "attention-mechanism",
         "어텐션-메커니즘"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "decision-tree",
+      "item_type": "entry",
+      "title": "Decision Tree / Random Forest / Gradient Boosting",
+      "title_ko": "트리 기반 모델",
+      "category": "머신러닝",
+      "file": "references/algorithms/ml.md",
+      "anchor": "decision-tree",
+      "aliases": [
+        "catboost",
+        "gbm",
+        "gradient-boosting",
+        "lightgbm",
+        "random-forest",
+        "xgboost"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "catboost",
+        "decision-tree",
+        "decision-tree-random-forest-gradient-boosting",
+        "gbm",
+        "gradient-boosting",
+        "lightgbm",
+        "random-forest",
+        "xgboost",
+        "트리-기반-모델"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -1764,6 +2189,29 @@
       "lookup_keys": [
         "pagerank",
         "페이지랭크"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "pca-svd",
+      "item_type": "entry",
+      "title": "PCA / SVD",
+      "title_ko": "주성분 분석 / 특이값 분해",
+      "category": "머신러닝",
+      "file": "references/algorithms/ml.md",
+      "anchor": "pca-svd",
+      "aliases": [
+        "principal-component-analysis",
+        "svd"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "pca-svd",
+        "principal-component-analysis",
+        "svd",
+        "주성분-분석-특이값-분해"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -2379,6 +2827,32 @@
     },
     {
       "domain": "algorithms",
+      "id": "chandy-lamport",
+      "item_type": "entry",
+      "title": "Chandy-Lamport Distributed Snapshot",
+      "title_ko": "찬디-램포트 분산 스냅샷",
+      "category": "분산 알고리즘",
+      "file": "references/algorithms/distributed.md",
+      "anchor": "chandy-lamport",
+      "aliases": [
+        "distributed-snapshot",
+        "global-snapshot",
+        "marker-algorithm"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "chandy-lamport",
+        "chandy-lamport-distributed-snapshot",
+        "distributed-snapshot",
+        "global-snapshot",
+        "marker-algorithm",
+        "찬디-램포트-분산-스냅샷"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
       "id": "consistent-hashing",
       "item_type": "entry",
       "title": "Consistent Hashing",
@@ -2524,6 +2998,29 @@
     },
     {
       "domain": "algorithms",
+      "id": "phi-accrual",
+      "item_type": "entry",
+      "title": "Phi Accrual Failure Detector",
+      "title_ko": "파이 누적 장애 감지기",
+      "category": "분산 알고리즘",
+      "file": "references/algorithms/distributed.md",
+      "anchor": "phi-accrual",
+      "aliases": [
+        "accrual-failure-detector",
+        "phi-accrual-failure-detector"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "accrual-failure-detector",
+        "phi-accrual",
+        "phi-accrual-failure-detector",
+        "파이-누적-장애-감지기"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
       "id": "quorum",
       "item_type": "entry",
       "title": "Quorum (R+W>N)",
@@ -2592,6 +3089,60 @@
         "2pc",
         "2pc-two-phase-commit",
         "2단계-커밋"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "byzantine-pbft",
+      "item_type": "entry",
+      "title": "Byzantine Fault Tolerance (PBFT / Byzantine Generals)",
+      "title_ko": "비잔틴 결함 허용",
+      "category": "분산 합의",
+      "file": "references/algorithms/consensus.md",
+      "anchor": "byzantine-pbft",
+      "aliases": [
+        "bft",
+        "byzantine-fault-tolerance",
+        "byzantine-generals",
+        "pbft"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "bft",
+        "byzantine-fault-tolerance",
+        "byzantine-fault-tolerance-pbft-byzantine-generals",
+        "byzantine-generals",
+        "byzantine-pbft",
+        "pbft",
+        "비잔틴-결함-허용"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "leader-election",
+      "item_type": "entry",
+      "title": "Leader Election (Bully / Ring)",
+      "title_ko": "리더 선출",
+      "category": "분산 합의",
+      "file": "references/algorithms/consensus.md",
+      "anchor": "leader-election",
+      "aliases": [
+        "bully-algorithm",
+        "coordinator-election",
+        "ring-election"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "bully-algorithm",
+        "coordinator-election",
+        "leader-election",
+        "leader-election-bully-ring",
+        "ring-election",
+        "리더-선출"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -2747,6 +3298,32 @@
     },
     {
       "domain": "algorithms",
+      "id": "dct",
+      "item_type": "entry",
+      "title": "Discrete Cosine Transform (DCT)",
+      "title_ko": "이산 코사인 변환",
+      "category": "수학",
+      "file": "references/algorithms/math.md",
+      "anchor": "dct",
+      "aliases": [
+        "discrete-cosine-transform",
+        "idct",
+        "mdct"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "dct",
+        "discrete-cosine-transform",
+        "discrete-cosine-transform-dct",
+        "idct",
+        "mdct",
+        "이산-코사인-변환"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
       "id": "euclidean-gcd",
       "item_type": "entry",
       "title": "Euclidean GCD",
@@ -2813,6 +3390,32 @@
       "lookup_keys": [
         "fast-fourier-transform",
         "고속-푸리에-변환"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "gaussian-elimination",
+      "item_type": "entry",
+      "title": "Gaussian Elimination / Gauss-Jordan",
+      "title_ko": "가우스 소거법",
+      "category": "수학",
+      "file": "references/algorithms/math.md",
+      "anchor": "gaussian-elimination",
+      "aliases": [
+        "gauss-jordan",
+        "row-reduction",
+        "rref"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "gauss-jordan",
+        "gaussian-elimination",
+        "gaussian-elimination-gauss-jordan",
+        "row-reduction",
+        "rref",
+        "가우스-소거법"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -3040,6 +3643,27 @@
     },
     {
       "domain": "algorithms",
+      "id": "goertzel",
+      "item_type": "entry",
+      "title": "Goertzel Algorithm",
+      "title_ko": "괴르첼 알고리즘",
+      "category": "신호 처리",
+      "file": "references/algorithms/signal-processing.md",
+      "anchor": "goertzel",
+      "aliases": [
+        "goertzel-algorithm"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "goertzel",
+        "goertzel-algorithm",
+        "괴르첼-알고리즘"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
       "id": "iir-filter",
       "item_type": "entry",
       "title": "IIR Filter",
@@ -3185,6 +3809,113 @@
     },
     {
       "domain": "algorithms",
+      "id": "blake2-blake3",
+      "item_type": "entry",
+      "title": "BLAKE2 / BLAKE3",
+      "title_ko": "고속 암호 해시",
+      "category": "암호/해시",
+      "file": "references/algorithms/crypto.md",
+      "anchor": "blake2-blake3",
+      "aliases": [
+        "blake2",
+        "blake3"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "blake2",
+        "blake2-blake3",
+        "blake3",
+        "고속-암호-해시"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "chacha20-poly1305",
+      "item_type": "entry",
+      "title": "ChaCha20-Poly1305",
+      "title_ko": "스트림 AEAD",
+      "category": "암호/해시",
+      "file": "references/algorithms/crypto.md",
+      "anchor": "chacha20-poly1305",
+      "aliases": [
+        "chacha20",
+        "poly1305",
+        "xchacha20"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "chacha20",
+        "chacha20-poly1305",
+        "poly1305",
+        "xchacha20",
+        "스트림-aead"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "diffie-hellman",
+      "item_type": "entry",
+      "title": "Diffie-Hellman",
+      "title_ko": "디피-헬먼 키 교환",
+      "category": "암호/해시",
+      "file": "references/algorithms/crypto.md",
+      "anchor": "diffie-hellman",
+      "aliases": [
+        "dh",
+        "dhe",
+        "ecdhe",
+        "key-agreement"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "dh",
+        "dhe",
+        "diffie-hellman",
+        "ecdhe",
+        "key-agreement",
+        "디피-헬먼-키-교환"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "ecc",
+      "item_type": "entry",
+      "title": "ECC (ECDSA / Ed25519 / ECDH)",
+      "title_ko": "타원곡선 암호 (서명·키교환)",
+      "category": "암호/해시",
+      "file": "references/algorithms/crypto.md",
+      "anchor": "ecc",
+      "aliases": [
+        "ecdh",
+        "ecdsa",
+        "ed25519",
+        "eddsa",
+        "elliptic-curve",
+        "x25519"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "ecc",
+        "ecc-ecdsa-ed25519-ecdh",
+        "ecdh",
+        "ecdsa",
+        "ed25519",
+        "eddsa",
+        "elliptic-curve",
+        "x25519",
+        "타원곡선-암호-서명-키교환"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
       "id": "hmac",
       "item_type": "entry",
       "title": "HMAC",
@@ -3221,6 +3952,29 @@
     },
     {
       "domain": "algorithms",
+      "id": "scrypt-pbkdf2",
+      "item_type": "entry",
+      "title": "scrypt / PBKDF2",
+      "title_ko": "키 유도 함수 (KDF)",
+      "category": "암호/해시",
+      "file": "references/algorithms/crypto.md",
+      "anchor": "scrypt-pbkdf2",
+      "aliases": [
+        "pbkdf2",
+        "scrypt"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "pbkdf2",
+        "scrypt",
+        "scrypt-pbkdf2",
+        "키-유도-함수-kdf"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
       "id": "sha-256",
       "item_type": "entry",
       "title": "SHA-256",
@@ -3233,6 +3987,32 @@
       "lookup_keys": [
         "secure-hash-algorithm-256-bit",
         "sha-256"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "sha-3",
+      "item_type": "entry",
+      "title": "SHA-3 / Keccak",
+      "title_ko": "SHA-3 스펀지 해시",
+      "category": "암호/해시",
+      "file": "references/algorithms/crypto.md",
+      "anchor": "sha-3",
+      "aliases": [
+        "keccak",
+        "sha3",
+        "shake"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "keccak",
+        "sha-3",
+        "sha-3-keccak",
+        "sha-3-스펀지-해시",
+        "sha3",
+        "shake"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -3482,6 +4262,32 @@
     },
     {
       "domain": "algorithms",
+      "id": "advanced-heaps",
+      "item_type": "entry",
+      "title": "Advanced Heaps (Fibonacci / Binomial / Pairing)",
+      "title_ko": "고급 힙",
+      "category": "자료구조",
+      "file": "references/algorithms/data-structures.md",
+      "anchor": "advanced-heaps",
+      "aliases": [
+        "binomial-heap",
+        "fibonacci-heap",
+        "pairing-heap"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "advanced-heaps",
+        "advanced-heaps-fibonacci-binomial-pairing",
+        "binomial-heap",
+        "fibonacci-heap",
+        "pairing-heap",
+        "고급-힙"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
       "id": "avl-tree",
       "item_type": "entry",
       "title": "AVL Tree",
@@ -3512,6 +4318,34 @@
       "lookup_keys": [
         "b-tree",
         "b-트리"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "binary-heap",
+      "item_type": "entry",
+      "title": "Binary Heap / Priority Queue",
+      "title_ko": "이진 힙 / 우선순위 큐",
+      "category": "자료구조",
+      "file": "references/algorithms/data-structures.md",
+      "anchor": "binary-heap",
+      "aliases": [
+        "d-ary-heap",
+        "max-heap",
+        "min-heap",
+        "priority-queue"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "binary-heap",
+        "binary-heap-priority-queue",
+        "d-ary-heap",
+        "max-heap",
+        "min-heap",
+        "priority-queue",
+        "이진-힙-우선순위-큐"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -3558,6 +4392,36 @@
     },
     {
       "domain": "algorithms",
+      "id": "hash-collision-resolution",
+      "item_type": "entry",
+      "title": "Hash Table Collision Resolution",
+      "title_ko": "해시 테이블 충돌 처리",
+      "category": "자료구조",
+      "file": "references/algorithms/data-structures.md",
+      "anchor": "hash-collision-resolution",
+      "aliases": [
+        "cuckoo-hashing",
+        "linear-probing",
+        "open-addressing",
+        "robin-hood-hashing",
+        "separate-chaining"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "cuckoo-hashing",
+        "hash-collision-resolution",
+        "hash-table-collision-resolution",
+        "linear-probing",
+        "open-addressing",
+        "robin-hood-hashing",
+        "separate-chaining",
+        "해시-테이블-충돌-처리"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
       "id": "lru",
       "item_type": "entry",
       "title": "LRU Cache",
@@ -3579,6 +4443,56 @@
     },
     {
       "domain": "algorithms",
+      "id": "order-statistics-tree",
+      "item_type": "entry",
+      "title": "Order-Statistics Tree / Interval Tree",
+      "title_ko": "순위 통계 트리 / 구간 트리",
+      "category": "자료구조",
+      "file": "references/algorithms/data-structures.md",
+      "anchor": "order-statistics-tree",
+      "aliases": [
+        "augmented-bst",
+        "interval-tree",
+        "order-statistic-tree"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "augmented-bst",
+        "interval-tree",
+        "order-statistic-tree",
+        "order-statistics-tree",
+        "order-statistics-tree-interval-tree",
+        "순위-통계-트리-구간-트리"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "persistent-data-structures",
+      "item_type": "entry",
+      "title": "Persistent Data Structures (Persistent Segment Tree)",
+      "title_ko": "영속 자료구조",
+      "category": "자료구조",
+      "file": "references/algorithms/data-structures.md",
+      "anchor": "persistent-data-structures",
+      "aliases": [
+        "path-copying",
+        "persistent-segment-tree"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "path-copying",
+        "persistent-data-structures",
+        "persistent-data-structures-persistent-segment-tree",
+        "persistent-segment-tree",
+        "영속-자료구조"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
       "id": "red-black-tree",
       "item_type": "entry",
       "title": "Red-Black Tree",
@@ -3594,6 +4508,32 @@
         "rb-tree",
         "red-black-tree",
         "레드-블랙-트리"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "rope-gap-buffer",
+      "item_type": "entry",
+      "title": "Rope / Gap Buffer / Piece Table",
+      "title_ko": "로프 / 갭 버퍼 / 피스 테이블",
+      "category": "자료구조",
+      "file": "references/algorithms/data-structures.md",
+      "anchor": "rope-gap-buffer",
+      "aliases": [
+        "gap-buffer",
+        "piece-table",
+        "rope"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "gap-buffer",
+        "piece-table",
+        "rope",
+        "rope-gap-buffer",
+        "rope-gap-buffer-piece-table",
+        "로프-갭-버퍼-피스-테이블"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -3636,6 +4576,32 @@
     },
     {
       "domain": "algorithms",
+      "id": "treap-splay",
+      "item_type": "entry",
+      "title": "Treap / Splay Tree",
+      "title_ko": "트립 / 스플레이 트리",
+      "category": "자료구조",
+      "file": "references/algorithms/data-structures.md",
+      "anchor": "treap-splay",
+      "aliases": [
+        "cartesian-tree",
+        "splay-tree",
+        "treap"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "cartesian-tree",
+        "splay-tree",
+        "treap",
+        "treap-splay",
+        "treap-splay-tree",
+        "트립-스플레이-트리"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
       "id": "union-find",
       "item_type": "entry",
       "title": "Union-Find (Disjoint Set)",
@@ -3652,6 +4618,32 @@
         "union-find",
         "union-find-disjoint-set",
         "분리-집합"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "van-emde-boas",
+      "item_type": "entry",
+      "title": "van Emde Boas Tree / y-fast Trie",
+      "title_ko": "반 엠데 보아스 트리",
+      "category": "자료구조",
+      "file": "references/algorithms/data-structures.md",
+      "anchor": "van-emde-boas",
+      "aliases": [
+        "veb",
+        "veb-tree",
+        "y-fast-trie"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "van-emde-boas",
+        "van-emde-boas-tree-y-fast-trie",
+        "veb",
+        "veb-tree",
+        "y-fast-trie",
+        "반-엠데-보아스-트리"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -3856,6 +4848,35 @@
     },
     {
       "domain": "algorithms",
+      "id": "quickselect",
+      "item_type": "entry",
+      "title": "Quickselect",
+      "title_ko": "퀵 선택 (k번째 순서통계량, Median of Medians)",
+      "category": "정렬",
+      "file": "references/algorithms/sorting.md",
+      "anchor": "quickselect",
+      "aliases": [
+        "bfprt",
+        "kth-smallest",
+        "median-of-medians",
+        "nth-element",
+        "selection-problem"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "bfprt",
+        "kth-smallest",
+        "median-of-medians",
+        "nth-element",
+        "quickselect",
+        "selection-problem",
+        "퀵-선택-k번째-순서통계량-median-of-medians"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
       "id": "radix-sort",
       "item_type": "entry",
       "title": "Radix Sort",
@@ -3959,6 +4980,32 @@
         "entropy-coding",
         "entropy-coding-arithmetic-range-ans",
         "엔트로피-부호화"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "error-correcting-codes",
+      "item_type": "entry",
+      "title": "Error Detection & Correction Codes",
+      "title_ko": "오류 검출·정정 부호",
+      "category": "코덱·미디어",
+      "file": "references/algorithms/codecs.md",
+      "anchor": "error-correcting-codes",
+      "aliases": [
+        "checksum",
+        "crc",
+        "hamming-code"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "checksum",
+        "crc",
+        "error-correcting-codes",
+        "error-detection-correction-codes",
+        "hamming-code",
+        "오류-검출-정정-부호"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -4442,6 +5489,32 @@
     },
     {
       "domain": "algorithms",
+      "id": "compiler-optimization",
+      "item_type": "entry",
+      "title": "Compiler Optimization Passes",
+      "title_ko": "컴파일러 최적화 패스",
+      "category": "파서/컴파일러",
+      "file": "references/algorithms/parsing.md",
+      "anchor": "compiler-optimization",
+      "aliases": [
+        "constant-folding",
+        "data-flow-analysis",
+        "dead-code-elimination"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "compiler-optimization",
+        "compiler-optimization-passes",
+        "constant-folding",
+        "data-flow-analysis",
+        "dead-code-elimination",
+        "컴파일러-최적화-패스"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
       "id": "earley",
       "item_type": "entry",
       "title": "Earley Parser",
@@ -4455,6 +5528,31 @@
         "earley",
         "earley-parser",
         "얼리-파서"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "algorithms",
+      "id": "formal-language-theory",
+      "item_type": "entry",
+      "title": "Formal Language Theory",
+      "title_ko": "형식 언어 이론",
+      "category": "파서/컴파일러",
+      "file": "references/algorithms/parsing.md",
+      "anchor": "formal-language-theory",
+      "aliases": [
+        "chomsky-hierarchy",
+        "cyk",
+        "pumping-lemma"
+      ],
+      "tags": [],
+      "lookup_keys": [
+        "chomsky-hierarchy",
+        "cyk",
+        "formal-language-theory",
+        "pumping-lemma",
+        "형식-언어-이론"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -7079,6 +8177,25 @@
     },
     {
       "domain": "patterns",
+      "id": "broker-architecture",
+      "item_type": "entry",
+      "title": "Broker Architecture (POSA)",
+      "title_ko": "브로커 아키텍처",
+      "category": "architectural",
+      "file": "references/patterns/architectural.md",
+      "anchor": "broker-architecture",
+      "aliases": [],
+      "tags": [],
+      "lookup_keys": [
+        "broker-architecture",
+        "broker-architecture-posa",
+        "브로커-아키텍처"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "patterns",
       "id": "clean-architecture",
       "item_type": "entry",
       "title": "Clean Architecture",
@@ -7184,6 +8301,25 @@
       "tags": [],
       "lookup_keys": [
         "micro-frontend"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "patterns",
+      "id": "microkernel-plugin",
+      "item_type": "entry",
+      "title": "Microkernel / Plugin Architecture",
+      "title_ko": "마이크로커널/플러그인 아키텍처",
+      "category": "architectural",
+      "file": "references/patterns/architectural.md",
+      "anchor": "microkernel-plugin",
+      "aliases": [],
+      "tags": [],
+      "lookup_keys": [
+        "microkernel-plugin",
+        "microkernel-plugin-architecture",
+        "마이크로커널-플러그인-아키텍처"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -7365,6 +8501,25 @@
       "lookup_keys": [
         "soa",
         "서비스-지향"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "patterns",
+      "id": "space-based",
+      "item_type": "entry",
+      "title": "Space-Based Architecture",
+      "title_ko": "공간 기반 아키텍처",
+      "category": "architectural",
+      "file": "references/patterns/architectural.md",
+      "anchor": "space-based",
+      "aliases": [],
+      "tags": [],
+      "lookup_keys": [
+        "space-based",
+        "space-based-architecture",
+        "공간-기반-아키텍처"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -8895,6 +10050,25 @@
     },
     {
       "domain": "patterns",
+      "id": "harvest-yield-akf",
+      "item_type": "entry",
+      "title": "Harvest & Yield / AKF Scale Cube",
+      "title_ko": "수확·산출 / AKF 확장 큐브",
+      "category": "data-modeling",
+      "file": "references/patterns/data-modeling.md",
+      "anchor": "harvest-yield-akf",
+      "aliases": [],
+      "tags": [],
+      "lookup_keys": [
+        "harvest-yield-akf",
+        "harvest-yield-akf-scale-cube",
+        "수확-산출-akf-확장-큐브"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "patterns",
       "id": "lambda-kappa-htap",
       "item_type": "entry",
       "title": "HTAP / Lambda / Kappa Architecture",
@@ -9661,6 +10835,25 @@
     },
     {
       "domain": "patterns",
+      "id": "deployment-stamps",
+      "item_type": "entry",
+      "title": "Deployment Stamps / Geode",
+      "title_ko": "배포 스탬프 / 지오드",
+      "category": "distributed",
+      "file": "references/patterns/distributed.md",
+      "anchor": "deployment-stamps",
+      "aliases": [],
+      "tags": [],
+      "lookup_keys": [
+        "deployment-stamps",
+        "deployment-stamps-geode",
+        "배포-스탬프-지오드"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "patterns",
       "id": "distributed-transaction-selection-matrix",
       "item_type": "entry",
       "title": "Distributed Transaction Selection Matrix",
@@ -9690,6 +10883,43 @@
       "lookup_keys": [
         "event-sourcing",
         "이벤트-소싱"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "patterns",
+      "id": "gatekeeper",
+      "item_type": "entry",
+      "title": "Gatekeeper",
+      "title_ko": "게이트키퍼",
+      "category": "distributed",
+      "file": "references/patterns/distributed.md",
+      "anchor": "gatekeeper",
+      "aliases": [],
+      "tags": [],
+      "lookup_keys": [
+        "gatekeeper",
+        "게이트키퍼"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "patterns",
+      "id": "gateway-aggregation",
+      "item_type": "entry",
+      "title": "Gateway Aggregation / Offloading / Routing",
+      "title_ko": "게이트웨이 집계/오프로딩/라우팅",
+      "category": "distributed",
+      "file": "references/patterns/distributed.md",
+      "anchor": "gateway-aggregation",
+      "aliases": [],
+      "tags": [],
+      "lookup_keys": [
+        "gateway-aggregation",
+        "gateway-aggregation-offloading-routing",
+        "게이트웨이-집계-오프로딩-라우팅"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -9798,6 +11028,24 @@
       "tags": [],
       "lookup_keys": [
         "tcc-try-confirm-cancel"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "patterns",
+      "id": "valet-key",
+      "item_type": "entry",
+      "title": "Valet Key",
+      "title_ko": "밸릿 키",
+      "category": "distributed",
+      "file": "references/patterns/distributed.md",
+      "anchor": "valet-key",
+      "aliases": [],
+      "tags": [],
+      "lookup_keys": [
+        "valet-key",
+        "밸릿-키"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -12033,6 +13281,25 @@
     },
     {
       "domain": "patterns",
+      "id": "cpu-microarchitecture",
+      "item_type": "entry",
+      "title": "CPU Microarchitecture & SIMD",
+      "title_ko": "CPU 마이크로아키텍처 / SIMD",
+      "category": "hpc-scientific",
+      "file": "references/patterns/hpc-scientific.md",
+      "anchor": "cpu-microarchitecture",
+      "aliases": [],
+      "tags": [],
+      "lookup_keys": [
+        "cpu-microarchitecture",
+        "cpu-microarchitecture-simd",
+        "cpu-마이크로아키텍처-simd"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "patterns",
       "id": "cuda-hip-hpc",
       "item_type": "entry",
       "title": "CUDA / HIP — GPU 가속",
@@ -12264,6 +13531,25 @@
       "lookup_keys": [
         "message-translator",
         "메시지-트랜슬레이터"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "patterns",
+      "id": "messaging-gateway",
+      "item_type": "entry",
+      "title": "Messaging Gateway / Service Activator",
+      "title_ko": "메시징 게이트웨이 / 서비스 액티베이터",
+      "category": "integration",
+      "file": "references/patterns/integration.md",
+      "anchor": "messaging-gateway",
+      "aliases": [],
+      "tags": [],
+      "lookup_keys": [
+        "messaging-gateway",
+        "messaging-gateway-service-activator",
+        "메시징-게이트웨이-서비스-액티베이터"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -13157,6 +14443,25 @@
     },
     {
       "domain": "patterns",
+      "id": "ip-routing",
+      "item_type": "entry",
+      "title": "IP Routing & Forwarding",
+      "title_ko": "IP 라우팅 / 포워딩",
+      "category": "networking",
+      "file": "references/patterns/networking.md",
+      "anchor": "ip-routing",
+      "aliases": [],
+      "tags": [],
+      "lookup_keys": [
+        "ip-routing",
+        "ip-routing-forwarding",
+        "ip-라우팅-포워딩"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "patterns",
       "id": "nat-traversal",
       "item_type": "entry",
       "title": "NAT Traversal",
@@ -13175,6 +14480,25 @@
     },
     {
       "domain": "patterns",
+      "id": "osi-tcpip-model",
+      "item_type": "entry",
+      "title": "OSI / TCP-IP Layering Model",
+      "title_ko": "OSI / TCP-IP 계층 모델",
+      "category": "networking",
+      "file": "references/patterns/networking.md",
+      "anchor": "osi-tcpip-model",
+      "aliases": [],
+      "tags": [],
+      "lookup_keys": [
+        "osi-tcp-ip-layering-model",
+        "osi-tcp-ip-계층-모델",
+        "osi-tcpip-model"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "patterns",
       "id": "quic-http3",
       "item_type": "entry",
       "title": "QUIC / HTTP/3",
@@ -13187,6 +14511,25 @@
       "lookup_keys": [
         "quic-http-3",
         "quic-http3"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "patterns",
+      "id": "reliable-data-transfer",
+      "item_type": "entry",
+      "title": "Reliable Data Transfer / ARQ",
+      "title_ko": "신뢰성 데이터 전송 / ARQ",
+      "category": "networking",
+      "file": "references/patterns/networking.md",
+      "anchor": "reliable-data-transfer",
+      "aliases": [],
+      "tags": [],
+      "lookup_keys": [
+        "reliable-data-transfer",
+        "reliable-data-transfer-arq",
+        "신뢰성-데이터-전송-arq"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -13922,6 +15265,24 @@
       "lookup_keys": [
         "sidecar",
         "사이드카"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "patterns",
+      "id": "steady-state-fail-fast",
+      "item_type": "entry",
+      "title": "Steady State / Fail Fast",
+      "title_ko": "정상 상태 유지 / 빠른 실패",
+      "category": "reliability",
+      "file": "references/patterns/reliability.md",
+      "anchor": "steady-state-fail-fast",
+      "aliases": [],
+      "tags": [],
+      "lookup_keys": [
+        "steady-state-fail-fast",
+        "정상-상태-유지-빠른-실패"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -15954,6 +17315,60 @@
     },
     {
       "domain": "principles",
+      "id": "architectural-tactics",
+      "item_type": "entry",
+      "title": "Architectural Tactics",
+      "title_ko": "아키텍처 전술",
+      "category": "architecture-evaluation",
+      "file": "references/principles/architecture-evaluation.md",
+      "anchor": "architectural-tactics",
+      "aliases": [],
+      "tags": [],
+      "lookup_keys": [
+        "architectural-tactics",
+        "아키텍처-전술"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "principles",
+      "id": "atam-saam-cbam",
+      "item_type": "entry",
+      "title": "ATAM / SAAM / CBAM",
+      "title_ko": "아키텍처 평가 방법",
+      "category": "architecture-evaluation",
+      "file": "references/principles/architecture-evaluation.md",
+      "anchor": "atam-saam-cbam",
+      "aliases": [],
+      "tags": [],
+      "lookup_keys": [
+        "atam-saam-cbam",
+        "아키텍처-평가-방법"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "principles",
+      "id": "quality-attribute-scenarios",
+      "item_type": "entry",
+      "title": "Quality Attribute Scenarios",
+      "title_ko": "품질속성 시나리오",
+      "category": "architecture-evaluation",
+      "file": "references/principles/architecture-evaluation.md",
+      "anchor": "quality-attribute-scenarios",
+      "aliases": [],
+      "tags": [],
+      "lookup_keys": [
+        "quality-attribute-scenarios",
+        "품질속성-시나리오"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "principles",
       "id": "12-factor",
       "item_type": "category",
       "title": "The Twelve-Factor App",
@@ -15975,6 +17390,24 @@
         "the-twelve-factor-app",
         "twelve-factor",
         "twelve-factor-app"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "principles",
+      "id": "architecture-evaluation",
+      "item_type": "category",
+      "title": "아키텍처 평가 (Architecture Evaluation)",
+      "title_ko": null,
+      "category": "category",
+      "file": "references/principles/architecture-evaluation.md",
+      "anchor": "아키텍처-평가-architecture-evaluation",
+      "aliases": [],
+      "tags": [],
+      "lookup_keys": [
+        "architecture-evaluation",
+        "아키텍처-평가-architecture-evaluation"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -18188,6 +19621,42 @@
     },
     {
       "domain": "principles",
+      "id": "end-to-end-argument",
+      "item_type": "appendix",
+      "title": "End-to-End Argument (단대단 논증)",
+      "title_ko": null,
+      "category": "micro-principles",
+      "file": "references/principles/micro-principles.md",
+      "anchor": "end-to-end-argument",
+      "aliases": [],
+      "tags": [],
+      "lookup_keys": [
+        "end-to-end-argument",
+        "end-to-end-argument-단대단-논증"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "principles",
+      "id": "fallacies-distributed-computing",
+      "item_type": "appendix",
+      "title": "Fallacies of Distributed Computing (분산 컴퓨팅의 오류 8가지)",
+      "title_ko": null,
+      "category": "micro-principles",
+      "file": "references/principles/micro-principles.md",
+      "anchor": "fallacies-distributed-computing",
+      "aliases": [],
+      "tags": [],
+      "lookup_keys": [
+        "fallacies-distributed-computing",
+        "fallacies-of-distributed-computing-분산-컴퓨팅의-오류-8가지"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "principles",
       "id": "goodhart",
       "item_type": "appendix",
       "title": "Goodhart's Law",
@@ -18440,6 +19909,24 @@
         "yagni",
         "yagni-you-aren-t-gonna-need-it-불필요-기능-금지",
         "you-arent-gonna-need-it"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "principles",
+      "id": "perf-amdahl-usl",
+      "item_type": "entry",
+      "title": "Amdahl’s Law / Gustafson / Universal Scalability Law (확장성 정량 법칙 (암달/구스타프슨/USL))",
+      "title_ko": null,
+      "category": "performance-metrics",
+      "file": "references/principles/performance-metrics.md",
+      "anchor": "amdahl-usl",
+      "aliases": [],
+      "tags": [],
+      "lookup_keys": [
+        "amdahl-s-law-gustafson-universal-scalability-law-확장성-정량-법칙-암달-구스타프슨-usl",
+        "perf-amdahl-usl"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -20573,6 +22060,25 @@
         "higher-kinded-types",
         "type-hkt",
         "고차-종류-타입-hkt"
+      ],
+      "anchor_exists": true,
+      "anchor_warning": null
+    },
+    {
+      "domain": "principles",
+      "id": "type-lambda-calculus",
+      "item_type": "entry",
+      "title": "Lambda Calculus & System F",
+      "title_ko": "람다 대수 / System F",
+      "category": "type-systems",
+      "file": "references/principles/type-systems.md",
+      "anchor": "lambda-calculus",
+      "aliases": [],
+      "tags": [],
+      "lookup_keys": [
+        "lambda-calculus-system-f",
+        "type-lambda-calculus",
+        "람다-대수-system-f"
       ],
       "anchor_exists": true,
       "anchor_warning": null
@@ -23066,8 +24572,74 @@
   "aliases": [
     {
       "domain": "algorithms",
+      "alias": "2pl",
+      "target_id": "two-phase-locking",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
       "alias": "a-star-search",
       "target_id": "a-star",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "accounting-method",
+      "target_id": "amortized-analysis",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "accrual-failure-detector",
+      "target_id": "phi-accrual",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "aggregate-analysis",
+      "target_id": "amortized-analysis",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "akra-bazzi",
+      "target_id": "master-theorem",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "approximation-ratio",
+      "target_id": "approximation-algorithms",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "assignment-problem",
+      "target_id": "hungarian",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "augmented-bst",
+      "target_id": "order-statistics-tree",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "bfprt",
+      "target_id": "quickselect",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "bft",
+      "target_id": "byzantine-pbft",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "binomial-heap",
+      "target_id": "advanced-heaps",
       "source": "references/algorithms/index.md"
     },
     {
@@ -23078,8 +24650,182 @@
     },
     {
       "domain": "algorithms",
+      "alias": "blake2",
+      "target_id": "blake2-blake3",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "blake3",
+      "target_id": "blake2-blake3",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
       "alias": "breadth-first-search",
       "target_id": "bfs",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "bully-algorithm",
+      "target_id": "leader-election",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "byzantine-fault-tolerance",
+      "target_id": "byzantine-pbft",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "byzantine-generals",
+      "target_id": "byzantine-pbft",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "c-scan",
+      "target_id": "disk-scheduling",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "cartesian-tree",
+      "target_id": "treap-splay",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "catboost",
+      "target_id": "decision-tree",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "centroid-decomp",
+      "target_id": "centroid-decomposition",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "chacha20",
+      "target_id": "chacha20-poly1305",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "checksum",
+      "target_id": "error-correcting-codes",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "chomsky-hierarchy",
+      "target_id": "formal-language-theory",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "cht",
+      "target_id": "dp-optimizations",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "clh",
+      "target_id": "queue-spinlock",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "clh-lock",
+      "target_id": "queue-spinlock",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "constant-folding",
+      "target_id": "compiler-optimization",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "convex-hull-trick",
+      "target_id": "dp-optimizations",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "cook-levin",
+      "target_id": "complexity-classes",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "coordinator-election",
+      "target_id": "leader-election",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "copy-on-write",
+      "target_id": "virtual-memory",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "crc",
+      "target_id": "error-correcting-codes",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "cuckoo-hashing",
+      "target_id": "hash-collision-resolution",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "cyk",
+      "target_id": "formal-language-theory",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "d-ary-heap",
+      "target_id": "binary-heap",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "data-flow-analysis",
+      "target_id": "compiler-optimization",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "dead-code-elimination",
+      "target_id": "compiler-optimization",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "deadlock-detection",
+      "target_id": "two-phase-locking",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "decidability",
+      "target_id": "computability",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "demand-paging",
+      "target_id": "virtual-memory",
       "source": "references/algorithms/index.md"
     },
     {
@@ -23090,8 +24836,182 @@
     },
     {
       "domain": "algorithms",
+      "alias": "dh",
+      "target_id": "diffie-hellman",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "dhe",
+      "target_id": "diffie-hellman",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "discrete-cosine-transform",
+      "target_id": "dct",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
       "alias": "disjoint-set",
       "target_id": "union-find",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "distributed-snapshot",
+      "target_id": "chandy-lamport",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "divide-and-conquer-dp",
+      "target_id": "dp-optimizations",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "ecdh",
+      "target_id": "ecc",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "ecdhe",
+      "target_id": "diffie-hellman",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "ecdsa",
+      "target_id": "ecc",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "ed25519",
+      "target_id": "ecc",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "eddsa",
+      "target_id": "ecc",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "elevator-algorithm",
+      "target_id": "disk-scheduling",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "elliptic-curve",
+      "target_id": "ecc",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "fibonacci-heap",
+      "target_id": "advanced-heaps",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "fptas",
+      "target_id": "approximation-algorithms",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "gap-buffer",
+      "target_id": "rope-gap-buffer",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "gauss-jordan",
+      "target_id": "gaussian-elimination",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "gbm",
+      "target_id": "decision-tree",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "global-snapshot",
+      "target_id": "chandy-lamport",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "goertzel-algorithm",
+      "target_id": "goertzel",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "gradient-boosting",
+      "target_id": "decision-tree",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "green-thread",
+      "target_id": "process-vs-thread",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "halting-problem",
+      "target_id": "computability",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "hamming-code",
+      "target_id": "error-correcting-codes",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "heavy-path-decomposition",
+      "target_id": "heavy-light-decomposition",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "hld",
+      "target_id": "heavy-light-decomposition",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "idct",
+      "target_id": "dct",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "interval-tree",
+      "target_id": "order-statistics-tree",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "keccak",
+      "target_id": "sha-3",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "key-agreement",
+      "target_id": "diffie-hellman",
       "source": "references/algorithms/index.md"
     },
     {
@@ -23102,14 +25022,410 @@
     },
     {
       "domain": "algorithms",
+      "alias": "knuth-optimization",
+      "target_id": "dp-optimizations",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "kth-smallest",
+      "target_id": "quickselect",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "kuhn-munkres",
+      "target_id": "hungarian",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "las-vegas",
+      "target_id": "randomized-algorithms",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "li-chao-tree",
+      "target_id": "dp-optimizations",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "lightgbm",
+      "target_id": "decision-tree",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "linear-probing",
+      "target_id": "hash-collision-resolution",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
       "alias": "lru-cache",
       "target_id": "lru",
       "source": "references/algorithms/index.md"
     },
     {
       "domain": "algorithms",
+      "alias": "marker-algorithm",
+      "target_id": "chandy-lamport",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "max-heap",
+      "target_id": "binary-heap",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "mcs",
+      "target_id": "queue-spinlock",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "mcs-lock",
+      "target_id": "queue-spinlock",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "mdct",
+      "target_id": "dct",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "median-of-medians",
+      "target_id": "quickselect",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "min-heap",
+      "target_id": "binary-heap",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "monte-carlo",
+      "target_id": "randomized-algorithms",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "np-complete",
+      "target_id": "complexity-classes",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "np-hard",
+      "target_id": "complexity-classes",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "nth-element",
+      "target_id": "quickselect",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "open-addressing",
+      "target_id": "hash-collision-resolution",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "order-statistic-tree",
+      "target_id": "order-statistics-tree",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "p-vs-np",
+      "target_id": "complexity-classes",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "paging",
+      "target_id": "virtual-memory",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "pairing-heap",
+      "target_id": "advanced-heaps",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "path-copying",
+      "target_id": "persistent-data-structures",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "pbft",
+      "target_id": "byzantine-pbft",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "pbkdf2",
+      "target_id": "scrypt-pbkdf2",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "persistent-segment-tree",
+      "target_id": "persistent-data-structures",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "phi-accrual-failure-detector",
+      "target_id": "phi-accrual",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "piece-table",
+      "target_id": "rope-gap-buffer",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "poly1305",
+      "target_id": "chacha20-poly1305",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "potential-method",
+      "target_id": "amortized-analysis",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "principal-component-analysis",
+      "target_id": "pca-svd",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "priority-queue",
+      "target_id": "binary-heap",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "ptas",
+      "target_id": "approximation-algorithms",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "pumping-lemma",
+      "target_id": "formal-language-theory",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "random-forest",
+      "target_id": "decision-tree",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "randomized-algorithm",
+      "target_id": "randomized-algorithms",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
       "alias": "rb-tree",
       "target_id": "red-black-tree",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "recurrence-solving",
+      "target_id": "master-theorem",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "rice-theorem",
+      "target_id": "computability",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "ring-election",
+      "target_id": "leader-election",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "robin-hood-hashing",
+      "target_id": "hash-collision-resolution",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "rope",
+      "target_id": "rope-gap-buffer",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "row-reduction",
+      "target_id": "gaussian-elimination",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "rref",
+      "target_id": "gaussian-elimination",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "scrypt",
+      "target_id": "scrypt-pbkdf2",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "selection-problem",
+      "target_id": "quickselect",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "separate-chaining",
+      "target_id": "hash-collision-resolution",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "sha3",
+      "target_id": "sha-3",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "shake",
+      "target_id": "sha-3",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "splay-tree",
+      "target_id": "treap-splay",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "sstf",
+      "target_id": "disk-scheduling",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "strict-2pl",
+      "target_id": "two-phase-locking",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "svd",
+      "target_id": "pca-svd",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "thread-model",
+      "target_id": "process-vs-thread",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "ticket-lock",
+      "target_id": "queue-spinlock",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "tlb",
+      "target_id": "virtual-memory",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "treap",
+      "target_id": "treap-splay",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "turing-machine",
+      "target_id": "computability",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "veb",
+      "target_id": "van-emde-boas",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "veb-tree",
+      "target_id": "van-emde-boas",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "virtual-thread",
+      "target_id": "process-vs-thread",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "wait-for-graph",
+      "target_id": "two-phase-locking",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "x25519",
+      "target_id": "ecc",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "xchacha20",
+      "target_id": "chacha20-poly1305",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "xgboost",
+      "target_id": "decision-tree",
+      "source": "references/algorithms/index.md"
+    },
+    {
+      "domain": "algorithms",
+      "alias": "y-fast-trie",
+      "target_id": "van-emde-boas",
       "source": "references/algorithms/index.md"
     },
     {

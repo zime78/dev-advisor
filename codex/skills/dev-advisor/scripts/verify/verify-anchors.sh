@@ -58,28 +58,28 @@ check_algorithm_anchors() {
 
   expected_count() {
     case "$1" in
-      sorting)              echo 16 ;;
+      sorting)              echo 17 ;;
       searching)            echo 13 ;;
-      graph)                echo 18 ;;
-      dynamic-programming)  echo 12 ;;
+      graph)                echo 20 ;;
+      dynamic-programming)  echo 13 ;;
       divide-conquer)       echo 5  ;;
       greedy)               echo 5  ;;
       backtracking)         echo 5  ;;
       string)               echo 11 ;;
-      math)                 echo 14 ;;
-      data-structures)      echo 9  ;;
+      math)                 echo 16 ;;
+      data-structures)      echo 17 ;;
       geometry)             echo 7  ;;
       flow)                 echo 4  ;;
-      matching)             echo 3  ;;
-      crypto)               echo 6  ;;
+      matching)             echo 4  ;;
+      crypto)               echo 12 ;;
       compression)          echo 5  ;;
       game-ai)              echo 5  ;;
-      ml)                   echo 13 ;;
+      ml)                   echo 15 ;;
       probabilistic)        echo 4  ;;
-      consensus)            echo 3  ;;
-      distributed)          echo 12 ;;
-      concurrent)           echo 10 ;;
-      parsing)              echo 10 ;;
+      consensus)            echo 5  ;;
+      distributed)          echo 14 ;;
+      concurrent)           echo 12 ;;
+      parsing)              echo 12 ;;
       *)                    echo 0  ;;
     esac
   }
@@ -254,11 +254,11 @@ check_patterns() {
   check_domain patterns creational                5
   check_domain patterns structural                7
   check_domain patterns behavioral               11
-  check_domain patterns architectural            17
-  check_domain patterns distributed              11
-  check_domain patterns reliability               9
+  check_domain patterns architectural            20
+  check_domain patterns distributed              15
+  check_domain patterns reliability              10
   check_domain patterns concurrency              14
-  check_domain patterns integration              17
+  check_domain patterns integration              18
   check_domain patterns ddd-tactical             11
   check_domain patterns data-access              10
   check_domain patterns testing                  11
@@ -270,14 +270,14 @@ check_patterns() {
   check_domain patterns graphics-rendering        5
   check_domain patterns ar-vr-xr                  5
   check_domain patterns serverless-faas           5
-  check_domain patterns hpc-scientific            6
+  check_domain patterns hpc-scientific            7
 
   local pat_total
   pat_total=$(domain_total patterns "creational structural behavioral architectural distributed reliability concurrency integration ddd-tactical data-access testing observability ai-llm deployment caching web-performance graphics-rendering ar-vr-xr serverless-faas hpc-scientific")
-  if [ "${pat_total}" -eq 190 ]; then
+  if [ "${pat_total}" -eq 200 ]; then
     ok "base+P1+P2+P3 패턴 합계: ${pat_total}개"
   else
-    fail "base+P1+P2+P3 패턴 합계: 기대=190, 실제=${pat_total}"
+    fail "base+P1+P2+P3 패턴 합계: 기대=200, 실제=${pat_total}"
   fi
 }
 

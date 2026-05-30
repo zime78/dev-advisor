@@ -19,6 +19,8 @@
 | [speculative-decoding](#speculative-decoding) | Speculative Decoding | 투기적 디코딩 | 높음 |
 | [pagerank](#pagerank) | PageRank | 페이지랭크 | 중간 |
 | [node2vec](#node2vec) | Node2Vec | 노드투벡 | 중간 |
+| [decision-tree](#decision-tree) | Decision Tree / Random Forest / Gradient Boosting | 트리 기반 모델 | 중간 |
+| [pca-svd](#pca-svd) | PCA / SVD | 주성분 분석 / 특이값 분해 | 중간 |
 
 ---
 
@@ -1273,3 +1275,172 @@ fun main() {
 **관련 알고리즘**: PageRank, HNSW (그래프 기반 ANN)
 
 ---
+
+<a id="decision-tree"></a>
+## 14. Decision Tree / Random Forest / Gradient Boosting (트리 기반 모델)
+
+**목적**: 정형(tabular) 데이터 분류·회귀의 주력 — 특징 분기 규칙 학습과 그 앙상블
+
+**시간 복잡도**: 학습 O(n·m·log n) (n 샘플, m 특징), 추론 O(트리 깊이)
+
+**공간 복잡도**: O(노드 수), 앙상블은 × 트리 수
+
+**특징**:
+- Decision Tree: 정보이득(엔트로피)/지니 불순도로 분기 (CART/ID3/C4.5)
+- Random Forest: bagging + 특징 무작위 → 분산↓ (Breiman 2001)
+- Gradient Boosting: 잔차(gradient)에 약한 트리를 순차 추가 → 편향↓ (XGBoost/LightGBM/CatBoost)
+- 스케일·결측치·비선형·상호작용에 강하고 특징 중요도 제공
+
+**장점**:
+- 전처리 최소(스케일링 불필요), 해석 가능(트리/SHAP)
+- tabular 에서 딥러닝 대비 자주 우세, 빠른 학습/추론
+- GBM 은 Kaggle·실무 회귀/랭킹 표준
+
+**단점**:
+- 단일 트리는 과적합·불안정 (앙상블로 완화)
+- GBM 은 하이퍼파라미터(학습률·깊이·트리 수) 튜닝 필요
+- 외삽(extrapolation) 약함, 매우 고차원 희소엔 선형/신경망이 유리
+
+**활용 예시**:
+- 이탈/전환 예측, 신용 평가, 수요·ETA 회귀 보정
+- 검색·추천 랭킹(LambdaMART/GBM)
+- 이상탐지(Isolation Forest)
+
+**난이도**: 중간 | **사용 빈도**: ★★★★★
+
+**Kotlin 코드**:
+```kotlin
+// 개념 시연: 지니 불순도 기반 분기 (실무는 XGBoost/LightGBM/Smile 사용)
+data class Sample(val x: DoubleArray, val y: Int)
+
+fun gini(rows: List<Sample>): Double {
+    if (rows.isEmpty()) return 0.0
+    val n = rows.size.toDouble()
+    val counts = rows.groupingBy { it.y }.eachCount()
+    return 1.0 - counts.values.sumOf { val p = it / n; p * p }
+}
+
+// (feature, threshold) 분기의 가중 불순도
+fun weightedGini(rows: List<Sample>, feat: Int, thr: Double): Double {
+    val (left, right) = rows.partition { it.x[feat] <= thr }
+    val n = rows.size.toDouble()
+    return left.size / n * gini(left) + right.size / n * gini(right)
+}
+
+// 최적 분기 탐색 (greedy, 1-depth stump 예시)
+fun bestSplit(rows: List<Sample>, numFeats: Int): Triple<Int, Double, Double> {
+    var best = Triple(-1, 0.0, Double.MAX_VALUE)
+    for (f in 0 until numFeats) for (s in rows) {
+        val g = weightedGini(rows, f, s.x[f])
+        if (g < best.third) best = Triple(f, s.x[f], g)
+    }
+    return best // (feature, threshold, impurity)
+}
+// Random Forest = bestSplit 를 부트스트랩 샘플·특징 부분집합에 반복
+// Gradient Boosting = 직전 예측의 잔차에 트리를 순차 적합
+```
+
+**관련 알고리즘**: K-Nearest Neighbors, Naive Bayes, Gradient Descent, PageRank
+
+---
+
+<a id="pca-svd"></a>
+## 15. PCA / SVD (주성분 분석 / 특이값 분해)
+
+**목적**: 데이터 분산을 최대로 보존하는 직교 축(주성분)으로 투영해 차원을 축소한다
+
+**시간 복잡도**: 공분산 고유분해 O(n·d² + d³), 절단 SVD(랜덤화) O(n·d·k)
+
+**공간 복잡도**: O(d²) (공분산 행렬) 또는 O(n·d)
+
+**특징**:
+- 평균을 0으로 센터링한 데이터 행렬 X(n×d)에 대해 공분산 C = XᵀX/(n−1)의 고유분해, 또는 X = U Σ Vᵀ의 SVD로 동일한 주성분을 얻는다 (V의 열이 주성분, 특이값 σ가 분산의 √ 역할)
+- 고유값(σ²/(n−1))이 큰 순서가 곧 explained variance 순서이며, 상위 k개 축으로 투영해 차원을 d→k로 줄인다
+- explained variance ratio = λᵢ / Σλ 로 각 성분이 설명하는 분산 비율을 정량화 (누적 비율로 k 선택)
+- whitening: 투영 좌표를 각 √λ로 나눠 성분 간 분산을 1로 균일화 (단위 공분산)
+- 선형 변환만 다루므로 비선형 매니폴드는 포착 못함 — t-SNE/UMAP은 국소 이웃 구조를 보존하는 비선형 임베딩으로 시각화에 강하지만 PCA와 달리 거리·전역 구조·역변환을 보장하지 않는다
+
+**장점**:
+- 차원의 저주 완화: 노이즈 축 제거로 후속 모델의 과적합·연산량 감소
+- 결정론적·해석 가능하며 닫힌 해(고유분해/SVD)로 전역 최적 보장
+- 데이터 압축, 시각화(2~3D), 디노이징에 두루 활용
+
+**단점**:
+- 선형 가정 — 곡면 구조(예: 스위스 롤)는 제대로 펴지 못함
+- 분산 기준이라 스케일에 민감 (사전 표준화 필요), 외란치에 취약
+- 주성분은 원본 특징의 선형결합이라 개별 축의 의미 해석이 어려울 수 있음
+
+**활용 예시**:
+- 고차원 특징의 전처리 차원 축소 (이미지·유전체·센서)
+- Eigenfaces 등 얼굴/이미지 압축 및 표현
+- 다중공선성 제거 후 회귀, 이상치 탐지의 재구성 오차 활용
+
+**난이도**: 중간 | **사용 빈도**: ★★★★★
+
+**Kotlin 코드**:
+```kotlin
+import kotlin.math.abs
+import kotlin.math.hypot
+import kotlin.math.sqrt
+
+// 대칭 공분산 행렬을 Jacobi 회전으로 고유분해 → 상위 k개 주성분으로 투영하는 PCA
+object PCA {
+    // data: n행 d열. 반환: (투영된 n×k 좌표, 각 성분의 explained variance ratio)
+    fun fit(data: Array<DoubleArray>, k: Int): Pair<Array<DoubleArray>, DoubleArray> {
+        val n = data.size; val d = data[0].size
+        // 1) 열 평균으로 센터링
+        val mean = DoubleArray(d) { c -> data.sumOf { it[c] } / n }
+        val x = Array(n) { r -> DoubleArray(d) { c -> data[r][c] - mean[c] } }
+        // 2) 공분산 C = XᵀX / (n-1)
+        val cov = Array(d) { DoubleArray(d) }
+        for (i in 0 until d) for (j in i until d) {
+            var s = 0.0; for (r in 0 until n) s += x[r][i] * x[r][j]
+            val v = s / (n - 1); cov[i][j] = v; cov[j][i] = v
+        }
+        // 3) Jacobi 고유분해 → 고유값(eig), 고유벡터(열) V
+        val (eig, vec) = jacobiEigen(cov)
+        // 4) 고유값 내림차순 정렬
+        val order = eig.indices.sortedByDescending { eig[it] }
+        val totalVar = eig.sum()
+        val ratio = DoubleArray(k) { eig[order[it]] / totalVar }
+        // 5) 상위 k개 고유벡터로 투영: scores = X · V_k
+        val scores = Array(n) { r ->
+            DoubleArray(k) { c ->
+                var s = 0.0; for (i in 0 until d) s += x[r][i] * vec[i][order[c]]; s
+            }
+        }
+        return scores to ratio
+    }
+
+    // 대칭행렬 a의 고유값/고유벡터(열 단위) 반환 (Jacobi rotation)
+    private fun jacobiEigen(a0: Array<DoubleArray>): Pair<DoubleArray, Array<DoubleArray>> {
+        val n = a0.size
+        val a = Array(n) { a0[it].copyOf() }
+        val v = Array(n) { i -> DoubleArray(n) { j -> if (i == j) 1.0 else 0.0 } }
+        repeat(100) {
+            var p = 0; var q = 1; var max = 0.0
+            for (i in 0 until n) for (j in i + 1 until n)
+                if (abs(a[i][j]) > max) { max = abs(a[i][j]); p = i; q = j }
+            if (max < 1e-12) return@repeat
+            val theta = (a[q][q] - a[p][p]) / (2 * a[p][q])
+            val t = (if (theta >= 0) 1.0 else -1.0) / (abs(theta) + hypot(theta, 1.0))
+            val c = 1.0 / hypot(t, 1.0); val s = t * c
+            for (i in 0 until n) {
+                val aip = a[i][p]; val aiq = a[i][q]
+                a[i][p] = c * aip - s * aiq; a[i][q] = s * aip + c * aiq
+            }
+            for (i in 0 until n) {
+                val api = a[p][i]; val aqi = a[q][i]
+                a[p][i] = c * api - s * aqi; a[q][i] = s * api + c * aqi
+            }
+            for (i in 0 until n) {
+                val vip = v[i][p]; val viq = v[i][q]
+                v[i][p] = c * vip - s * viq; v[i][q] = s * vip + c * viq
+            }
+        }
+        return DoubleArray(n) { a[it][it] } to v
+    }
+}
+```
+
+**관련 알고리즘**: K-Means, t-SNE, Linear Regression, Power Iteration

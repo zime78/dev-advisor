@@ -23,6 +23,8 @@
 | [lucas-theorem](#lucas-theorem) | Lucas Theorem | 뤼카 정리 | 높음 |
 | [pollard-rho](#pollard-rho) | Pollard's Rho | 폴라드 로 인수분해 | 높음 |
 | [linear-sieve](#linear-sieve) | Linear Sieve | 선형 소수 체 | 중간 |
+| [gaussian-elimination](#gaussian-elimination) | Gaussian Elimination / Gauss-Jordan | 가우스 소거법 | 높음 |
+| [dct](#dct) | Discrete Cosine Transform (DCT) | 이산 코사인 변환 | 중간 |
 
 ---
 
@@ -1418,3 +1420,176 @@ fun linearSieveWithPhi(n: Int): Pair<List<Int>, IntArray> {
 
 **관련 알고리즘**: Sieve of Eratosthenes, Euler's Totient
 
+---
+
+<a id="gaussian-elimination"></a>
+## 15. Gaussian Elimination / Gauss-Jordan (가우스 소거법)
+
+**목적**: 행 연산으로 행렬을 사다리꼴/기약 행 사다리꼴로 변환하여 연립 1차방정식 해, 역행렬, 행렬식을 구한다
+
+**시간 복잡도**: O(n^3) (n×n 정방계)
+
+**공간 복잡도**: O(n^2) (확대행렬 in-place)
+
+**특징**:
+- 가우스 소거: 전방 소거(forward elimination)로 상삼각(행 사다리꼴) 형태를 만든 뒤 후방대입(back substitution)으로 해를 구함
+- Gauss-Jordan: 추가로 위 방향까지 소거하고 피벗을 1로 정규화해 기약 행 사다리꼴(RREF)을 직접 도출
+- 부분 피벗팅(partial pivoting): 각 열에서 절댓값이 가장 큰 원소를 피벗으로 선택해 행 교환 → 수치 안정성 향상, 0 피벗에 의한 나눗셈 회피
+- 행렬식 = 전방 소거 후 대각 원소들의 곱 × (행 교환 횟수에 따른 부호 ±1)
+- 역행렬: [A | I] 확대행렬에 Gauss-Jordan을 적용하면 [I | A⁻¹]을 얻음
+
+**장점**:
+- 직접법(direct method)이라 유한 단계로 정확한 해에 도달(반올림 무시 시)
+- 연립방정식·역행렬·행렬식·계수(rank) 판정을 단일 프레임워크로 처리
+- 부분 피벗팅을 더하면 일반적인 밀집(dense) 행렬에서 안정적
+
+**단점**:
+- O(n^3)이라 대규모 희소(sparse) 행렬에는 반복법(Jacobi, Gauss-Seidel, CG)이 유리
+- 피벗팅 없이는 작은 피벗으로 인한 반올림 오차 누적·불안정 발생
+- 조건수(condition number)가 큰 ill-conditioned 행렬은 피벗팅을 해도 오차가 커질 수 있음
+
+**활용 예시**:
+- 선형 연립방정식 풀이(공학·물리 시뮬레이션)
+- 역행렬·행렬식 계산
+- 최소제곱(정규방정식), 회로 해석, 다항식 보간 계수 산출
+
+**난이도**: 높음 | **사용 빈도**: ★★★★☆
+
+**Kotlin 코드**:
+```kotlin
+import kotlin.math.abs
+
+// 부분 피벗팅 가우스 소거 + 후방대입으로 Ax=b 해를 구함 (null = 특이/불능)
+fun solveLinearSystem(matrix: Array<DoubleArray>, rhs: DoubleArray): DoubleArray? {
+    val n = matrix.size
+    // 확대행렬 [A | b] 구성 (원본 보존을 위해 복사)
+    val a = Array(n) { i -> DoubleArray(n + 1).also { row ->
+        for (j in 0 until n) row[j] = matrix[i][j]
+        row[n] = rhs[i]
+    }}
+
+    for (col in 0 until n) {
+        // 부분 피벗팅: col열에서 절댓값 최대 행을 찾아 교환
+        var pivot = col
+        for (r in col + 1 until n) if (abs(a[r][col]) > abs(a[pivot][col])) pivot = r
+        if (abs(a[pivot][col]) < 1e-12) return null // 피벗 0 → 유일해 없음
+        val tmp = a[col]; a[col] = a[pivot]; a[pivot] = tmp
+
+        // 전방 소거: 아래 행들의 col열을 0으로 만듦
+        for (r in col + 1 until n) {
+            val factor = a[r][col] / a[col][col]
+            for (c in col..n) a[r][c] -= factor * a[col][c]
+        }
+    }
+
+    // 후방대입: 아래에서 위로 미지수 확정
+    val x = DoubleArray(n)
+    for (i in n - 1 downTo 0) {
+        var sum = a[i][n]
+        for (j in i + 1 until n) sum -= a[i][j] * x[j]
+        x[i] = sum / a[i][i]
+    }
+    return x
+}
+```
+
+**관련 알고리즘**: Newton-Raphson, Fast Fourier Transform, Extended Euclidean, Chinese Remainder Theorem
+
+---
+
+<a id="dct"></a>
+## 16. Discrete Cosine Transform (DCT) (이산 코사인 변환)
+
+**목적**: 실수 신호를 서로 다른 주파수의 코사인 기저 함수 합으로 분해해, 적은 수의 계수에 에너지를 집중시키는 직교 변환 (대표형 DCT-II)
+
+**시간 복잡도**: naive 정의식 O(N²), FFT/factorization 활용 시 O(N log N) — 2D N×N 블록은 separable 분해로 O(N² log N)
+
+**공간 복잡도**: O(N) (1D, in-place 가능) / O(N²) (2D 블록)
+
+**특징**:
+- 1974 년 Ahmed, Natarajan, Rao 가 제안. 입출력이 모두 **실수** — DFT/FFT 가 복소수를 다루는 것과 달리 실수 코사인 기저만 사용
+- 가장 널리 쓰이는 변형은 **DCT-II**(forward), 역변환은 **DCT-III**(= IDCT). 두 변형은 정규화 상수만 다르며 서로 transpose 관계
+- **에너지 집중(energy compaction)**: 1차 마르코프(상관 높은 자연 신호)에 대해 이론 최적인 Karhunen-Loève Transform(KLT)에 점근적으로 근접 → 소수 저주파 계수에 신호 에너지 대부분이 모임
+- DCT 는 입력을 **우대칭(even symmetric)으로 확장**한 DFT 와 동치 → 경계 불연속이 줄어 Gibbs 현상/블록 경계 누설이 DFT 보다 작음. 길이 N DCT 는 길이 2N DFT(또는 FFT) 로 계산 가능
+- 2D DCT 는 **separable** — 행 방향 1D DCT 후 열 방향 1D DCT 로 분리 적용 가능
+
+**장점**:
+- 자연 영상/오디오에서 KLT 에 근접한 압축 효율을 데이터 독립적 고정 기저로 달성 (KLT 와 달리 공분산 추정 불필요)
+- 실수 연산만 사용 → 복소수 DFT 대비 메모리·연산 절감, 정수 근사(integer DCT)로 하드웨어 구현 용이
+- FFT 기반으로 O(N log N) 고속화 가능, 2D 는 separable 로 분해
+
+**단점**:
+- 블록 단위(예: JPEG 8×8) 적용 시 저비트레이트에서 **blocking artifact**(블록 경계 불연속) 발생 → MDCT/wavelet 으로 보완
+- 전역 변환은 비정상(non-stationary) 신호의 국소 시간 정보를 표현 못 함 (STFT/wavelet 이 시간-주파수 국소화 제공)
+- 고주파가 풍부한 신호(노이즈, 날카로운 에지)에서는 에너지 집중 효과가 감소
+
+**활용 예시**:
+- **JPEG** 이미지 압축 — 8×8 블록 forward DCT-II 후 양자화 ([codecs.md#jpeg](codecs.md#jpeg))
+- **오디오 코덱** — MP3/AAC/Vorbis/Opus 의 **MDCT** 가 DCT-IV 기반 ([codecs.md#mp3-aac](codecs.md#mp3-aac))
+- **비디오 코덱** — H.264/H.265 의 정수 DCT-like transform ([codecs.md#h264](codecs.md#h264))
+- 특징 압축·차원 축소 (예: MFCC 추출의 마지막 단계)
+
+**난이도**: 중간 | **사용 빈도**: ★★★★☆
+
+**Kotlin 코드**:
+```kotlin
+import kotlin.math.cos
+import kotlin.math.sqrt
+import kotlin.math.PI
+
+// 1D DCT-II (forward): X[k] = a(k) * Σ x[n] cos(π(2n+1)k / 2N)
+// naive O(N²) 정의식 — 정확성 우선 (실전은 FFT 기반 O(N log N))
+fun dct2(x: DoubleArray): DoubleArray {
+    val n = x.size
+    val out = DoubleArray(n)
+    for (k in 0 until n) {
+        var sum = 0.0
+        for (i in 0 until n) {
+            sum += x[i] * cos(PI * (2 * i + 1) * k / (2.0 * n))
+        }
+        // 직교 정규화: k=0 → √(1/N), 그 외 → √(2/N)
+        val scale = if (k == 0) sqrt(1.0 / n) else sqrt(2.0 / n)
+        out[k] = scale * sum
+    }
+    return out
+}
+
+// 역변환 = DCT-III (IDCT): x[n] = Σ a(k) X[k] cos(π(2n+1)k / 2N)
+fun idct(coeff: DoubleArray): DoubleArray {
+    val n = coeff.size
+    val out = DoubleArray(n)
+    for (i in 0 until n) {
+        var sum = 0.0
+        for (k in 0 until n) {
+            val scale = if (k == 0) sqrt(1.0 / n) else sqrt(2.0 / n)
+            sum += scale * coeff[k] * cos(PI * (2 * i + 1) * k / (2.0 * n))
+        }
+        out[i] = sum
+    }
+    return out
+}
+
+// 2D DCT (separable): 행 DCT 후 열 DCT
+fun dct2d(block: Array<DoubleArray>): Array<DoubleArray> {
+    val rows = block.map { dct2(it) }.toTypedArray()           // 각 행 변환
+    val n = rows.size
+    val m = rows[0].size
+    return Array(n) { i -> DoubleArray(m) }.also { res ->
+        for (col in 0 until m) {                                // 각 열 변환
+            val column = DoubleArray(n) { r -> rows[r][col] }
+            val tc = dct2(column)
+            for (r in 0 until n) res[r][col] = tc[r]
+        }
+    }
+}
+
+fun main() {
+    val signal = doubleArrayOf(8.0, 16.0, 24.0, 32.0)
+    val freq = dct2(signal)          // 에너지가 저주파(앞쪽) 계수에 집중
+    val recon = idct(freq)           // 원신호 복원 (idct(dct2(x)) ≈ x)
+    println(freq.joinToString { "%.3f".format(it) })
+    println(recon.joinToString { "%.3f".format(it) })  // ≈ 8, 16, 24, 32
+}
+```
+
+**관련 알고리즘**: [Fast Fourier Transform](#fast-fourier-transform), [Wavelet Transform](signal-processing.md#wavelet), [STFT](signal-processing.md#stft), [JPEG](codecs.md#jpeg)

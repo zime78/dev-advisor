@@ -944,3 +944,82 @@ fun main() {
 
 **관련 패턴**: Message Broker, Event-Driven Architecture, Pub/Sub, Competing Consumers, Dead Letter Channel
 **Cross-link**: [patterns/distributed.md](./distributed.md), [patterns/reactive-streams.md](./reactive-streams.md), [algorithms/consensus.md](../algorithms/consensus.md), [patterns/streaming-semantics.md](./streaming-semantics.md)
+
+---
+
+<a id="messaging-gateway"></a>
+## 18. Messaging Gateway / Service Activator (메시징 게이트웨이 / 서비스 액티베이터)
+
+**목적**: Messaging Gateway 는 메시징 시스템 호출(채널·메시지 생성·전송·응답 대기)을 도메인 친화적 API 뒤로 캡슐화하여, 애플리케이션 코드가 메시징 API 를 직접 다루지 않게 합니다. Service Activator 는 큐/토픽에 도착한 메시지를 받아 기존 동기 서비스(POJO/빈) 호출로 연결하여, 서비스가 메시징 인프라를 모른 채 메시지 흐름에 참여하게 합니다.
+
+**특징**:
+- Messaging Gateway: 메시징 API → 도메인 인터페이스로 은닉 (호출자는 메서드 호출로 인지)
+- 동기 게이트웨이(Request-Reply, correlation id 로 응답 매칭) / 비동기 게이트웨이(fire-and-forget, `CompletableFuture` 반환) 양쪽 지원
+- Service Activator: Polling Consumer(주기 pull) 또는 Event-Driven Consumer(브로커 push) 로 메시지 수신 후 서비스 메서드에 매핑
+- 도착-한-번-처리 보장이 필요하면 Idempotent Receiver(메시지 id 중복 제거)와 결합
+- Spring Integration `@MessagingGateway` / `@ServiceActivator`, Apache Camel `bean()` / `to("bean:...")`
+
+**장점**:
+- 도메인 코드와 메시징 인프라 분리 → 테스트 용이(인터페이스 mock), 브로커 교체 흡수
+- 기존 동기 서비스를 수정 없이 메시지 엔드포인트로 재사용(Service Activator)
+- 동기/비동기 호출 방식을 게이트웨이 시그니처로 선언적 표현
+
+**단점**:
+- 게이트웨이 추상화가 동기 Request-Reply 의 지연·타임아웃·장애를 숨겨 오해 유발 가능
+- 응답 상관(correlation)·타임아웃·재시도 정책을 게이트웨이가 떠안아 복잡도 이동
+- Event-Driven Consumer 는 at-least-once → 중복 처리 가능, Idempotent Receiver 없으면 부작용 중복
+
+**활용 예시**:
+- Spring Integration `@MessagingGateway` (인터페이스 → 채널 송신)
+- `@ServiceActivator(inputChannel = "orders")` 로 메시지 → 빈 메서드 연결
+- Apache Camel `from("jms:queue:orders").bean(OrderService.class, "handle")`
+- 외부 결제 요청을 동기 게이트웨이로 보내고 응답 대기
+
+**난이도**: 중간 | **사용 빈도**: ★★★★☆
+
+**Kotlin 예제**:
+```kotlin
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CompletableFuture
+
+data class Message(val correlationId: String, val payload: Any, val replyTo: String? = null)
+
+/** 도메인 친화 API — 호출자는 메시징 API 를 전혀 모름 */
+interface OrderGateway {
+    /** 동기 Request-Reply: correlation id 로 응답 매칭 후 결과 반환 */
+    fun placeOrder(order: Any): CompletableFuture<Any>
+}
+
+/** Messaging Gateway 구현 — 메시지 생성·전송·응답 상관을 캡슐화 */
+class MessagingOrderGateway(private val out: (Message) -> Unit) : OrderGateway {
+    private val pending = ConcurrentHashMap<String, CompletableFuture<Any>>()
+
+    override fun placeOrder(order: Any): CompletableFuture<Any> {
+        val id = UUID.randomUUID().toString()
+        val future = CompletableFuture<Any>()
+        pending[id] = future
+        out(Message(correlationId = id, payload = order, replyTo = "orders.reply")) // 채널 전송
+        return future
+    }
+
+    /** 응답 채널 콜백 — correlation id 로 대기 중 future 완료 */
+    fun onReply(reply: Message) { pending.remove(reply.correlationId)?.complete(reply.payload) }
+}
+
+/** Service Activator — 메시지를 기존 동기 서비스 호출로 연결 (서비스는 메시징을 모름) */
+class OrderServiceActivator(
+    private val service: (Any) -> Any,            // 기존 도메인 서비스 메서드
+    private val seen: MutableSet<String> = ConcurrentHashMap.newKeySet(), // Idempotent Receiver
+    private val reply: (Message) -> Unit
+) {
+    /** Event-Driven Consumer 진입점 — 브로커 push 시 호출 */
+    fun onMessage(msg: Message) {
+        if (!seen.add(msg.correlationId)) return   // 중복 메시지 멱등 무시
+        val result = service(msg.payload)          // 서비스 메서드 활성화
+        msg.replyTo?.let { reply(Message(msg.correlationId, result)) }
+    }
+}
+```
+
+**관련 패턴**: Message Broker, Message Translator, Competing Consumers, Dead Letter Queue (DLQ)

@@ -16,6 +16,8 @@
 | [seqlock](#seqlock) | Seqlock | 시퀀스 잠금 | 중간 |
 | [memory-barriers](#memory-barriers) | Memory Barriers | 메모리 배리어 | 높음 |
 | [aba-problem](#aba-problem) | ABA Problem 해법 | ABA 문제 해결 | 높음 |
+| [two-phase-locking](#two-phase-locking) | Two-Phase Locking + Deadlock Detection | 2단계 잠금 + 교착 검출 | 높음 |
+| [queue-spinlock](#queue-spinlock) | Queue-based Spinlocks (Ticket / MCS / CLH) | 큐 기반 스핀락 | 높음 |
 
 ---
 
@@ -966,3 +968,168 @@ class AbaSafeStack<E> {
 **관련 알고리즘**: CAS, LL-SC, Hazard Pointer, Lock-Free Queue, Epoch-Based Reclamation
 
 ---
+
+<a id="two-phase-locking"></a>
+## 11. Two-Phase Locking + Deadlock Detection (2단계 잠금 + 교착 검출)
+
+**목적**: 트랜잭션이 잠금 획득/해제를 두 단계로 분리하도록 강제해 스케줄의 충돌 직렬성(conflict serializability)을 보장하고, 그 부작용인 교착(deadlock)을 탐지/회피한다
+
+**시간 복잡도**: lock/unlock 평균 O(1) (해시 테이블), 교착 검출은 wait-for graph 사이클 탐지 O(V + E) — V = 활성 트랜잭션 수, E = 대기 간선 수
+
+**공간 복잡도**: O(L + V) — L = 보유/대기 중인 잠금 수, V = 트랜잭션 수 (wait-for graph 인접 리스트 포함)
+
+**특징**:
+- 2PL (Eswaran et al., 1976): 각 트랜잭션이 growing phase(잠금만 획득) → shrinking phase(잠금만 해제)로 진행하며, 첫 unlock 직전이 lock point. lock point 순서가 직렬화 순서를 정의해 충돌 직렬성을 보장
+- Strict 2PL: write(exclusive) 잠금을 commit/abort 시까지 유지 → cascading rollback 방지, recoverable 보장. Rigorous 2PL: 모든(read+write) 잠금을 commit 까지 유지 → 직렬화 순서 = commit 순서 (실무 DBMS 의 표준)
+- 2PL 자체는 직렬성만 보장할 뿐 deadlock-free 가 아님 — lock 상호 대기로 교착 발생 가능
+- 교착 검출(detection): wait-for graph(T_i → T_j: T_i 가 T_j 가 쥔 잠금을 기다림)에서 사이클이 있으면 교착. 주기적으로 사이클을 찾아 victim 을 abort 해 깨뜨림
+- 교착 회피(avoidance): timestamp 기반 wound-wait / wait-die (Rosenkrantz et al., 1978) 로 항상 같은 방향으로만 대기를 허용해 사이클을 사전 차단. 또는 Banker's algorithm 으로 unsafe state 진입을 거부
+
+**장점**:
+- 직렬성(serializability)을 단순한 잠금 규약만으로 수학적으로 보장
+- Strict/Rigorous 변형으로 cascading abort 없이 recoverability 까지 확보
+- wound-wait/wait-die 는 timestamp 단조성으로 starvation 없이 deadlock 을 원천 방지
+
+**단점**:
+- 잠금 경합으로 동시성이 떨어지고, lock 보유 구간이 길수록(특히 Rigorous) throughput 저하
+- 교착이 구조적으로 발생 가능 → 검출 비용 + victim abort 로 인한 작업 손실
+- wound-wait/wait-die 회피는 교착이 없는 경우에도 트랜잭션을 선제 abort/대기시켜 불필요한 rollback 유발
+
+**활용 예시**:
+- 전통 RDBMS 의 격리 수준 구현 — SQL Server / DB2 의 잠금 기반 SERIALIZABLE
+- 분산 트랜잭션 코디네이터의 행/범위 잠금 관리
+- MVCC 와 대비: MVCC 는 다중 버전으로 read 가 write 를 차단하지 않는(reader는 lock-free) snapshot isolation 을 제공하나, 잠금 없이 write-skew 가능 — 직렬성 강제 시엔 SSI(직렬화 검증) 추가가 필요. 2PL 은 read 도 잠가 강한 직렬성을 보장하지만 read-write 차단으로 동시성이 낮음
+
+**난이도**: 높음 | **사용 빈도**: ★★★★☆
+
+**Kotlin 코드**:
+```kotlin
+// 2PL 잠금 관리자 + wait-for graph 기반 교착 검출 (개념 시연, 단일 프로세스)
+enum class Mode { SHARED, EXCLUSIVE }
+
+class TwoPhaseLockManager {
+    // 자원별 보유 잠금: txId -> mode
+    private val held = HashMap<String, MutableMap<Int, Mode>>()
+    // wait-for graph: waiter -> 자신이 기다리는 holder 들
+    private val waitFor = HashMap<Int, MutableSet<Int>>()
+    // shrinking phase 진입(첫 unlock) 후엔 새 잠금 획득 금지 (2PL 규약)
+    private val shrinking = HashSet<Int>()
+
+    // S 잠금은 다른 S 와 호환, X 는 단독만 허용
+    private fun compatible(owners: Map<Int, Mode>, txId: Int, mode: Mode): Boolean {
+        val others = owners.filterKeys { it != txId }
+        if (others.isEmpty()) return true
+        return mode == Mode.SHARED && others.values.all { it == Mode.SHARED }
+    }
+
+    // 잠금 시도. 성공 true, 충돌(대기 등록) false. shrinking 위반 시 예외
+    fun acquire(txId: Int, resource: String, mode: Mode): Boolean {
+        require(txId !in shrinking) { "2PL violation: tx $txId is in shrinking phase" }
+        val owners = held.getOrPut(resource) { HashMap() }
+        if (compatible(owners, txId, mode)) {
+            owners[txId] = mode
+            waitFor.remove(txId)
+            return true
+        }
+        // 충돌 -> 보유자들에게 대기 간선 추가
+        waitFor.getOrPut(txId) { HashSet() }.addAll(owners.keys.filter { it != txId })
+        return false
+    }
+
+    fun release(txId: Int, resource: String) {
+        held[resource]?.remove(txId)
+        shrinking.add(txId) // 첫 unlock 이후 growing 종료
+    }
+
+    // wait-for graph 에서 사이클(=교착) 탐지. 발견 시 사이클에 속한 victim 반환
+    fun detectDeadlock(): Int? {
+        val color = HashMap<Int, Int>() // 0=white,1=gray,2=black
+        var victim: Int? = null
+        fun dfs(u: Int): Boolean {
+            color[u] = 1
+            for (v in waitFor[u].orEmpty()) {
+                if (color[v] == 1) { victim = v; return true }      // back edge -> 사이클
+                if (color[v] != 2 && dfs(v)) return true
+            }
+            color[u] = 2
+            return false
+        }
+        for (u in waitFor.keys) if (color[u] != 2 && dfs(u)) return victim
+        return null
+    }
+}
+```
+
+**관련 알고리즘**: MVCC, Two-Phase Commit, Seqlock, Snapshot Isolation
+
+---
+
+<a id="queue-spinlock"></a>
+## 12. Queue-based Spinlocks (Ticket / MCS / CLH) (큐 기반 스핀락)
+
+**목적**: 도착 순서대로 락을 부여하는 공정(FIFO) 스핀락을 구현하되, 대기 스레드가 각자 다른 캐시라인을 spin 하게 만들어 캐시라인 바운싱과 코히어런시 트래픽을 줄인다
+
+**시간 복잡도**: 무경합 획득/해제 O(1) atomic 연산. 각 락 획득당 캐시 미스 — Ticket lock은 release마다 O(p) 무효화(p = 대기 스레드 수), MCS/CLH는 O(1)
+
+**공간 복잡도**: Ticket lock O(1) (카운터 2개). MCS/CLH O(p) — 스레드(또는 획득)당 큐 노드 1개
+
+**특징**:
+- Ticket lock: `next_ticket`(발급 번호)와 `now_serving`(현재 차례) 두 카운터. fetch-and-add로 번호를 뽑고 `now_serving`이 자기 번호가 될 때까지 spin → FIFO 보장. 단 모든 대기자가 같은 `now_serving` 변수를 spin 하므로 release 시 전원 캐시 무효화(bouncing) 발생
+- MCS lock (Mellor-Crummey & Scott, 1991): 명시적 연결 리스트 큐. 각 스레드는 자기 로컬 노드의 `locked` 플래그를 spin 하고, 선행자(predecessor)는 락 해제 시 후행자(successor) 노드 플래그를 풀어준다 → 각 spin이 로컬 캐시라인에서 일어나 NUMA/멀티코어 확장성이 좋다
+- CLH lock (Craig / Landin & Hagersten, 1993~94): 암묵적 큐. 각 스레드는 자신이 아닌 선행자(predecessor) 노드의 플래그를 spin 한다. 캐시 일관성(CC) 머신에서 우수하나, predecessor 노드가 원격 NUMA 노드 메모리면 원격 spin이 되어 MCS보다 NUMA에 불리할 수 있다
+- 셋 모두 단순 TAS/TTAS(test-and-set) 스핀락의 비공정성·스타베이션과 release 시 thundering herd 무효화 폭주를 제거한다 (Java `ReentrantLock`/`AbstractQueuedSynchronizer`의 CLH 변형 큐가 대표적 응용)
+
+**장점**:
+- FIFO 공정성으로 스타베이션이 없고 락 획득 지연의 최악 경계가 예측 가능
+- MCS/CLH는 release당 캐시 무효화가 O(1)이라 경합 스레드 수가 늘어도 확장성이 유지됨 (NUMA·고코어 환경에 강함)
+- spin 대상이 분리되어 인터커넥트/메모리 버스 트래픽이 크게 감소
+
+**단점**:
+- Ticket lock은 공정하지만 release 시 모든 대기자 캐시라인을 무효화해 코어 수가 많으면 확장성이 떨어짐
+- MCS/CLH는 스레드/획득당 노드 메모리가 필요하고 구현이 복잡 (포인터 조작·메모리 회수 관리)
+- 엄격한 FIFO라 우선순위 역전에 약하고, 스핀락 특성상 보유자가 선점/블록되면 다른 코어가 헛돌아 oversubscription 환경엔 부적합
+
+**활용 예시**:
+- OS 커널·런타임의 SMP/NUMA 락 (Linux qspinlock은 MCS 기반, glibc 등 ticket lock 사용 이력)
+- 고경합 짧은 임계구역: 락-프리 자료구조의 보조 락, 카운터/큐 보호
+- JVM `AbstractQueuedSynchronizer`(`ReentrantLock`, `Semaphore` 등)의 내부 CLH 스타일 대기 큐
+
+**난이도**: 높음 | **사용 빈도**: ★★★☆☆
+
+**Kotlin 코드**:
+```kotlin
+import java.util.concurrent.atomic.AtomicReference
+
+// MCS lock — 스레드는 자기 노드의 locked 플래그를 로컬 spin 한다 (캐시라인 바운싱 ↓)
+class McsLock {
+    // 큐 노드: locked=true 동안 대기, next=후행자
+    class Node {
+        @Volatile var locked = false
+        @Volatile var next: Node? = null
+    }
+
+    private val tail = AtomicReference<Node?>(null) // 큐 꼬리(가장 최근 도착자)
+
+    fun lock(myNode: Node) {
+        myNode.next = null
+        myNode.locked = true
+        val pred = tail.getAndSet(myNode)          // 원자적으로 큐 끝에 자신을 추가
+        if (pred != null) {                        // 선행자 있음 → 대기 필요
+            pred.next = myNode                      // 선행자가 나를 깨울 수 있게 연결
+            while (myNode.locked) { Thread.onSpinWait() } // 내 로컬 플래그만 spin
+        }
+        // pred == null 이면 락을 즉시 획득
+    }
+
+    fun unlock(myNode: Node) {
+        if (myNode.next == null) {                 // 후행자가 아직 안 보임
+            // 내가 마지막이면 큐를 비우고 종료
+            if (tail.compareAndSet(myNode, null)) return
+            while (myNode.next == null) { Thread.onSpinWait() } // 후행자 연결 대기
+        }
+        myNode.next!!.locked = false               // 후행자의 로컬 플래그를 풀어 깨움
+    }
+}
+```
+
+**관련 알고리즘**: Lamport's Bakery Algorithm, Peterson's Algorithm, Read-Copy-Update (RCU), Compare-and-Swap (CAS)

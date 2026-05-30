@@ -61,13 +61,22 @@
 
 **P1 소계**: 13 항목 (7 + 6)
 
-**총합**: **206 항목** (56 + 107 + 19 + 13 + 11)
+**총합**: **211 항목** (56 + 107 + 19 + 13 + 11)
 
 ### 부록: 미시 원칙
 
 | 파일 | 항목 수 | 설명 |
 |------|--------:|------|
-| [micro-principles.md](micro-principles.md) | 18 | 핵심 8 (DRY / KISS / YAGNI / LoD / SoC / Tell-Don't-Ask / Composition over Inheritance / SSoT) + 사회·조직·확장 10 (Conway / Inverse Conway / Hyrum / Postel / Brooks / Hollywood-IoC / Boy Scout / Pareto / Goodhart / Cunningham). verify 주 카탈로그 206 항목 외 부록 |
+| [micro-principles.md](micro-principles.md) | 20 | 핵심 8 (DRY / KISS / YAGNI / LoD / SoC / Tell-Don't-Ask / Composition over Inheritance / SSoT) + 사회·조직·확장 10 (Conway / Inverse Conway / Hyrum / Postel / Brooks / Hollywood-IoC / Boy Scout / Pareto / Goodhart / Cunningham). verify 주 카탈로그 206 항목 외 부록 |
+
+
+### P4 신설 1 카테고리 (아키텍처 평가)
+
+| # | 파일 | 항목 수 | 표준 / 저자 | 주요 용도 |
+|---|------|--------:|------------|----------|
+| 24 | [architecture-evaluation.md](architecture-evaluation.md) | 3 | Bass·Clements·Kazman — *Software Architecture in Practice* (SEI) | ATAM/SAAM/CBAM·품질속성 시나리오·아키텍처 전술 (architect / code-reviewer 기준 — 아키텍처 평가) |
+
+**P4 소계**: 3 항목
 
 ## 카테고리 선택 가이드
 

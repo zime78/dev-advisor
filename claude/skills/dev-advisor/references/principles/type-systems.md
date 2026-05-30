@@ -864,3 +864,114 @@ val program: ZIO[Console, IOException, Unit] =
 - Edwin Brady — *Type-Driven Development with Idris* (2017), Manning — 의존 타입 실용서
 - Joshua Bloch — *Effective Java* 3rd ed. (2018), §31 — PECS 변성 패턴
 - Bartosz Milewski — *Category Theory for Programmers* (2019) — HKT / Functor / Monad 카테고리 이론 배경
+
+---
+
+<a id="lambda-calculus"></a>
+## 11. Lambda Calculus & System F (람다 대수 / System F)
+
+**정의**: Alonzo Church(1936) 가 *계산 가능성(computability)* 을 형식화하기 위해 고안한 **함수 추상·적용만으로 모든 계산을 표현하는 최소 형식 체계**. 항(term) 은 세 가지뿐 — 변수 `x`, 추상 `λx.M` (함수 정의), 적용 `M N` (함수 호출). Turing machine 과 동치(Church-Turing thesis). 여기에 타입을 부착하면 **simply-typed λ-calculus**(STLC, Church 1940) 가 되고, 타입 변수를 1급으로 양화(quantify) 하면 **System F**(Jean-Yves Girard 1972 / John Reynolds 1974 가 독립 발견) 가 된다 — *parametric polymorphism* 의 이론적 정수. Pierce *TAPL* §5(untyped), §9(STLC), §23(System F).
+
+**특징**:
+- **Untyped λ-calculus** 의 3 연산:
+  - **α-conversion** (알파 변환): 묶인 변수 이름 바꾸기 — `λx.x` ≡ `λy.y` (이름은 무의미)
+  - **β-reduction** (베타 환원): 함수 적용 = 치환 — `(λx.M) N → M[x := N]` (계산의 본질)
+  - **η-conversion** (에타 변환): `λx.(f x) ≡ f` (외연성, extensionality — 같은 입력에 같은 출력이면 같은 함수)
+- **Church 인코딩**: 데이터를 순수 함수로 표현 — 숫자 `n` 을 "f 를 n 번 적용" 으로 (`0 = λf.λx.x`, `1 = λf.λx.f x`, `SUCC = λn.λf.λx.f (n f x)`), boolean 을 선택자로 (`TRUE = λx.λy.x`, `FALSE = λx.λy.y`)
+- **Y combinator**: `Y = λf.(λx.f (x x)) (λx.f (x x))` — *재귀 없는 언어에서 재귀를 만드는* fixpoint 연산자. `Y g = g (Y g)` 를 만족. untyped 에서만 잘 동작 (STLC 에서는 타입 불가)
+- **STLC**: 모든 항에 타입(`τ ::= base | τ → τ`) 부여 → **strong normalization** (모든 환원이 반드시 종료). 대가로 **Turing-incomplete** — Y combinator 표현 불가
+- **System F**: `Λα.M` (타입 추상) + `M [τ]` (타입 적용) + `∀α.τ` (전칭 타입) 추가 → `id = Λα.λx:α.x : ∀α.α→α` 하나가 모든 타입에 통함. **2차 람다 대수(second-order λ-calculus)** 라고도 함
+- **Parametricity** (Reynolds 1983): `∀α.α→α` 타입 함수는 *반드시* identity — 타입 시그니처만으로 동작이 강제됨 ("theorems for free", Wadler 1989)
+
+**장점**:
+- 모든 함수형 언어(Lisp, ML, Haskell, OCaml) 의 *수학적 기반* — `let`/`lambda`/closure 가 직접 대응
+- β-reduction 은 컴파일러 *inlining·partial evaluation* 의 이론 모델
+- System F 의 다형성으로 **타입 안전한 코드 재사용** — `id`, `map`, `compose` 를 타입마다 재작성할 필요 없음
+- Curry-Howard 대응으로 *증명을 프로그램으로* 자동 추출 가능 (Coq `Extraction`, Agda)
+- STLC 의 strong normalization = 타입 검사가 *전체성(totality)* 의 첫 보증
+
+**단점/한계**:
+- Untyped λ-calculus 는 표현력은 완전하나 *오류 차단 0* — `(λx.x x)(λx.x x)` 같은 무한 루프를 막지 못함
+- STLC 는 안전하지만 *표현력 부족* — 다형성·재귀·데이터 타입을 별도 확장으로 추가해야 실용 언어가 됨
+- **System F 의 타입 추론은 undecidable** (Wells 1994) — 그래서 실무 언어는 [Hindley-Milner](#4-hindley-milner) 같은 *제한된 단편(rank-1 prenex)* 만 자동 추론하고, 나머지는 명시 annotation 요구
+- Church 인코딩은 이론적 우아함과 달리 *실행 성능 끔찍* — 실무는 primitive/네이티브 타입 사용
+- 순수 λ-calculus 에는 부수효과·상태가 없음 — 실제 언어는 monad/effect 로 보강 (참조: [effect-system](#10-effect-system))
+
+**언어 예시**:
+- λ-calculus 직계: `Lisp`/`Scheme` (1958, 최초의 λ 기반 언어), `Haskell`, `OCaml`, `ML`, `F#`, `Scala`, `Clojure`
+- System F 를 코어 IR 로 채택: `Haskell` (GHC 의 *System FC* — System F + coercion), `Scala` (DOT 계산), `Idris`
+- System F 명시 다형성 노출: `Java` 제네릭(`<T>`), `C#`(`<T>`), `Rust`(`<T>`), `TypeScript`(`<T>`), `Swift`(`<T>`) — 모두 System F 의 부분 채택
+- 클로저·1급 함수로 λ 직접 표현: 거의 모든 현대 언어 (`Python` `lambda`, `JavaScript` 화살표 함수, `Kotlin` 람다)
+- 정리 증명기(Curry-Howard 정점): `Coq` (CIC), `Agda`, `Lean 4`, `Idris 2`
+
+**난이도**: 높음 (이론), 낮음 (λ/closure 사용)
+
+```haskell
+-- Untyped λ-calculus — Church 인코딩 (Haskell 로 흉내)
+-- Church 숫자: n = "f 를 n 번 적용"
+zero  = \f x -> x            -- λf.λx.x
+one   = \f x -> f x          -- λf.λx.f x
+two   = \f x -> f (f x)      -- λf.λx.f (f x)
+succ' = \n f x -> f (n f x)  -- λn.λf.λx.f (n f x)
+
+-- Church boolean: 선택자
+true'  = \x y -> x           -- λx.λy.x
+false' = \x y -> y           -- λx.λy.y
+
+-- β-reduction 예: (λx.x) 42 → 42
+-- 검증: (succ' zero) (+1) 0 == 1
+```
+
+```haskell
+-- Y combinator — 재귀 없이 재귀 (untyped 에서만 타입 가능)
+-- Y = λf.(λx.f (x x)) (λx.f (x x))
+-- Haskell 은 typed 라 newtype 우회 필요
+newtype Mu a = Mu (Mu a -> a)
+y :: (a -> a) -> a
+y f = (\(Mu x) -> f (x (Mu x))) (Mu (\(Mu x) -> f (x (Mu x))))
+
+fact = y (\rec n -> if n == 0 then 1 else n * rec (n - 1))
+-- fact 5 == 120  —  Y 가 factorial 의 fixpoint 를 구성
+```
+
+```haskell
+-- System F — 명시적 타입 추상/적용 (GHC RankNTypes 확장)
+{-# LANGUAGE RankNTypes, TypeApplications #-}
+
+-- id : ∀α. α → α  —  하나의 정의가 모든 타입에 통함
+identity :: forall a. a -> a   -- Λα. λx:α. x
+identity x = x
+
+-- 타입 적용 (System F 의 M [τ])
+demo1 = identity @Int 42        -- id [Int] 42
+demo2 = identity @String "hi"   -- id [String] "hi"
+
+-- rank-2: ∀ 가 인자 위치에 — HM 으론 추론 불가, System F 필요
+applyToBoth :: (forall a. a -> a) -> (Int, String)
+applyToBoth f = (f 1, f "x")
+-- f 가 호출 안에서 두 타입으로 인스턴스화 — System F 의 표현력
+```
+
+```typescript
+// System F 의 부분 채택 — TypeScript 제네릭
+// ∀T. T → T  를 명시 (rank-1 prenex polymorphism)
+function identity<T>(x: T): T { return x; }
+
+identity<number>(42);      // 타입 적용 명시
+identity("hello");          // 타입 추론 (HM 류 로컬 추론)
+
+// compose : ∀A B C. (B→C) → (A→B) → A→C
+const compose = <A, B, C>(f: (b: B) => C, g: (a: A) => B) =>
+  (x: A): C => f(g(x));
+```
+
+**Curry-Howard 대응 (증명 = 프로그램)**: 타입 = 명제(proposition), 프로그램 = 증명(proof) 의 동형. `A → B` (함수 타입) = "A 이면 B" (함의), `(A, B)` (곱 타입) = "A 그리고 B" (논리곱), `Either A B` (합 타입) = "A 또는 B" (논리합), `∀α.τ` (System F) = "모든 α 에 대해" (전칭 양화). 프로그램이 *타입 검사를 통과* = 대응 명제가 *증명됨*. STLC ↔ 직관주의 명제 논리, System F ↔ 2차 직관주의 논리, 의존 타입 ↔ 1차/고차 술어 논리. 이 대응이 Coq/Agda/Lean 같은 *증명 보조기* 의 근간이다.
+
+**관련 항목**:
+- [hindley-milner](#4-hindley-milner) — HM 은 System F 의 *결정 가능한 단편*(rank-1 prenex). System F 전체 추론은 undecidable 이라 HM 으로 타협
+- [adt](#5-adt) — sum/product 타입은 Curry-Howard 의 ∨/∧ 에 대응 (`Either` = ∨, tuple = ∧)
+- [hkt](#7-hkt) — System Fω (kind 까지 양화한 확장) 가 HKT 의 이론적 기반
+- [dependent-types](#9-dependent-types) — λΠ-calculus 는 System F 를 *값 의존* 으로 일반화, Curry-Howard 가 정점에 도달
+- [effect-system](#10-effect-system) — 순수 λ-calculus 에 없는 부수효과를 monad/effect 로 보강
+- [static-dynamic-typing](#1-static-dynamic-typing) — STLC 는 static 타이핑의 최소 형식 모델
+- [`../patterns/functional.md`](../patterns/functional.md) — closure / partial application / currying 의 직접 구현

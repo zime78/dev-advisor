@@ -22,6 +22,7 @@
 | [external-merge-sort](#external-merge-sort) | External Merge Sort | 외부 병합 정렬 | 높음 |
 | [pancake-sort](#pancake-sort) | Pancake Sort | 팬케이크 정렬 | 낮음 |
 | [cycle-sort](#cycle-sort) | Cycle Sort | 사이클 정렬 | 중간 |
+| [quickselect](#quickselect) | Quickselect | 퀵 선택 (k번째 순서통계량) | 중간 |
 
 ---
 
@@ -941,3 +942,87 @@ fun cycleSort(arr: IntArray) {
 ```
 
 **관련 알고리즘**: Selection Sort, Permutation Cycles
+
+---
+
+<a id="quickselect"></a>
+## 17. Quickselect (퀵 선택 — k번째 순서통계량)
+
+**목적**: 정렬하지 않고 배열에서 k번째로 작은(큰) 원소(순서통계량)를 평균 O(n)에 찾기
+
+**시간 복잡도**: 평균 O(n), 최악 O(n²) (Median-of-Medians 피벗 시 최악도 O(n) 보장)
+
+**공간 복잡도**: O(1) (제자리 분할, 반복 구현)
+
+**특징**:
+- Quick Sort 의 partition 을 재사용하되 한쪽 분할만 재귀 (Hoare 1961)
+- 피벗 위치가 k 면 종료, 아니면 k 가 속한 쪽만 탐색
+- 최악 O(n) 보장이 필요하면 Median-of-Medians(BFPRT, 5개씩 그룹 중앙값의 중앙값)로 피벗 선택
+- C++ STL `std::nth_element`, 무작위 피벗 introselect 가 표준 구현
+
+**장점**:
+- 전체 정렬(O(n log n)) 없이 평균 선형 시간
+- 제자리 연산, 추가 메모리 거의 없음
+- top-k, 중앙값, 백분위수 계산의 기반
+
+**단점**:
+- 최악 O(n²) (무작위/MoM 피벗으로 완화)
+- 불안정(원소 순서 보존 안 함), 입력 배열 변형
+- top-k 를 정렬된 형태로 원하면 추가 정렬 필요
+
+**활용 예시**:
+- 중앙값 / 백분위수(p50/p95/p99) 계산
+- top-k 추출 (힙 대비 평균 빠름)
+- 이미지 미디언 필터, 통계 요약
+
+**난이도**: 중간 | **사용 빈도**: ★★★★☆
+
+**Kotlin 코드**:
+```kotlin
+import kotlin.random.Random
+
+// k: 0-based, k번째로 작은 원소 반환 (배열 일부 변형됨)
+fun quickselect(arr: IntArray, k: Int): Int {
+    var lo = 0
+    var hi = arr.size - 1
+    while (lo < hi) {
+        val p = partition(arr, lo, hi)
+        when {
+            p == k -> return arr[p]
+            p < k  -> lo = p + 1
+            else   -> hi = p - 1
+        }
+    }
+    return arr[lo]
+}
+
+// Lomuto 분할 + 무작위 피벗 (최악 O(n^2) 확률적 회피)
+private fun partition(arr: IntArray, lo: Int, hi: Int): Int {
+    swap(arr, Random.nextInt(lo, hi + 1), hi)
+    val pivot = arr[hi]
+    var i = lo
+    for (j in lo until hi) if (arr[j] < pivot) { swap(arr, i, j); i++ }
+    swap(arr, i, hi)
+    return i
+}
+
+private fun swap(a: IntArray, i: Int, j: Int) { val t = a[i]; a[i] = a[j]; a[j] = t }
+
+// 최악 O(n) 보장이 필요할 때: Median-of-Medians(BFPRT) 로 피벗 선택
+fun medianOfMedians(arr: IntArray, lo: Int, hi: Int): Int {
+    val n = hi - lo + 1
+    if (n <= 5) return arr.copyOfRange(lo, hi + 1).sorted()[n / 2]
+    val medians = ArrayList<Int>()
+    var i = lo
+    while (i <= hi) {
+        val sub = arr.copyOfRange(i, minOf(i + 5, hi + 1)).sorted()
+        medians.add(sub[sub.size / 2]); i += 5
+    }
+    val m = medians.toIntArray()
+    return medianOfMedians(m, 0, m.size - 1)
+}
+```
+
+**관련 알고리즘**: Quick Sort, Heap Sort, Binary Heap, Merge Sort
+
+---

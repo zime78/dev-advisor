@@ -27,6 +27,9 @@
 | [epoll-kqueue-iouring](#epoll-kqueue-iouring) | epoll/kqueue/io_uring | I/O | event-driven server |
 | [page-replacement](#page-replacement) | LRU/Clock/LFU | Memory | page fault |
 | [mesi-cache-coherence](#mesi-cache-coherence) | MESI | Cache | multi-core |
+| [disk-scheduling](#disk-scheduling) | Disk / I/O Scheduling (SCAN / C-SCAN / SSTF) | 디스크 스케줄링 | 중간 |
+| [process-vs-thread](#process-vs-thread) | Process vs Thread Execution Model | 프로세스 vs 스레드 | 중간 |
+| [virtual-memory](#virtual-memory) | Virtual Memory (Paging / TLB / CoW) | 가상 메모리 | 높음 |
 
 **관련 카탈로그**:
 - [concurrent.md](concurrent.md) — CAS / RCU / Memory Barriers
@@ -1691,3 +1694,281 @@ struct GoodCounters {
 ```
 
 **관련 알고리즘**: CAS, LL-SC, Memory Barriers (concurrent.md), False Sharing 회피, NUMA Directory Protocol
+
+---
+
+<a id="disk-scheduling"></a>
+## 13. Disk / I/O Scheduling (SCAN / C-SCAN / SSTF) (디스크 스케줄링)
+
+**목적**: I/O 요청의 서비스 순서를 재배열해 회전형 디스크(HDD)의 총 seek time(헤드 이동 거리)을 최소화하고 처리량·공정성을 균형 있게 확보
+
+**시간 복잡도**: 요청 1건 선택당 — FCFS O(1), SSTF O(N) 선형 탐색(또는 정렬·균형 트리 사용 시 O(log N)), SCAN/C-SCAN/LOOK/C-LOOK 은 요청 큐 정렬 O(N log N) 후 한 번의 스윕으로 모두 서비스
+
+**공간 복잡도**: O(N) — N = 대기 중인 I/O 요청 수
+
+**특징**:
+- FCFS: 도착 순서 그대로 처리 — 공정하지만 seek 최적화 없음
+- SSTF (Shortest Seek Time First): 현재 헤드에서 가장 가까운 요청 우선 — 그리디, 평균 seek 은 짧지만 starvation 발생 가능
+- SCAN (엘리베이터): 한 방향으로 끝까지 스윕하며 경로상 요청 서비스 후 반대 방향으로 반전 — 양 끝단을 항상 방문
+- C-SCAN (Circular SCAN): 한 방향으로만 스윕하고 끝에 도달하면 처음으로 즉시 점프(서비스 없이 복귀) — 대기 시간 분산이 SCAN 보다 균일
+- LOOK / C-LOOK: SCAN/C-SCAN 의 최적화 — 디스크 물리적 끝이 아니라 그 방향의 마지막 요청까지만 가고 반전/점프 → 불필요한 끝단 이동 제거
+
+**장점**:
+- SCAN/C-SCAN/LOOK 계열: 한 방향 스윕으로 starvation 완화하면서 총 헤드 이동을 크게 절감
+- C-SCAN/C-LOOK: 요청 간 응답 시간 분산이 작아 공정성(예측 가능한 대기)이 우수
+- SSTF: 국소적 요청 클러스터에 대해 평균 응답 시간이 짧음
+
+**단점**:
+- SSTF: 헤드 근처에 요청이 계속 도착하면 먼 요청이 무한 대기(starvation)
+- SCAN: 헤드가 방금 지나친 위치의 새 요청은 반대편 스윕까지 오래 대기
+- 모든 seek 기반 알고리즘은 SSD/NVMe 에서는 물리적 seek 이 없어 이득이 미미하거나 역효과 — 정렬 오버헤드만 남음
+
+**활용 예시**:
+- HDD 기반 스토리지의 블록 디바이스 I/O 스케줄러
+- Linux blk-mq 스케줄러: mq-deadline(요청별 만료 기한 + 정렬), BFQ(프로세스별 공정 대역폭), Kyber(지연시간 타깃 기반), none(NVMe/SSD 기본 — 스케줄링 생략)
+- 데이터베이스의 배치 I/O 정렬, 백업/스캔 워크로드의 순차화
+
+**난이도**: 중간 | **사용 빈도**: ★★★☆☆ (HDD 환경에서 핵심, SSD/NVMe 보편화로 none·Kyber 비중 증가)
+
+**Kotlin 코드**:
+```kotlin
+// 디스크 스케줄링 — 헤드 이동 거리(seek) 합 계산으로 SSTF / SCAN / C-SCAN 비교
+object DiskScheduling {
+
+    // SSTF: 매번 현재 헤드에서 가장 가까운 요청 선택 (그리디)
+    fun sstf(requests: List<Int>, start: Int): Pair<List<Int>, Int> {
+        val pending = requests.toMutableList()
+        val order = mutableListOf<Int>()
+        var head = start
+        var seek = 0
+        while (pending.isNotEmpty()) {
+            val next = pending.minByOrNull { kotlin.math.abs(it - head) }!!
+            seek += kotlin.math.abs(next - head)
+            head = next
+            order.add(next)
+            pending.remove(next)
+        }
+        return order to seek
+    }
+
+    // SCAN(엘리베이터): 위 방향으로 끝까지 스윕 후 반대로. diskMax = 실린더 최대 인덱스
+    fun scan(requests: List<Int>, start: Int, diskMax: Int): Pair<List<Int>, Int> {
+        val up = requests.filter { it >= start }.sorted()       // 오름차순
+        val down = requests.filter { it < start }.sortedDescending()
+        val order = mutableListOf<Int>()
+        var head = start
+        var seek = 0
+        for (r in up) { seek += r - head; head = r; order.add(r) }
+        if (down.isNotEmpty()) {                                  // 끝단까지 갔다가 반전
+            seek += diskMax - head; head = diskMax
+            for (r in down) { seek += head - r; head = r; order.add(r) }
+        }
+        return order to seek
+    }
+
+    // C-SCAN: 위로만 스윕, 끝 도달 시 0번으로 점프 후 다시 위로 (점프 비용 포함)
+    fun cscan(requests: List<Int>, start: Int, diskMax: Int): Pair<List<Int>, Int> {
+        val up = requests.filter { it >= start }.sorted()
+        val wrap = requests.filter { it < start }.sorted()       // 점프 후 다시 오름차순
+        val order = mutableListOf<Int>()
+        var head = start
+        var seek = 0
+        for (r in up) { seek += r - head; head = r; order.add(r) }
+        if (wrap.isNotEmpty()) {
+            seek += (diskMax - head) + diskMax                   // 끝→0 점프(원형 복귀)
+            head = 0
+            for (r in wrap) { seek += r - head; head = r; order.add(r) }
+        }
+        return order to seek
+    }
+}
+
+fun main() {
+    val req = listOf(98, 183, 37, 122, 14, 124, 65, 67)
+    println(DiskScheduling.sstf(req, 53))           // 가장 가까운 요청부터
+    println(DiskScheduling.scan(req, 53, 199))      // 엘리베이터 스윕
+    println(DiskScheduling.cscan(req, 53, 199))     // 원형 스윕
+}
+```
+
+**관련 알고리즘**: Round-Robin Scheduling, MLFQ, page-replacement, epoll-kqueue-iouring
+
+---
+
+<a id="process-vs-thread"></a>
+## 14. Process vs Thread Execution Model (프로세스 vs 스레드)
+
+**목적**: 실행 단위인 process(독립 주소공간)와 thread(공유 주소공간)의 격리·비용·스케줄링 차이를 정리하고, 1:1 / N:1 / M:N 스레딩 모델과 kernel/user/green/virtual thread 의 trade-off 를 비교
+
+**시간 복잡도**: process 생성 O(주소공간 셋업 + 페이지 테이블 복사) ≫ thread 생성 O(스택+TCB 할당). context switch 는 둘 다 O(1) 이지만 process 전환은 주소공간 교체(CR3 load → TLB flush)로 thread 전환보다 상수배 비쌈
+
+**공간 복잡도**: process = O(독립 주소공간: 코드/데이터/힙/스택 전체 + 페이지 테이블). thread = O(스택 1개 + TCB), 코드/데이터/힙은 같은 process 의 다른 thread 와 공유
+
+**특징**:
+- **주소공간**: process 는 격리된 가상 주소공간(서로의 메모리 접근 불가, MMU 가 강제). 같은 process 의 thread 들은 코드·전역·힙을 공유하고 **스택과 레지스터만 별도**로 가짐
+- **제어 블록**: 커널은 process 를 **PCB**(Process Control Block — PID, 페이지 테이블 base, 파일 디스크립터 테이블, 시그널 핸들러)로, thread 를 **TCB**(Thread Control Block — TID, 레지스터/PC/SP, 커널 스택, 스케줄 상태)로 표현. thread 들은 같은 PCB 를 공유
+- **context switch 비용**: thread 간 전환은 레지스터·SP 만 교체. process 간 전환은 추가로 페이지 테이블 base(x86 의 CR3) 를 바꿔야 하고, 이때 (ASID/PCID 미사용 시) **TLB flush** 가 발생해 이후 메모리 접근이 TLB miss 로 느려짐
+- **스레딩 매핑 모델**: **1:1**(커널 thread 1개 = 유저 thread 1개, Linux NPTL·Windows) / **N:1**(유저 thread N개를 커널 thread 1개에 — 한 thread blocking 시 전체 정지, 멀티코어 못 씀) / **M:N**(유저 thread M개를 커널 thread N개에 다중화, 런타임 스케줄러 필요 — Go goroutine, Java virtual thread)
+- **thread 종류**: kernel thread(커널이 스케줄·인지) / user thread(런타임 라이브러리가 관리, 커널은 모름) / green thread(VM 가 유저공간에서 스케줄하던 초기 JVM 방식) / **virtual thread**(JDK 21, JEP 444 — JVM 이 carrier(플랫폼) thread 위에 수백만 개를 M:N 으로 다중화, blocking 호출 시 carrier 에서 unmount)
+
+**장점**:
+- process: 강한 격리 → 한 process crash 가 다른 process 에 전파 안 됨, 보안 경계 명확(브라우저 탭 샌드박싱, 컨테이너)
+- thread: 생성·전환이 싸고 공유 메모리로 데이터 교환이 IPC 보다 빠름 → 데이터 병렬·세분화 동시성에 유리
+- M:N / virtual thread: blocking I/O 코드를 그대로 쓰면서도 OS thread 수천 개의 한계를 넘어 수백만 동시성 확보(thread-per-request 부활)
+
+**단점**:
+- process: IPC(파이프/소켓/공유메모리/메시지)가 필요해 통신 비용·복잡도 큼, 생성·전환 비용 높음
+- thread: 메모리 공유로 **data race·deadlock** 위험, 한 thread 의 메모리 손상이 process 전체를 죽임(격리 없음)
+- N:1: 한 user thread 가 blocking syscall 하면 전체 process 가 멈추고 멀티코어 활용 불가
+- M:N: 런타임 스케줄러 복잡도, native(C) blocking 호출이나 `synchronized` pinning 등에서 carrier thread 가 묶일 수 있음
+
+**활용 예시**:
+- multi-process: Chrome(탭/렌더러 분리), PostgreSQL(연결당 process), Nginx worker process
+- multi-thread(1:1): JVM 플랫폼 thread, C++/Rust `std::thread`, OS 네이티브 thread pool
+- M:N: Go 의 goroutine(GMP 스케줄러), Erlang 프로세스, Java virtual thread(고동시성 서버)
+- green thread → virtual thread 전환: thread-per-request 서버에서 reactive/async 코드 없이 높은 처리량
+
+**난이도**: 중간 | **사용 빈도**: ★★★★★
+
+**Kotlin 코드**:
+```kotlin
+import java.lang.management.ManagementFactory
+import java.util.concurrent.Executors
+import kotlin.system.measureTimeMillis
+
+// process vs thread 의 핵심 차이를 JVM 에서 관찰: 같은 process 안의
+// 두 platform thread 는 힙(공유)을 함께 보지만 스택(지역 변수)은 격리된다.
+object ProcessVsThreadDemo {
+    @Volatile private var sharedHeap = 0   // 같은 process 의 모든 thread 가 공유
+
+    @JvmStatic
+    fun main(args: Array<String>) {
+        // 현재 process(PCB 1개)의 식별자 — 이 안의 thread 들은 같은 PID 를 공유
+        val pid = ProcessHandle.current().pid()
+        println("PID=$pid (이 process 의 모든 thread 가 공유하는 주소공간)")
+
+        // 1:1 platform thread — 커널 thread 와 1:1, 공유 힙(sharedHeap) 에 함께 접근
+        val t1 = Thread { repeat(100_000) { sharedHeap++ } } // race: ++ 는 비원자적
+        val t2 = Thread { repeat(100_000) { sharedHeap++ } }
+        t1.start(); t2.start(); t1.join(); t2.join()
+        // 격리 없는 공유 메모리 → data race 로 200000 미만이 나올 수 있음
+        println("sharedHeap=$sharedHeap (기대 200000, race 로 손실 가능)")
+
+        // M:N virtual thread (JDK 21+, JEP 444): carrier thread 위에 다중화.
+        // 수만 개를 띄워도 OS thread 수만큼만 carrier 를 점유 → 메모리 저비용
+        val carriers = Runtime.getRuntime().availableProcessors()
+        val elapsed = measureTimeMillis {
+            Executors.newVirtualThreadPerTaskExecutor().use { exec ->
+                val tasks = (1..50_000).map {
+                    exec.submit { Thread.sleep(10) } // blocking 시 carrier 에서 unmount
+                }
+                tasks.forEach { it.get() }
+            }
+        }
+        println("virtual thread 50000개 완료 ${elapsed}ms, carrier≈$carriers 개")
+        println("loaded classes=${ManagementFactory.getClassLoadingMXBean().loadedClassCount}")
+    }
+}
+```
+
+**관련 알고리즘**: Round-Robin Scheduling, CFS, MLFQ, Work-Stealing, MESI Cache Coherence
+
+---
+
+<a id="virtual-memory"></a>
+## 15. Virtual Memory (Paging / TLB / CoW) (가상 메모리)
+
+**목적**: 각 프로세스에 연속적인 가상 주소 공간을 제공하고, 페이지 테이블로 가상 주소를 물리 프레임으로 변환하며 물리 메모리보다 큰 주소 공간을 디스크 백업으로 지원
+
+**시간 복잡도**: TLB hit 시 O(1) 변환 / TLB miss + k-단계 페이지 테이블 walk O(k) / page fault 처리 O(1)~O(디스크 I/O)
+
+**공간 복잡도**: 단일 평면 페이지 테이블 O(2^(가상주소비트−페이지오프셋비트)) / 다단계·역(inverted) 페이지 테이블은 실제 매핑 수에 비례
+
+**특징**:
+- 가상 주소 = 페이지 번호(상위 비트) + 페이지 오프셋(하위 비트, 예: 4KB 페이지 → 12비트)로 분해하고 페이지 번호만 프레임 번호로 변환
+- 다단계 페이지 테이블(x86-64는 4단계 PML4/PDPT/PD/PT, 5단계 옵션)은 희소한 주소 공간의 테이블 메모리를 절감하고, 역 페이지 테이블은 전체 물리 프레임당 1개 엔트리만 유지(해시로 탐색)
+- TLB(Translation Lookaside Buffer)는 최근 변환을 캐싱해 페이지 테이블 walk를 생략; 멀티코어에서 매핑이 바뀌면 다른 코어의 stale TLB 엔트리를 무효화하는 TLB shootdown(IPI 기반)이 필요
+- Demand Paging은 접근 시점에 페이지를 적재하고, 미적재 페이지 접근 시 page fault → OS가 디스크에서 프레임으로 로드 후 PTE를 갱신하고 명령을 재실행
+- Copy-on-Write fork는 부모/자식이 물리 프레임을 읽기 전용으로 공유하다가 쓰기 발생 시 protection fault로 해당 페이지만 복제하여 fork 비용을 줄임; Segmentation은 paging과 달리 가변 길이 논리 단위로 분할(현대 OS는 대부분 paging 중심)
+
+**장점**:
+- 프로세스 간 메모리 격리와 보호(권한 비트 R/W/X), 주소 공간 추상화 제공
+- 물리 메모리보다 큰 프로그램 실행 가능(swap), 단편화 완화(외부 단편화 제거)
+- CoW·공유 라이브러리 매핑으로 메모리 공유 및 fork/exec 비용 절감
+
+**단점**:
+- 주소 변환 오버헤드와 TLB miss 페널티, page fault 시 디스크 I/O로 인한 큰 지연
+- 페이지 테이블 자체의 메모리 소비, 잘못된 교체 정책 시 thrashing(working set이 메모리를 초과해 fault 폭주)
+- 내부 단편화(페이지 단위 할당), TLB shootdown의 멀티코어 동기화 비용
+
+**활용 예시**:
+- 운영체제 커널의 프로세스 메모리 관리(Linux, Windows, macOS)
+- `fork()`/컨테이너의 빠른 프로세스 생성(Copy-on-Write)
+- mmap 기반 파일 매핑, 데이터베이스 버퍼 풀, JVM/언어 런타임의 가비지 컬렉터(write barrier·CoW 힙)
+
+**난이도**: 높음 | **사용 빈도**: ★★★☆☆
+
+**Kotlin 코드**:
+```kotlin
+// Demand Paging + Copy-on-Write + page fault 처리 + LRU 교체 시뮬레이션
+class VirtualMemory(private val frameCount: Int) {
+    // PTE: present(프레임 적재 여부), frame, writable, onDisk(스왑/백업 존재)
+    data class PTE(var frame: Int = -1, var present: Boolean = false,
+                   var writable: Boolean = true, var onDisk: Boolean = true)
+
+    private val pageTable = HashMap<Int, PTE>()        // 가상 페이지 번호 -> PTE
+    private val frames = arrayOfNulls<Int>(frameCount)  // 프레임 -> 적재된 페이지
+    private val lru = ArrayDeque<Int>()                 // 프레임 LRU 순서(앞=오래됨)
+    var pageFaults = 0; private set
+
+    fun map(page: Int, writable: Boolean = true) {
+        pageTable[page] = PTE(writable = writable, onDisk = true)
+    }
+
+    private fun evictIfFull(): Int {
+        val free = frames.indexOfFirst { it == null }
+        if (free != -1) return free
+        val victimPage = lru.removeFirst()              // LRU 희생자 선택
+        val f = frames.indexOf(victimPage)
+        pageTable[victimPage]!!.apply { present = false; frame = -1; onDisk = true }
+        frames[f] = null
+        return f
+    }
+
+    private fun loadOnFault(page: Int): Int {           // page fault 처리: 디스크 -> 프레임
+        pageFaults++
+        val f = evictIfFull()
+        frames[f] = page
+        pageTable[page]!!.apply { present = true; frame = f }
+        lru.addLast(page)
+        return f
+    }
+
+    private fun touch(page: Int) { lru.remove(page); lru.addLast(page) }
+
+    fun read(page: Int) {
+        val pte = pageTable[page] ?: error("segfault: 매핑되지 않은 페이지 $page")
+        if (!pte.present) loadOnFault(page) else touch(page)
+    }
+
+    fun fork(parentPage: Int): Int {                    // Copy-on-Write: 읽기 전용 공유
+        val src = pageTable[parentPage] ?: error("매핑되지 않은 페이지")
+        val childPage = (pageTable.keys.maxOrNull() ?: 0) + 1
+        src.writable = false                            // 양쪽 모두 읽기 전용 전환
+        pageTable[childPage] = src.copy(writable = false)
+        return childPage
+    }
+
+    fun write(page: Int) {                              // 쓰기 시 CoW로 페이지 복제
+        val pte = pageTable[page] ?: error("segfault: $page")
+        if (!pte.present) loadOnFault(page)
+        if (!pte.writable) {                            // protection fault -> copy
+            val f = loadOnFault(page)                   // 새 프레임에 사본 적재
+            pte.apply { writable = true; frame = f; present = true }
+        }
+        touch(page)
+    }
+}
+```
+
+**관련 알고리즘**: LRU Cache, Hash Table, Page Replacement (Clock/LFU), B-Tree

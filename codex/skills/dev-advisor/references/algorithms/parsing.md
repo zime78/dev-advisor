@@ -16,6 +16,8 @@
 | [ast-traversal](#ast-traversal) | AST Traversal | AST 순회 | 낮음 |
 | [ssa](#ssa) | SSA Form | 정적 단일 대입 | 높음 |
 | [register-allocation](#register-allocation) | Register Allocation | 레지스터 할당 | 높음 |
+| [compiler-optimization](#compiler-optimization) | Compiler Optimization Passes | 컴파일러 최적화 패스 | 높음 |
+| [formal-language-theory](#formal-language-theory) | Formal Language Theory | 형식 언어 이론 | 높음 |
 
 ---
 
@@ -814,3 +816,179 @@ class LinearScanAllocator(private val numRegs: Int) {
 **관련 알고리즘**: SSA Form, AST Traversal
 
 ---
+
+<a id="compiler-optimization"></a>
+## 11. Compiler Optimization Passes (컴파일러 최적화 패스)
+
+**목적**: 프로그램 의미를 보존하면서 IR(중간 표현)을 변환해 실행 속도·코드 크기를 개선하는 컴파일러 미들/백엔드 변환 패스 모음
+
+**시간 복잡도**: 패스별 상이 — data-flow analysis는 보통 O(노드 × 변수 × 반복) (반복은 lattice 높이로 bound), constant folding/peephole는 O(명령어 수)
+
+**공간 복잡도**: O(노드 + 엣지 + 변수) — CFG와 각 노드의 data-flow 집합(비트셋) 저장
+
+**특징**:
+- data-flow analysis: CFG 위에서 transfer function + meet 연산자를 fixpoint(고정점)까지 반복 — reaching definitions(전진), liveness(후진)가 대표 예
+- monotone framework + 유한 높이 lattice 보장 시 fixpoint 수렴 종료 보장 (worklist 알고리즘으로 가속)
+- constant folding(상수식 사전 계산) / constant propagation(상수 전파), dead-code elimination(도달 불가·미사용 코드 제거)
+- loop optimization: LICM(loop-invariant code motion, 불변식 루프 밖으로 이동), loop unrolling(전개)
+- peephole(인접 명령어 국소 패턴 치환), function inlining(호출 인라인화) — 다수 패스가 SSA(Static Single Assignment) 형태 위에서 동작해 use-def 추적을 단순화
+
+**장점**:
+- 실행 속도·코드 크기·전력 소비 개선, 고수준 코드의 추상화 비용 상쇄
+- SSA 기반에서 def가 유일해 propagation·DCE 등 분석이 단순·정확해짐
+- 패스 단위 모듈화로 조합·재배열·반복 적용 가능
+
+**단점**:
+- 패스 순서(phase ordering)에 결과가 의존 — 전역 최적 순서는 일반적으로 결정 불가
+- 잘못된 분석은 의미 변경(버그) 유발 가능, 정밀 분석일수록 비용 급증
+- 디버깅 난이도 상승(소스-기계어 대응 붕괴), 컴파일 시간 증가
+
+**활용 예시**:
+- LLVM/GCC 같은 프로덕션 컴파일러의 -O1~-O3 최적화 파이프라인
+- JIT 컴파일러(JVM HotSpot, V8)의 핫 경로 최적화
+- 정적 분석 도구의 미사용 변수·도달 불가 코드 경고
+- 임베디드/모바일 타깃의 코드 크기 축소(-Os)
+
+**난이도**: 높음 | **사용 빈도**: ★★★☆☆
+
+**Kotlin 코드**:
+```kotlin
+// 직선 코드(basic block)에 대한 3가지 핵심 패스 시연:
+// (1) constant folding/propagation (2) dead-code elimination
+// IR: 변수에 식을 대입하는 간단한 SSA 유사 명령어
+sealed class Expr
+data class Const(val v: Int) : Expr()
+data class Var(val name: String) : Expr()
+data class Bin(val op: Char, val l: Expr, val r: Expr) : Expr()
+
+data class Instr(val dest: String, val expr: Expr)
+
+fun optimize(prog: List<Instr>, liveOut: Set<String>): List<Instr> {
+    val known = HashMap<String, Int>()          // 상수가 알려진 변수
+    val folded = ArrayList<Instr>()
+
+    // --- Pass 1: constant propagation + folding ---
+    for (ins in prog) {
+        val e = fold(ins.expr, known)
+        if (e is Const) known[ins.dest] = e.v else known.remove(ins.dest)
+        folded.add(Instr(ins.dest, e))
+    }
+
+    // --- Pass 2: dead-code elimination (후진 liveness) ---
+    val live = HashSet(liveOut)
+    val result = ArrayDeque<Instr>()
+    for (ins in folded.asReversed()) {
+        if (ins.dest in live) {                 // 결과가 쓰이는 명령어만 유지
+            result.addFirst(ins)
+            live.remove(ins.dest)
+            collectVars(ins.expr, live)         // 피연산자는 새로 live
+        }
+    }
+    return result.toList()
+}
+
+private fun fold(e: Expr, known: Map<String, Int>): Expr = when (e) {
+    is Const -> e
+    is Var -> known[e.name]?.let { Const(it) } ?: e
+    is Bin -> {
+        val l = fold(e.l, known); val r = fold(e.r, known)
+        if (l is Const && r is Const) Const(
+            when (e.op) { '+' -> l.v + r.v; '-' -> l.v - r.v; '*' -> l.v * r.v; else -> l.v / r.v }
+        ) else Bin(e.op, l, r)
+    }
+}
+
+private fun collectVars(e: Expr, into: MutableSet<String>) {
+    when (e) {
+        is Var -> into.add(e.name)
+        is Bin -> { collectVars(e.l, into); collectVars(e.r, into) }
+        else -> {}
+    }
+}
+```
+
+**관련 알고리즘**: Topological Sort, Strongly Connected Components, Dominator Tree, Graph Coloring
+
+---
+
+<a id="formal-language-theory"></a>
+## 12. Formal Language Theory (형식 언어 이론)
+
+**목적**: 문법(grammar)·오토마타(automata)·언어(language)의 표현력 위계와 상호 변환을 다루어 파서·정규식 엔진·컴파일러의 이론적 토대를 제공한다.
+
+**시간 복잡도**: CYK 멤버십 판정 O(n³ · |G|) (n=입력 길이, |G|=CNF 규칙 수) | NFA→DFA 부분집합 구성 최악 O(2^|Q|) | Thompson construction O(|regex|)
+
+**공간 복잡도**: CYK O(n² · |N|) (|N|=비단말 수) | 부분집합 구성 최악 O(2^|Q|) DFA 상태
+
+**특징**:
+- Chomsky 위계: Type 3(정규, FA/정규식) ⊂ Type 2(문맥자유, PDA/CFG) ⊂ Type 1(문맥의존, LBA) ⊂ Type 0(재귀열거, 튜링 기계). 위계가 낮을수록 표현력↑, 판정 비용↑
+- 오토마타-문법 대응: 정규 언어↔유한 오토마타(FA), 문맥자유 언어↔푸시다운 오토마타(PDA). 표현력이 동치임이 증명됨
+- Thompson construction(Ken Thompson, 1968): 정규식을 ε-전이를 가진 NFA로 변환. 부분집합 구성(Rabin-Scott, 1959)으로 NFA를 결정적 DFA로 변환
+- Pumping Lemma: 정규/문맥자유 언어의 필요 조건. 어떤 언어가 해당 클래스에 속하지 **않음**을 반증(예: {aⁿbⁿ}은 정규 아님, {aⁿbⁿcⁿ}은 문맥자유 아님)
+- CYK 알고리즘(Cocke-Younger-Kasami): CNF(촘스키 정규형) CFG에 대해 상향식 동적 계획법으로 멤버십을 판정. 모호 문법·일반 CFG도 처리
+
+**장점**:
+- 파서·정규식 엔진의 정확성과 한계를 수학적으로 보장 (예: 정규식으로 중첩 괄호 매칭 불가능을 증명)
+- CYK·Earley는 LL/LR이 거부하는 임의 CFG(좌재귀·모호 문법 포함)도 파싱 가능
+- 문법 클래스 선택으로 도구 복잡도-표현력 트레이드오프를 정량적으로 결정
+
+**단점**:
+- CYK는 O(n³)으로 실무 LL(1)/LR(1)의 O(n)보다 느려 대용량 입력엔 부적합
+- 부분집합 구성은 상태 폭발(state explosion)로 DFA 크기가 지수적으로 증가할 수 있음
+- 일반 CFG의 모호성(ambiguity) 판정은 결정 불가능(undecidable)
+
+**활용 예시**:
+- 정규식 엔진 구현: regex→NFA(Thompson)→DFA(부분집합 구성)→최소화
+- 컴파일러 프론트엔드의 문법 클래스 결정(LL/LR vs 일반 CFG)
+- 자연어·DSL의 모호 문법 파싱(CYK/Earley), 구문 강조·린터의 토큰 분류
+
+**난이도**: 높음 | **사용 빈도**: ★★★☆☆
+
+**Kotlin 코드**:
+```kotlin
+// CYK 멤버십 판정: CNF(촘스키 정규형) CFG가 입력 문자열을 생성하는지 O(n^3) DP 로 판정
+// 규칙은 A -> B C (binary) 또는 A -> 'a' (terminal) 두 형태만 허용 (CNF)
+class CYKParser(
+    private val binary: List<Triple<String, String, String>>, // A -> B C
+    private val unit: List<Pair<String, String>>,              // A -> terminal
+    private val start: String                                  // 시작 비단말
+) {
+    fun accepts(tokens: List<String>): Boolean {
+        val n = tokens.size
+        if (n == 0) return false
+        // table[i][len-1] = 위치 i 에서 시작해 길이 len 인 부분문자열을 생성하는 비단말 집합
+        val table = Array(n) { Array(n) { mutableSetOf<String>() } }
+
+        // 길이 1: 단말 규칙 적용
+        for (i in 0 until n) {
+            for ((a, term) in unit) if (term == tokens[i]) table[i][0].add(a)
+        }
+
+        // 길이 2..n: 분할점 k 로 두 부분을 결합 (상향식 DP)
+        for (len in 2..n) {
+            for (i in 0..n - len) {
+                for (k in 1 until len) {                  // 좌측 길이 k, 우측 길이 len-k
+                    val left = table[i][k - 1]
+                    val right = table[i + k][len - k - 1]
+                    for ((a, b, c) in binary) {
+                        if (b in left && c in right) table[i][len - 1].add(a)
+                    }
+                }
+            }
+        }
+        return start in table[0][n - 1]
+    }
+}
+
+// 예: S -> A B | B C,  A -> 'a',  B -> 'b',  C -> 'c'  (S 가 "abc" 의 "ab" 부분만 매칭 가능 여부 확인)
+fun cykDemo(): Boolean {
+    val parser = CYKParser(
+        binary = listOf(Triple("S", "A", "B"), Triple("S", "B", "C")),
+        unit = listOf("A" to "a", "B" to "b", "C" to "c"),
+        start = "S"
+    )
+    return parser.accepts(listOf("a", "b")) // true: S -> A B 로 유도 가능
+}
+```
+
+**관련 알고리즘**: Earley Parser, LL(k) Parsing, PEG / Packrat, Lexing / Tokenization

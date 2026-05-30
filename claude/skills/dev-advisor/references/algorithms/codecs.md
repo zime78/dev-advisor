@@ -23,6 +23,7 @@
 | [mp3-aac](#mp3-aac) | MP3 / AAC | Audio | perceptual |
 | [opus](#opus) | Opus | Audio | low-latency |
 | [entropy-coding](#entropy-coding) | Arithmetic/Range/ANS | Entropy | post-Huffman |
+| [error-correcting-codes](#error-correcting-codes) | Error Detection & Correction Codes | 오류 검출·정정 부호 | 중간 |
 
 **관련 카탈로그**:
 - [compression.md](compression.md) — LZ77 / Huffman / RLE / BWT (범용)
@@ -683,3 +684,85 @@ print(f"zstd is {len(compressed)/theoretical_min:.2f}× of Shannon limit")
 **관련 알고리즘**: [Huffman](compression.md), [Arithmetic Coding](compression.md#arithmetic-coding), [LZ77](compression.md#2-lz77-lempel-ziv-1977-슬라이딩-윈도우), [h264](#h264) (CABAC 사용), [webp-avif-heic](#webp-avif-heic) (AV1/AVIF 가 ANS 사용)
 
 ---
+
+<a id="error-correcting-codes"></a>
+## 9. Error Detection & Correction Codes (오류 검출·정정 부호)
+
+**목적**: 전송·저장 과정에서 발생한 비트 오류를 redundancy(중복 비트)로 검출하거나 정정하여 데이터 무결성을 보장한다
+
+**시간 복잡도**: 인코딩/검사 O(n) (n = 비트/바이트 수, CRC 는 table-driven 시 바이트당 O(1)). Reed-Solomon 의 syndrome 계산은 O(n·t) (t = 정정 가능 심볼 수)
+
+**공간 복잡도**: O(1) (CRC 의 256-entry lookup table 은 O(1) 상수 메모리)
+
+**특징**:
+- **Parity bit**: 1 비트 추가로 홀/짝 비트 수 검사 → 단일 비트 오류 **검출만** 가능 (정정 불가), 2 비트 오류는 놓침
+- **Checksum**: 워드 단위 합산 (예: IP/TCP one's complement checksum). 가볍지만 bit 재배열·상쇄 오류에 약함
+- **CRC** (Cyclic Redundancy Check): 데이터를 비트열 다항식으로 보고 생성 다항식(generator polynomial)으로 GF(2) 나눗셈 → 나머지가 CRC. burst error 검출에 강함 (CRC-32 는 ≤32 비트 연속 오류 100% 검출)
+- **Hamming code**: parity 비트를 2 의 거듭제곱 위치에 배치하여 **syndrome** 으로 오류 위치 특정. Hamming(7,4) 는 단일 비트 **정정**, SECDED(예: Hamming(8,4)) 는 1 비트 정정 + 2 비트 검출
+- **Reed-Solomon**: GF(2^m) 위 심볼 단위 부호. t 개 심볼 오류 정정 (RS(255,223) 는 16 심볼). burst error·erasure 에 강력 → QR 코드, CD/DVD, DVB, 위성 통신
+- **검출 vs 정정 거리**: 최소 Hamming distance d 인 부호는 (d−1) 개 오류 **검출**, ⌊(d−1)/2⌋ 개 오류 **정정**. 정정에는 검출보다 더 큰 거리가 필요
+
+**장점**:
+- 재전송 없이 수신 측에서 오류 복구 가능 (FEC, Forward Error Correction)
+- CRC 는 하드웨어 친화적(shift + XOR) + table-driven 으로 고속
+- 거리 기반 설계로 정정/검출 능력을 정량적으로 보장
+
+**단점**:
+- redundancy 만큼 대역폭·저장 공간 오버헤드 발생
+- 설계된 거리(d) 를 초과하는 오류는 검출/정정 실패하거나 오정정(miscorrection) 발생
+- CRC·checksum 은 무결성 검사용일 뿐 **암호학적 변조 방지 불가** (악의적 위변조엔 MAC/해시 필요)
+
+**활용 예시**:
+- 네트워크: Ethernet/Wi-Fi 프레임 FCS(CRC-32), TCP/UDP/IP checksum
+- 저장: ECC RAM(SECDED), NAND 플래시(BCH/LDPC), CD/DVD/Blu-ray(Reed-Solomon)
+- 코드/미디어: QR 코드(Reed-Solomon), DVB·DAB 방송, 위성/우주 통신(RS + convolutional)
+- 파일 무결성: zip/gzip/PNG 의 CRC-32 청크 검사
+
+**난이도**: 중간 | **사용 빈도**: ★★★★☆
+
+**Kotlin 코드**:
+```kotlin
+// CRC-8 (다항식 x^8+x^2+x+1, poly=0x07) — burst error 검출용 무결성 검사
+fun crc8(data: ByteArray, poly: Int = 0x07): Int {
+    var crc = 0
+    for (b in data) {
+        crc = crc xor (b.toInt() and 0xFF)
+        repeat(8) {
+            crc = if (crc and 0x80 != 0) ((crc shl 1) xor poly) and 0xFF
+                  else (crc shl 1) and 0xFF
+        }
+    }
+    return crc
+}
+
+// Hamming(7,4): 4 비트 데이터 -> 7 비트 부호 (단일 비트 정정)
+// 1-index 위치 1,2,4 = parity, 3,5,6,7 = data
+fun hammingEncode(d: IntArray): IntArray {        // d = [d1,d2,d3,d4]
+    val c = IntArray(8)                            // c[1..7] 사용
+    c[3] = d[0]; c[5] = d[1]; c[6] = d[2]; c[7] = d[3]
+    c[1] = c[3] xor c[5] xor c[7]                  // p1 covers 1,3,5,7
+    c[2] = c[3] xor c[6] xor c[7]                  // p2 covers 2,3,6,7
+    c[4] = c[5] xor c[6] xor c[7]                  // p4 covers 4,5,6,7
+    return c.copyOfRange(1, 8)
+}
+
+fun hammingDecode(recv: IntArray): Pair<Int, IntArray> {
+    val c = IntArray(8); for (i in 0..6) c[i + 1] = recv[i]
+    val s1 = c[1] xor c[3] xor c[5] xor c[7]
+    val s2 = c[2] xor c[3] xor c[6] xor c[7]
+    val s4 = c[4] xor c[5] xor c[6] xor c[7]
+    val syndrome = s4 * 4 + s2 * 2 + s1            // 오류 위치 (0 = 정상)
+    if (syndrome != 0) c[syndrome] = c[syndrome] xor 1   // 해당 비트 정정
+    return syndrome to intArrayOf(c[3], c[5], c[6], c[7])
+}
+
+fun main() {
+    val enc = hammingEncode(intArrayOf(1, 0, 1, 1)) // [0,1,1,0,0,1,1]
+    enc[4] = enc[4] xor 1                            // 5번째 비트 오류 주입
+    val (pos, data) = hammingDecode(enc)
+    println("error at pos=$pos, recovered=${data.joinToString("")}") // pos=5, 1011
+    println("CRC-8=" + crc8(byteArrayOf(0x31, 0x32, 0x33, 0x34))) // 194 (0xC2)
+}
+```
+
+**관련 알고리즘**: Entropy Coding, SHA-256, HMAC, Run-Length Encoding

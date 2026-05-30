@@ -587,3 +587,287 @@ class TccCoordinator(private val participants: List<PaymentTcc>) {
 - 예약/이벤트 데이터 모델링: [`patterns/data-modeling.md`](../patterns/data-modeling.md)
 
 **관련 패턴**: 2PC, Saga, TCC, Outbox, Idempotency Key
+
+---
+
+<a id="valet-key"></a>
+## 12. Valet Key (밸릿 키)
+
+**목적**: 클라이언트가 데이터 스토어에 직접 접근하도록 제한적·시한적 접근 토큰(밸릿 키)을 발급하여, 대용량 업로드/다운로드 트래픽이 애플리케이션 서버를 경유하지 않도록 우회시킵니다.
+
+**특징**:
+- 토큰에 권한 범위(특정 리소스, read/write)와 만료 시각을 새겨 발급
+- 클라이언트는 토큰으로 스토리지(S3, Blob)에 직접 I/O
+- 서버는 인증/인가 후 토큰 발급만 담당 (데이터 평면에서 빠짐)
+
+**장점**:
+- 서버 CPU/메모리/대역폭 부하 우회 (서버는 control plane만)
+- 대용량 파일 전송 비용/지연 절감
+- 권한 범위·만료로 노출 영향 최소화 (최소 권한)
+
+**단점**:
+- 토큰 발급 후에는 즉시 취소가 어려움 (만료까지 유효)
+- 토큰 유출 시 만료 전까지 무단 접근 위험
+- 스토리지가 토큰 기반 직접 접근을 지원해야 함
+
+**활용 예시**:
+- AWS S3 Pre-signed URL (PUT/GET)
+- Azure Storage SAS (Shared Access Signature)
+- GCS Signed URL, 사용자 프로필 이미지 직접 업로드
+
+**난이도**: 중간 | **사용 빈도**: ★★★★☆
+
+**Kotlin 예제**:
+```kotlin
+// S3 Pre-signed URL 발급 — 서버는 토큰만 발급, 업로드는 클라이언트가 직접 수행
+class FileUploadService(private val presigner: S3Presigner) {
+    fun issueUploadUrl(userId: String, key: String): String {
+        // 인가: 본인 경로만 허용 (권한 범위 제한)
+        require(key.startsWith("users/$userId/")) { "forbidden path" }
+
+        val putReq = PutObjectRequest.builder()
+            .bucket("user-uploads")
+            .key(key)
+            .contentType("image/jpeg")
+            .build()
+
+        // 만료 제한: 15분 시한부 토큰
+        val presignReq = PutObjectPresignRequest.builder()
+            .signatureDuration(Duration.ofMinutes(15))
+            .putObjectRequest(putReq)
+            .build()
+
+        return presigner.presignPutObject(presignReq).url().toString()
+    }
+}
+
+// 클라이언트: 발급받은 URL로 스토리지에 직접 PUT (서버 미경유)
+suspend fun uploadDirect(url: String, bytes: ByteArray) {
+    httpClient.put(url) { setBody(bytes) }  // 트래픽이 앱 서버를 거치지 않음
+}
+```
+
+**관련 패턴**: API Gateway, Idempotency Key, BFF, Gatekeeper
+
+---
+
+<a id="deployment-stamps"></a>
+
+## 13. Deployment Stamps / Geode (배포 스탬프 / 지오드)
+
+**목적**: 애플리케이션과 데이터 저장소를 포함한 풀스택을 하나의 독립 단위(stamp, 또는 scale unit / service unit)로 묶어 복제 배포하여, 테넌트/리전을 스탬프 단위로 분리하고 장애 전파 범위(blast radius)를 격리하면서 수평 확장합니다. Geode 는 이 스탬프를 지리적으로 분산 배치하고 모든 노드가 read/write 를 처리하도록 확장한 변형입니다.
+
+**두 패턴의 관계**:
+- **Deployment Stamps**: 동일한 풀스택 단위를 N개 복제. 각 스탬프는 자족적(self-contained) — 자체 DB, 자체 컴퓨트, 자체 캐시 보유. 테넌트/지역을 스탬프에 할당(샤딩 by stamp)
+- **Geode (Geographical Node)**: 스탬프를 여러 지리 리전에 배치하고, 각 노드가 **active-active 로 read 와 write 를 모두** 처리. 사용자는 가장 가까운 노드로 라우팅(geo-routing). 데이터는 노드 간 비동기 복제로 수렴
+- 즉 Geode = "지리 분산 + 모든 노드 write 가능" 으로 확장된 Deployment Stamps
+
+**특징**:
+- 스탬프는 풀스택 단위(컴퓨트 + 데이터 + 의존 리소스)로 통째 복제됨
+- 테넌트(또는 사용자/지역)를 스탬프에 매핑하는 **traffic routing 계층** 필요 (어떤 스탬프로 보낼지 결정)
+- 각 스탬프는 자체 데이터 저장소 → 스탬프 간 데이터 공유 없음(shared-nothing)
+- 스탬프 단위 배포/롤아웃 → 카나리·블루그린을 스탬프 granularity 로 수행
+- Geode 는 다중 마스터 쓰기 → **충돌 해소(conflict resolution)** 와 결과적 일관성 모델 필요
+
+**장점**:
+- **Blast radius 격리**: 한 스탬프의 장애/배포 사고가 다른 스탬프 테넌트에 전파되지 않음
+- **수평 확장**: 용량 한계 도달 시 스탬프를 추가(scale-out)하는 단순 모델, 단일 스탬프 비대화 회피
+- **멀티테넌시 격리**: 프리미엄 테넌트 전용 스탬프(noisy neighbor 차단), 규제 요건(데이터 거주지)별 스탬프 분리 가능
+- **점진적 롤아웃**: 신규 버전을 일부 스탬프에만 먼저 배포(canary stamp)
+- **Geode**: 사용자 근접 리전에서 read/write → 지연 최소화 + 리전 장애 시 가용성 유지
+
+**단점**:
+- **라우팅 계층 복잡도**: 테넌트→스탬프 매핑, 재배치(rebalancing), 스탬프 이전(migration) 메커니즘 필요
+- **운영 다중화**: 스탬프 수만큼 배포/모니터링/패치 자동화(IaC) 필수 — 수작업 시 폭증
+- **스탬프 간 cross-stamp 쿼리 어려움**: 전체 집계/검색은 fan-out 또는 별도 집계 저장소 필요
+- **Geode 충돌 해소**: 다중 마스터 write → last-write-wins / CRDT / 벡터 클록 등 충돌 전략 설계 필요, 강한 일관성 포기
+- **용량 계획**: 스탬프 단위 capacity tipping point 정의 필요(언제 새 스탬프를 띄울지)
+
+**활용 예시**:
+- 대규모 SaaS 멀티테넌시 (테넌트를 스탬프에 샤딩, 엔터프라이즈 테넌트 전용 스탬프)
+- 글로벌 서비스의 리전별 독립 배포 (EU/US/APAC 스탬프, GDPR 데이터 거주지 격리)
+- Azure Cosmos DB(다중 리전 write = Geode 의 매니지드 구현), Azure Front Door 로 스탬프 라우팅
+- Azure Architecture Center 의 Deployment Stamps / Geode 공식 패턴
+- 본 프로젝트의 멀티리전 확장 시 리전별 스탬프 분리에 적용 가능
+
+**Stamp vs 일반 샤딩의 차이**:
+- 일반 샤딩: **데이터 계층만** 분할(DB 샤드). 컴퓨트는 공유
+- Deployment Stamp: **풀스택 전체**(컴퓨트 + 데이터 + 캐시 + 큐) 를 단위로 복제 → 장애 격리 경계가 데이터가 아닌 스택 전체
+
+**난이도**: 높음 | **사용 빈도**: ★★★☆☆
+
+**Kotlin 예제**:
+```kotlin
+// 테넌트를 스탬프(scale unit)로 라우팅하는 핵심: tenant -> stamp 매핑 + 스탬프별 자족 스택
+data class Stamp(
+    val id: String,            // 예: "stamp-eu-01"
+    val region: String,        // 데이터 거주지/지리 근접
+    val baseUrl: String,       // 스탬프 자체 진입점
+    val capacity: Int,         // 수용 가능 테넌트 수 (tipping point)
+)
+
+class StampRouter(private val stamps: List<Stamp>, private val registry: TenantStampRegistry) {
+    // 기존 테넌트는 고정 매핑, 신규 테넌트는 여유 있는 스탬프에 배치
+    fun resolve(tenantId: String): Stamp {
+        registry.find(tenantId)?.let { stampId ->
+            return stamps.first { it.id == stampId }   // 한번 정해진 스탬프 고정 (data locality)
+        }
+        val target = stamps.filter { registry.load(it.id) < it.capacity }
+            .minByOrNull { registry.load(it.id) }      // least-loaded 배치
+            ?: error("All stamps full — provision a new stamp")
+        registry.assign(tenantId, target.id)           // 매핑 영속화
+        return target
+    }
+}
+
+// Geode 변형: 사용자 위치 기준 최근접 노드 선택 (모든 노드가 read/write active-active)
+class GeodeRouter(private val nodes: List<Stamp>) {
+    fun nearest(userRegion: String): Stamp =
+        nodes.minByOrNull { geoDistance(userRegion, it.region) }
+            ?: error("No geode node available")
+    // write 는 최근접 노드에서 수행 후 노드 간 비동기 복제 → 충돌은 last-write-wins 등으로 수렴
+}
+```
+
+**관련 패턴**: BFF, API Gateway, CQRS, Outbox
+
+**Cross-link**:
+- 리전 라우팅 / 단일 진입점: [`patterns/distributed.md#8-api-gateway`](../patterns/distributed.md#8-api-gateway)
+- 다중 마스터 충돌 / 결과적 일관성: [`principles/database-fundamentals.md#acid-vs-base`](../../../data-advisor/references/principles/db-fundamentals.md#acid-vs-base)
+- 스탬프 간 read model 분리: [`patterns/distributed.md#1-cqrs-command-query-responsibility-segregation`](../patterns/distributed.md#1-cqrs-command-query-responsibility-segregation)
+- 데이터 샤딩 / 파티셔닝 모델링: [`patterns/data-modeling.md`](../patterns/data-modeling.md)
+
+---
+
+<a id="gateway-aggregation"></a>
+## 14. Gateway Aggregation / Offloading / Routing (게이트웨이 집계/오프로딩/라우팅)
+
+**목적**: API Gateway 가 클라이언트와 백엔드 사이에서 수행하는 3가지 변형 책임을 정리합니다 — 여러 백엔드 호출을 하나의 응답으로 합성(Aggregation), 인증/TLS/캐싱 등 공통 횡단 기능을 위임받아 처리(Offloading), L7 경로 기반으로 적절한 서비스에 전달(Routing). 공통 목표는 클라이언트 라운드트립 감소와 백엔드 단순화입니다.
+
+**3 변형**:
+- **Aggregation (집계)**: 한 번의 클라이언트 요청에 대해 게이트웨이가 다중 백엔드를 병렬 호출하고 결과를 하나의 응답으로 합성. 클라이언트가 N번 왕복할 일을 1번으로 축소 (chatty client 해소)
+- **Offloading (오프로딩)**: 인증/인가, TLS termination, 응답 캐싱, 압축(gzip), rate limiting, 로깅 같은 공통 기능을 각 서비스에서 빼내 게이트웨이로 위임. 백엔드는 비즈니스 로직만 담당
+- **Routing (라우팅)**: HTTP 경로/호스트/헤더 등 L7 정보로 요청을 적절한 다운스트림 서비스로 전달. `/users/*` → user-svc, `/orders/*` → order-svc 식의 경로 매핑
+
+**특징**:
+- 클라이언트는 단일 endpoint 만 알면 됨 (내부 토폴로지 은닉)
+- Aggregation 은 fan-out/fan-in 병렬 호출이 핵심
+- Offloading 은 횡단 관심사를 한 곳에 집중 (DRY)
+- Routing 은 정적 매핑 + 동적 라우팅(가중치/카나리) 모두 가능
+
+**장점**:
+- 클라이언트 라운드트립 ↓ (모바일/고지연 환경에서 특히 효과)
+- 백엔드 서비스는 비즈니스 로직에만 집중 (공통 기능 중복 제거)
+- 인증/TLS/캐싱 정책을 중앙에서 일괄 관리
+- 내부 서비스 재배치/분할 시 클라이언트 영향 없음
+
+**단점**:
+- 게이트웨이가 단일 장애점/병목 (Aggregation 시 한 백엔드 지연이 전체 응답 지연)
+- Aggregation 로직 비대화 위험 (BFF 와 책임 경계 모호)
+- Offloading 과다 시 게이트웨이가 "Smart Gateway" 안티패턴화
+- 추가 홉으로 인한 지연 (캐싱으로 상쇄 가능)
+
+**활용 예시**:
+- Aggregation: 모바일 홈 화면 1요청 → 프로필+피드+알림 합성
+- Offloading: Kong/AWS API Gateway 의 JWT 검증, TLS termination, 응답 캐싱
+- Routing: Spring Cloud Gateway / Kubernetes Ingress 의 경로 기반 분기
+- 본 프로젝트 클라이언트 → 서버 전면 게이트웨이의 인증/라우팅 위임
+
+**난이도**: 중간 | **사용 빈도**: ★★★★☆
+
+**Kotlin 예제**:
+```kotlin
+// Ktor 게이트웨이: Offloading(인증) + Routing(경로 분기) + Aggregation(병렬 합성)
+fun Application.gateway(client: HttpClient) = routing {
+    // 1) Offloading: 인증을 게이트웨이로 위임 (백엔드는 인증 모름)
+    intercept(ApplicationCallPipeline.Plugins) {
+        if (!call.request.headers.contains("Authorization")) {
+            call.respond(HttpStatusCode.Unauthorized); finish()
+        }
+    }
+
+    // 2) Routing: L7 경로 기반으로 다운스트림 서비스에 전달
+    route("/users/{...}") {
+        handle {
+            val res = client.get("http://user-svc${call.request.uri.removePrefix("/users")}")
+            call.respondText(res.bodyAsText(), status = res.status)
+        }
+    }
+
+    // 3) Aggregation: 다중 백엔드 병렬 호출 → 단일 응답 합성
+    get("/home/{userId}") {
+        val id = call.parameters["userId"]!!
+        val home = coroutineScope {
+            val profile = async { client.get("http://user-svc/users/$id").bodyAsText() }
+            val feed    = async { client.get("http://feed-svc/feed/$id").bodyAsText() }
+            val notis   = async { client.get("http://noti-svc/notifications/$id").bodyAsText() }
+            """{"profile":${profile.await()},"feed":${feed.await()},"notifications":${notis.await()}}"""
+        }
+        call.respondText(home, ContentType.Application.Json)
+    }
+}
+```
+
+**관련 패턴**: API Gateway, BFF, Facade, Service Mesh, Proxy
+
+---
+
+<a id="gatekeeper"></a>
+## 15. Gatekeeper (게이트키퍼)
+
+**목적**: 외부 요청을 전용 검증/정제(sanitization) 인스턴스가 먼저 받아 인증·유효성·악성 페이로드를 검사한 뒤 내부 신뢰 서비스로 중계(brokered access)하여, 핵심 비즈니스 서비스가 신뢰 경계 밖에 직접 노출되지 않도록 보안 격리합니다.
+
+**특징**:
+- Gatekeeper 인스턴스는 클라이언트와 동일한 DMZ/공개 영역에 배치, 핵심 서비스는 내부망에만 배치
+- 검증/정제만 담당 → 민감 데이터·자격증명·비즈니스 로직을 보유하지 않음 (탈취되어도 피해 최소)
+- 모든 요청은 Gatekeeper 를 거쳐야만 내부에 도달 (직접 경로 차단)
+- API Gateway 가 라우팅/집계 중심이라면 Gatekeeper 는 신뢰 경계 격리 중심
+
+**장점**:
+- 공격면(attack surface) 축소 — 핵심 서비스가 공개 엔드포인트를 갖지 않음
+- Gatekeeper 침해 시에도 자격증명·민감 데이터가 없어 횡적 이동 어려움
+- 검증 로직 중앙화 → 모든 진입점에 일관된 입력 검사
+- 핵심 서비스는 "이미 검증된 신뢰 요청" 만 처리 → 내부 로직 단순화
+
+**단점**:
+- 추가 홉 발생 → 지연(latency) 증가
+- Gatekeeper 가 단일 장애점/병목이 될 수 있음 (다중화 필요)
+- 검증 규칙과 내부 계약을 양쪽에서 동기화해야 함
+- 과도한 검증 로직 집중 시 Gatekeeper 비대화 위험
+
+**활용 예시**:
+- DMZ 의 리버스 프록시 → 내부 결제/사용자 서비스 중계
+- Azure Cloud Design Patterns 의 Gatekeeper pattern (Trusted Host 와 결합)
+- WAF(Web Application Firewall) + 정제 계층을 거친 후 백엔드 도달
+- 본 프로젝트의 외부 웹훅 수신 → 검증 후 내부 Server 로 전달
+
+**난이도**: 중간 | **사용 빈도**: ★★★☆☆
+
+**Kotlin 예제**:
+```kotlin
+// Gatekeeper: 검증/정제만 수행, 자격증명·비즈니스 로직 미보유.
+// 통과한 요청만 내부 신뢰 서비스(TrustedHost)로 중계한다.
+class Gatekeeper(private val trusted: TrustedHostClient) {
+    fun handle(raw: RawRequest): Response {
+        // 1) 인증 토큰 형식 검증 (실패 시 내부에 도달하지 못함)
+        val token = raw.headers["Authorization"]
+            ?: return Response(401, "missing token")
+        if (!TokenFormat.isValid(token)) return Response(401, "bad token")
+
+        // 2) 입력 정제: 크기 제한, 허용 필드 화이트리스트, 인젝션 패턴 차단
+        val sanitized = runCatching { Sanitizer.clean(raw.body) }
+            .getOrElse { return Response(400, "invalid payload") }
+
+        // 3) 검증된 요청만 내부 신뢰 서비스로 중계 (brokered access)
+        return trusted.forward(sanitized, token)
+    }
+}
+
+// 내부 신뢰 서비스는 공개 엔드포인트가 없고, Gatekeeper 경유만 허용.
+class TrustedHostClient(private val internalUrl: String, private val mtls: MtlsConfig) {
+    fun forward(req: SanitizedRequest, token: String): Response =
+        httpPost("$internalUrl/process", req, token, mtls) // 내부망 + mTLS
+}
+```
+
+**관련 패턴**: API Gateway, Proxy, Service Mesh, BFF

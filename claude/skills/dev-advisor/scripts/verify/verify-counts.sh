@@ -89,7 +89,7 @@ check_manifest_alignment() {
   # 재유입되는 드리프트를 차단. 마커 기반 sync-skill-counts.sh 가 감지하지 못하는
   # 비마커 파일(output_templates.md / principles/index.md 등)을 커버한다.
   # split-quote 로 작성해 가드 자신의 source 가 패턴에 매칭되지 않게 한다.
-  stale_pattern='5'"중"'|7'"모드"'|core 16'"3"'|4'"중 카탈로그"'|5'" 서브에이전트"'|\b49'"6"'\b|\b26'"8"'\b|\b53'"9"'\b|54'"7"' 패턴|27'"3"' 알고리즘|21'"4"' 원칙|21'"4"' 합계'
+  stale_pattern='5'"중"'|7'"모드"'|core 16'"3"'|4'"중 카탈로그"'|5'" 서브에이전트"'|\b49'"6"'\b|\b26'"8"'\b|\b53'"9"'\b|54'"7"' 패턴|27'"3"'개? *알고리즘|21'"4"' 원칙|21'"4"' 합계'
   stale_hits=$(
     {
       /usr/bin/grep -RInE "${stale_pattern}" \
@@ -204,10 +204,10 @@ check_algorithms_disclosure() {
     f && /^\| / && !/^\|[-| :]+\|/ && !/^\| 카테고리 /{c++}
     END{print c+0}
   ' "${algo_index}")
-  if [ "${cat_rows}" -eq 29 ]; then
+  if [ "${cat_rows}" -eq 30 ]; then
     ok "카테고리 진입점 표 행: ${cat_rows}개"
   else
-    fail "카테고리 진입점 표 행: 기대=29, 실제=${cat_rows}"
+    fail "카테고리 진입점 표 행: 기대=30, 실제=${cat_rows}"
   fi
 
   # 4-2. 필수 섹션 3개 헤더

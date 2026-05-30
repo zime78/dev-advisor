@@ -33,11 +33,11 @@ research 옵션 예시:
   /dev-advisor research <topic|catalog-id|query> [--limit N] [--years YYYY-YYYY] [--source arxiv|s2|openalex|all] [--bias recency|citation]
 
 카탈로그 lookup (기존 보존):
-  /pattern   <id|list|search>             <!--counts:patterns-->529<!--/--> 패턴 (55 카테고리 — GoF + 아키텍처/분산/신뢰성/동시성/통합/DDD 전술·전략/데이터 접근/테스트/Observability/AI-LLM/배포/캐싱/안티패턴/모바일/임베디드/게임/네트워크/크로스플랫폼/Offline-First/에러 처리/API 설계·스타일/Web 렌더링/상태 관리/FP/Reactive/레거시 코드/워크플로우/스트리밍/데이터 모델링/UI-UX/FinOps/테스트 전략/빌드·버전/MLOps/DX/블록체인/요구공학/MDM/DQ 거버넌스/Web Performance/Data Warehousing & BI/Graphics Rendering/AR-VR-XR/Serverless-FaaS/HPC-Scientific/도메인 5종(Fintech·Healthcare·eCommerce·Logistics·IoT))
-  /algorithm <id|list [category]|search>  <!--counts:algorithms-->250<!--/--> 알고리즘 (32 카테고리 — 정렬/탐색/그래프/DP/문자열/수학/자료구조/계산기하/플로우/매칭/암호/압축/게임AI/ML/확률/분산합의/분산알고/동시성/파싱 + DB 인덱스/DB 스토리지 엔진/DB 쿼리 옵티마이저/공간 인덱싱/검색·랭킹/부하 분산/OS 기초/이미지/신호/코덱)
+  /pattern   <id|list|search>             <!--counts:patterns-->543<!--/--> 패턴 (55 카테고리 — GoF + 아키텍처/분산/신뢰성/동시성/통합/DDD 전술·전략/데이터 접근/테스트/Observability/AI-LLM/배포/캐싱/안티패턴/모바일/임베디드/게임/네트워크/크로스플랫폼/Offline-First/에러 처리/API 설계·스타일/Web 렌더링/상태 관리/FP/Reactive/레거시 코드/워크플로우/스트리밍/데이터 모델링/UI-UX/FinOps/테스트 전략/빌드·버전/MLOps/DX/블록체인/요구공학/MDM/DQ 거버넌스/Web Performance/Data Warehousing & BI/Graphics Rendering/AR-VR-XR/Serverless-FaaS/HPC-Scientific/도메인 5종(Fintech·Healthcare·eCommerce·Logistics·IoT))
+  /algorithm <id|list [category]|search>  <!--counts:algorithms-->292<!--/--> 알고리즘 (32 카테고리 — 정렬/탐색/그래프/DP/문자열/수학/자료구조/계산기하/플로우/매칭/암호/압축/게임AI/ML/확률/분산합의/분산알고/동시성/파싱 + DB 인덱스/DB 스토리지 엔진/DB 쿼리 옵티마이저/공간 인덱싱/검색·랭킹/부하 분산/OS 기초/이미지/신호/코덱)
   /language  <id|list|search>             <!--counts:languages-->75<!--/--> 언어
   /security  <id|list|search>             <!--counts:security-->106<!--/--> 보안 항목 (15 파일 — 인증/인가/암호 운영/데이터 보호/API·Web/공급망/플랫폼/SDLC/탐지/모바일/AI 모델/Privacy Engineering/규제 컴플라이언스)
-  /principle <id|list|search>             <!--counts:principles-->206<!--/--> + <!--counts:micro-->18<!--/--> 부록 SW 공학 원칙
+  /principle <id|list|search>             <!--counts:principles-->211<!--/--> + <!--counts:micro-->20<!--/--> 부록 SW 공학 원칙
                                           기본 5: SOLID 5 / GRASP 9 / ISO 25010 8 / 12-Factor 12 / Code Smells 22
                                           확장 10: Type Systems 10 / Concurrency Theory 10 / Refactoring Techniques 25 / SW Economics 10 / Evolutionary Arch 8 / Resilience Theory 8 / Documentation 8 / Process Metrics (DORA) 10 / Performance Metrics 10 / Sustainable SW (Green) 8
                                           P0 신설 4: Database Fundamentals 8 / SDLC Models 7 / Scaled Agile 6 / Professional Ethics 6

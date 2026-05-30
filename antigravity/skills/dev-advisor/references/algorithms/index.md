@@ -4,45 +4,46 @@
 
 소프트웨어 개발에서 자주 사용되는 알고리즘 모음입니다.
 
-## 알고리즘 카테고리 (총 250개, 29 카테고리)
+## 알고리즘 카테고리 (총 292개, 30 카테고리)
 
 | 카테고리 | 알고리즘 수 | 파일 |
 |---------|-----------|------|
-| [정렬](sorting.md) | 16개 | Bubble, Selection, Insertion, Merge, Quick, Heap, Counting, Radix, Bucket, Shell, Tim, Intro, Tree, External Merge, Pancake, Cycle |
+| [정렬](sorting.md) | 17개 | Bubble, Selection, Insertion, Merge, Quick, Heap, Counting, Radix, Bucket, Shell, Tim, Intro, Tree, External Merge, Pancake, Cycle, Quickselect |
 | [탐색](searching.md) | 13개 | Linear, Binary, Jump, Interpolation, Exponential, Fibonacci, Ternary, Hash, Two Pointers, Sliding Window, Sparse Table, Mo's, Parallel Binary Search |
-| [그래프](graph.md) | 18개 | BFS, DFS, Dijkstra, Bellman-Ford, Floyd-Warshall, A*, Prim, Kruskal, Topological, Tarjan SCC, Kosaraju, Johnson, LCA, Articulation, Bridges, 2-SAT, Eulerian, Stoer-Wagner |
-| [동적 프로그래밍](dynamic-programming.md) | 12개 | Fibonacci, LCS, LIS, Knapsack, Edit Distance, Matrix Chain, Coin Change, Rod Cutting, Bitmask, Tree, Digit, SOS |
+| [그래프](graph.md) | 20개 | BFS, DFS, Dijkstra, Bellman-Ford, Floyd-Warshall, A*, Prim, Kruskal, Topological, Tarjan SCC, Kosaraju, Johnson, LCA, Articulation, Bridges, 2-SAT, Eulerian, Stoer-Wagner, HLD, Centroid Decomposition |
+| [동적 프로그래밍](dynamic-programming.md) | 13개 | Fibonacci, LCS, LIS, Knapsack, Edit Distance, Matrix Chain, Coin Change, Rod Cutting, Bitmask, Tree, Digit, SOS, DP Optimizations |
 | [분할 정복](divide-conquer.md) | 5개 | Binary Search, Merge Sort, Strassen, Closest Pair, Karatsuba |
 | [탐욕](greedy.md) | 5개 | Activity Selection, Huffman, Fractional Knapsack, Job Sequencing, Optimal Merge |
 | [백트래킹](backtracking.md) | 5개 | N-Queens, Sudoku, Graph Coloring, Hamiltonian, Subset Sum |
 | [문자열](string.md) | 11개 | KMP, Rabin-Karp, Boyer-Moore, Z, Suffix Array, Trie, Aho-Corasick, Manacher, Suffix Automaton, Suffix Tree, Lyndon (Duval) |
-| [수학](math.md) | 14개 | GCD, Sieve, Fast Exp, Modular, CRT, FFT, Simpson, Newton-Raphson, Factorization, Miller-Rabin, Extended Euclidean, Lucas, Pollard's Rho, Linear Sieve |
-| [자료구조](data-structures.md) | 9개 | Union-Find, Segment Tree, Fenwick (BIT), AVL, Red-Black, B-Tree, Skip List, LRU Cache, Bloom Filter |
+| [수학](math.md) | 16개 | GCD, Sieve, Fast Exp, Modular, CRT, FFT, Simpson, Newton-Raphson, Factorization, Miller-Rabin, Extended Euclidean, Lucas, Pollard's Rho, Linear Sieve, Gaussian Elimination, DCT |
+| [자료구조](data-structures.md) | 17개 | Union-Find, Segment Tree, Fenwick (BIT), AVL, Red-Black, B-Tree, Skip List, LRU Cache, Bloom Filter, Binary Heap, Persistent DS, Treap/Splay, Hash Collision, Rope/Gap/Piece, Advanced Heaps, Order-Statistics, van Emde Boas |
 | [계산 기하](geometry.md) | 7개 | CCW, Graham Scan, Andrew's Monotone Chain, Segment Intersection, Sweep Line, Rotating Calipers, Point-in-Polygon |
 | [네트워크 플로우](flow.md) | 4개 | Ford-Fulkerson, Edmonds-Karp, Dinic, Min-Cost Max-Flow |
-| [매칭](matching.md) | 3개 | Bipartite Matching, Hopcroft-Karp, Stable Marriage |
-| [암호/해시](crypto.md) | 6개 | SHA-256, HMAC, RSA, AES, Bcrypt, Argon2 |
+| [매칭](matching.md) | 4개 | Bipartite Matching, Hopcroft-Karp, Stable Marriage, Hungarian |
+| [암호/해시](crypto.md) | 12개 | SHA-256, HMAC, RSA, AES, Bcrypt, Argon2, ECC, Diffie-Hellman, ChaCha20-Poly1305, SHA-3, BLAKE2/3, scrypt/PBKDF2 |
 | [압축](compression.md) | 5개 | RLE, LZ77, LZW, Arithmetic Coding, BWT |
 | [게임/AI](game-ai.md) | 5개 | Minimax, Alpha-Beta, MCTS, Genetic, Simulated Annealing |
-| [머신러닝](ml.md) | 13개 | K-Means, KNN, Linear/Logistic Regression, Gradient Descent, Naive Bayes, Transformer, Attention, HNSW, Quantization, Speculative Decoding, PageRank, Node2Vec |
+| [머신러닝](ml.md) | 15개 | K-Means, KNN, Linear/Logistic Regression, Gradient Descent, Naive Bayes, Transformer, Attention, HNSW, Quantization, Speculative Decoding, PageRank, Node2Vec, Decision Tree/RF/GBM, PCA/SVD |
 | [확률/스트림](probabilistic.md) | 4개 | Fisher-Yates, Reservoir Sampling, Count-Min Sketch, HyperLogLog |
-| [분산 합의](consensus.md) | 3개 | 2PC, Paxos, Raft |
-| [분산 알고리즘](distributed.md) | 12개 | Lamport Clock, Vector Clock, Hybrid Logical Clock, Gossip, SWIM, Anti-Entropy, CRDT(G/PN/OR/LWW), Consistent Hashing, Quorum |
-| [동시성/락 알고리즘](concurrent.md) | 10개 | CAS, LL-SC, RCU, MVCC, Hazard Pointer, Lock-Free Queue, Work-Stealing, Seqlock, Memory Barriers, ABA Problem |
-| [파서/컴파일러](parsing.md) | 10개 | Lexing, LL(k), LR(1), LALR, Earley, Pratt, PEG/Packrat, AST Traversal, SSA, Register Allocation |
+| [분산 합의](consensus.md) | 5개 | 2PC, Paxos, Raft, Byzantine/PBFT, Leader Election |
+| [분산 알고리즘](distributed.md) | 14개 | Lamport Clock, Vector Clock, Hybrid Logical Clock, Gossip, SWIM, Anti-Entropy, CRDT(G/PN/OR/LWW), Consistent Hashing, Quorum, Chandy-Lamport, Phi Accrual |
+| [동시성/락 알고리즘](concurrent.md) | 12개 | CAS, LL-SC, RCU, MVCC, Hazard Pointer, Lock-Free Queue, Work-Stealing, Seqlock, Memory Barriers, ABA Problem, 2PL+Deadlock, Queue Spinlocks |
+| [파서/컴파일러](parsing.md) | 12개 | Lexing, LL(k), LR(1), LALR, Earley, Pratt, PEG/Packrat, AST Traversal, SSA, Register Allocation, Compiler Optimization, Formal Language Theory |
 | [공간 인덱싱](spatial.md) | 8개 | R-Tree, R*-Tree, QuadTree, KD-Tree, Geohash, H3, S2, BVH |
 | [검색·랭킹](search-systems.md) | 8개 | Inverted Index, TF-IDF, BM25, Vector Search, Hybrid Search, Faceted, Autocomplete, Learning to Rank |
 | [부하 분산](load-balancing.md) | 8개 | Round Robin, WRR, Least Connections, Least Response Time, P2C, Consistent Hashing (LB), Maglev, EWMA |
-| [OS 기초](os-foundations.md) | 12개 | Mark-Sweep GC, Generational GC, G1 GC, ZGC/Shenandoah, RR Scheduling, CFS, MLFQ, Slab, Buddy, epoll/kqueue/io_uring, Page Replacement, MESI |
+| [OS 기초](os-foundations.md) | 15개 | Mark-Sweep GC, Generational GC, G1 GC, ZGC/Shenandoah, RR Scheduling, CFS, MLFQ, Slab, Buddy, epoll/kqueue/io_uring, Page Replacement, MESI, Disk Scheduling, Process vs Thread, Virtual Memory |
 | [이미지 처리](image-processing.md) | 8개 | Convolution, Edge Detection, Hough, Morphology, Histogram Equalization, Segmentation, Feature Detection, Optical Flow |
-| [코덱·미디어](codecs.md) | 8개 | JPEG, PNG, WebP/AVIF/HEIC, H.264, H.265/H.266/AV1, MP3/AAC, Opus, Entropy Coding |
-| [신호 처리](signal-processing.md) | 8개 | FIR Filter, IIR Filter, STFT, Wavelet, Resampling, Kalman, EKF/UKF, Auto/Cross-correlation |
+| [코덱·미디어](codecs.md) | 9개 | JPEG, PNG, WebP/AVIF/HEIC, H.264, H.265/H.266/AV1, MP3/AAC, Opus, Entropy Coding, Error Correcting Codes |
+| [신호 처리](signal-processing.md) | 9개 | FIR Filter, IIR Filter, STFT, Wavelet, Resampling, Kalman, EKF/UKF, Auto/Cross-correlation, Goertzel |
+| [계산 복잡도·분석](complexity.md) | 6개 | Complexity Classes, Computability, Amortized Analysis, Master Theorem, Approximation, Randomized |
 
 ---
 
 ## 알고리즘 ID 매핑
 
-전체 273개 알고리즘의 ID → 파일 매핑.
+전체 292개 알고리즘의 ID → 파일 매핑.
 
 | ID | 영문명 | 한글명 | 카테고리 | 링크 |
 |----|--------|--------|---------|------|
@@ -62,6 +63,7 @@
 | external-merge-sort | External Merge Sort | 외부 병합 정렬 | 정렬 | [sorting.md#external-merge-sort](sorting.md#external-merge-sort) |
 | pancake-sort | Pancake Sort | 팬케이크 정렬 | 정렬 | [sorting.md#pancake-sort](sorting.md#pancake-sort) |
 | cycle-sort | Cycle Sort | 사이클 정렬 | 정렬 | [sorting.md#cycle-sort](sorting.md#cycle-sort) |
+| quickselect | Quickselect | 퀵 선택 (k번째 순서통계량, Median of Medians) | 정렬 | [sorting.md#quickselect](sorting.md#quickselect) |
 | linear-search | Linear Search | 선형 탐색 | 탐색 | [searching.md#linear-search](searching.md#linear-search) |
 | binary-search | Binary Search | 이진 탐색 | 탐색 | [searching.md#binary-search](searching.md#binary-search) |
 | jump-search | Jump Search | 점프 탐색 | 탐색 | [searching.md#jump-search](searching.md#jump-search) |
@@ -93,6 +95,8 @@
 | 2-sat | 2-SAT | 2-Satisfiability | 그래프 | [graph.md#2-sat](graph.md#2-sat) |
 | eulerian-path | Eulerian Path / Circuit | 오일러 경로/회로 (Hierholzer) | 그래프 | [graph.md#eulerian-path](graph.md#eulerian-path) |
 | stoer-wagner | Min Cut — Stoer-Wagner | 전역 최소 컷 | 그래프 | [graph.md#stoer-wagner](graph.md#stoer-wagner) |
+| heavy-light-decomposition | Heavy-Light Decomposition (HLD) | 헤비-라이트 분해 | 그래프 | [graph.md#heavy-light-decomposition](graph.md#heavy-light-decomposition) |
+| centroid-decomposition | Centroid Decomposition | 센트로이드 분할 | 그래프 | [graph.md#centroid-decomposition](graph.md#centroid-decomposition) |
 | fibonacci | Fibonacci | 피보나치 | 동적 프로그래밍 | [dynamic-programming.md#fibonacci](dynamic-programming.md#fibonacci) |
 | lcs | LCS (Longest Common Subsequence) | 최장 공통 부분 수열 | 동적 프로그래밍 | [dynamic-programming.md#lcs](dynamic-programming.md#lcs) |
 | lis | LIS (Longest Increasing Subsequence) | 최장 증가 부분 수열 | 동적 프로그래밍 | [dynamic-programming.md#lis](dynamic-programming.md#lis) |
@@ -105,6 +109,7 @@
 | tree-dp | Tree DP | 트리 DP | 동적 프로그래밍 | [dynamic-programming.md#tree-dp](dynamic-programming.md#tree-dp) |
 | digit-dp | Digit DP | 자릿수 DP | 동적 프로그래밍 | [dynamic-programming.md#digit-dp](dynamic-programming.md#digit-dp) |
 | sos-dp | SOS DP (Sum over Subsets) | 부분집합 합 | 동적 프로그래밍 | [dynamic-programming.md#sos-dp](dynamic-programming.md#sos-dp) |
+| dp-optimizations | DP Optimizations (Convex Hull Trick / Knuth / D&C DP) | DP 최적화 기법 | 동적 프로그래밍 | [dynamic-programming.md#dp-optimizations](dynamic-programming.md#dp-optimizations) |
 | binary-search-dc | Binary Search | 이진 탐색 | 분할 정복 | [divide-conquer.md#binary-search-dc](divide-conquer.md#binary-search-dc) |
 | merge-sort-dc | Merge Sort | 병합 정렬 | 분할 정복 | [divide-conquer.md#merge-sort-dc](divide-conquer.md#merge-sort-dc) |
 | strassen | Strassen's Matrix Multiplication | 스트라센 행렬 곱셈 | 분할 정복 | [divide-conquer.md#strassen](divide-conquer.md#strassen) |
@@ -145,6 +150,8 @@
 | lucas-theorem | Lucas Theorem | 뤼카 정리 | 수학 | [math.md#lucas-theorem](math.md#lucas-theorem) |
 | pollard-rho | Pollard's Rho | 폴라드 로 인수분해 | 수학 | [math.md#pollard-rho](math.md#pollard-rho) |
 | linear-sieve | Linear Sieve | 선형 소수 체 | 수학 | [math.md#linear-sieve](math.md#linear-sieve) |
+| gaussian-elimination | Gaussian Elimination / Gauss-Jordan | 가우스 소거법 | 수학 | [math.md#gaussian-elimination](math.md#gaussian-elimination) |
+| dct | Discrete Cosine Transform (DCT) | 이산 코사인 변환 | 수학 | [math.md#dct](math.md#dct) |
 | union-find | Union-Find (Disjoint Set) | 분리 집합 | 자료구조 | [data-structures.md#union-find](data-structures.md#union-find) |
 | segment-tree | Segment Tree | 세그먼트 트리 | 자료구조 | [data-structures.md#segment-tree](data-structures.md#segment-tree) |
 | fenwick-tree | Fenwick Tree (Binary Indexed Tree, BIT) | 펜윅 트리 | 자료구조 | [data-structures.md#fenwick-tree](data-structures.md#fenwick-tree) |
@@ -154,6 +161,14 @@
 | skip-list | Skip List | 스킵 리스트 | 자료구조 | [data-structures.md#skip-list](data-structures.md#skip-list) |
 | lru | LRU Cache | LRU 캐시 | 자료구조 | [data-structures.md#lru](data-structures.md#lru) |
 | bloom-filter | Bloom Filter | 블룸 필터 | 자료구조 | [data-structures.md#bloom-filter](data-structures.md#bloom-filter) |
+| binary-heap | Binary Heap / Priority Queue | 이진 힙 / 우선순위 큐 | 자료구조 | [data-structures.md#binary-heap](data-structures.md#binary-heap) |
+| persistent-data-structures | Persistent Data Structures (Persistent Segment Tree) | 영속 자료구조 | 자료구조 | [data-structures.md#persistent-data-structures](data-structures.md#persistent-data-structures) |
+| treap-splay | Treap / Splay Tree | 트립 / 스플레이 트리 | 자료구조 | [data-structures.md#treap-splay](data-structures.md#treap-splay) |
+| hash-collision-resolution | Hash Table Collision Resolution | 해시 테이블 충돌 처리 | 자료구조 | [data-structures.md#hash-collision-resolution](data-structures.md#hash-collision-resolution) |
+| rope-gap-buffer | Rope / Gap Buffer / Piece Table | 로프 / 갭 버퍼 / 피스 테이블 | 자료구조 | [data-structures.md#rope-gap-buffer](data-structures.md#rope-gap-buffer) |
+| advanced-heaps | Advanced Heaps (Fibonacci / Binomial / Pairing) | 고급 힙 | 자료구조 | [data-structures.md#advanced-heaps](data-structures.md#advanced-heaps) |
+| order-statistics-tree | Order-Statistics Tree / Interval Tree | 순위 통계 트리 / 구간 트리 | 자료구조 | [data-structures.md#order-statistics-tree](data-structures.md#order-statistics-tree) |
+| van-emde-boas | van Emde Boas Tree / y-fast Trie | 반 엠데 보아스 트리 | 자료구조 | [data-structures.md#van-emde-boas](data-structures.md#van-emde-boas) |
 | ccw | CCW (Counter-Clockwise) | 외적 방향 판정 | 계산 기하 | [geometry.md#ccw](geometry.md#ccw) |
 | graham-scan | Convex Hull — Graham Scan | 그레이엄 스캔 | 계산 기하 | [geometry.md#graham-scan](geometry.md#graham-scan) |
 | andrew-monotone-chain | Convex Hull — Andrew's Monotone Chain | 앤드류 단조 체인 | 계산 기하 | [geometry.md#andrew-monotone-chain](geometry.md#andrew-monotone-chain) |
@@ -168,12 +183,19 @@
 | bipartite-matching | Bipartite Matching | 이분 매칭 (Augmenting Path DFS) | 매칭 | [matching.md#bipartite-matching](matching.md#bipartite-matching) |
 | hopcroft-karp | Hopcroft-Karp | 홉크로프트-카프 | 매칭 | [matching.md#hopcroft-karp](matching.md#hopcroft-karp) |
 | stable-marriage | Stable Marriage (Gale-Shapley) | 안정 매칭 | 매칭 | [matching.md#stable-marriage](matching.md#stable-marriage) |
+| hungarian | Hungarian (Kuhn-Munkres) | 헝가리안 할당 (최소 비용 할당) | 매칭 | [matching.md#hungarian](matching.md#hungarian) |
 | sha-256 | SHA-256 | Secure Hash Algorithm 256-bit | 암호/해시 | [crypto.md#sha-256](crypto.md#sha-256) |
 | hmac | HMAC | Hash-based Message Authentication Code | 암호/해시 | [crypto.md#hmac](crypto.md#hmac) |
 | rsa | RSA | Rivest-Shamir-Adleman | 암호/해시 | [crypto.md#rsa](crypto.md#rsa) |
 | aes | AES | Advanced Encryption Standard | 암호/해시 | [crypto.md#aes](crypto.md#aes) |
 | bcrypt | Bcrypt | Blowfish-based password hashing | 암호/해시 | [crypto.md#bcrypt](crypto.md#bcrypt) |
 | argon2 | Argon2 | 메모리 하드 비밀번호 해시 | 암호/해시 | [crypto.md#argon2](crypto.md#argon2) |
+| ecc | ECC (ECDSA / Ed25519 / ECDH) | 타원곡선 암호 (서명·키교환) | 암호/해시 | [crypto.md#ecc](crypto.md#ecc) |
+| diffie-hellman | Diffie-Hellman | 디피-헬먼 키 교환 | 암호/해시 | [crypto.md#diffie-hellman](crypto.md#diffie-hellman) |
+| chacha20-poly1305 | ChaCha20-Poly1305 | 스트림 AEAD | 암호/해시 | [crypto.md#chacha20-poly1305](crypto.md#chacha20-poly1305) |
+| sha-3 | SHA-3 / Keccak | SHA-3 스펀지 해시 | 암호/해시 | [crypto.md#sha-3](crypto.md#sha-3) |
+| blake2-blake3 | BLAKE2 / BLAKE3 | 고속 암호 해시 | 암호/해시 | [crypto.md#blake2-blake3](crypto.md#blake2-blake3) |
+| scrypt-pbkdf2 | scrypt / PBKDF2 | 키 유도 함수 (KDF) | 암호/해시 | [crypto.md#scrypt-pbkdf2](crypto.md#scrypt-pbkdf2) |
 | rle | Run-Length Encoding (RLE) | 런 길이 부호화 | 압축 | [compression.md#rle](compression.md#rle) |
 | lz77 | LZ77 (Lempel-Ziv 1977) | 슬라이딩 윈도우 압축 | 압축 | [compression.md#lz77](compression.md#lz77) |
 | lzw | LZ78 / LZW | 사전 기반 압축 | 압축 | [compression.md#lzw](compression.md#lzw) |
@@ -197,6 +219,8 @@
 | speculative-decoding | Speculative Decoding | 추측 디코딩 | 머신러닝 | [ml.md#speculative-decoding](ml.md#speculative-decoding) |
 | pagerank | PageRank | 페이지랭크 | 머신러닝 | [ml.md#pagerank](ml.md#pagerank) |
 | node2vec | Node2Vec | 노드투벡 | 머신러닝 | [ml.md#node2vec](ml.md#node2vec) |
+| decision-tree | Decision Tree / Random Forest / Gradient Boosting | 트리 기반 모델 | 머신러닝 | [ml.md#decision-tree](ml.md#decision-tree) |
+| pca-svd | PCA / SVD | 주성분 분석 / 특이값 분해 | 머신러닝 | [ml.md#pca-svd](ml.md#pca-svd) |
 | fisher-yates-shuffle | Fisher-Yates Shuffle | 피셔-예이츠 셔플 | 확률/스트림 | [probabilistic.md#fisher-yates-shuffle](probabilistic.md#fisher-yates-shuffle) |
 | reservoir-sampling | Reservoir Sampling | 리저버 샘플링 | 확률/스트림 | [probabilistic.md#reservoir-sampling](probabilistic.md#reservoir-sampling) |
 | count-min-sketch | Count-Min Sketch | 카운트-민 스케치 | 확률/스트림 | [probabilistic.md#count-min-sketch](probabilistic.md#count-min-sketch) |
@@ -204,6 +228,8 @@
 | 2pc | 2PC (Two-Phase Commit) | 2단계 커밋 | 분산 합의 | [consensus.md#2pc](consensus.md#2pc) |
 | paxos | Paxos | Basic / Multi-Paxos | 분산 합의 | [consensus.md#paxos](consensus.md#paxos) |
 | raft | Raft | 래프트 | 분산 합의 | [consensus.md#raft](consensus.md#raft) |
+| byzantine-pbft | Byzantine Fault Tolerance (PBFT / Byzantine Generals) | 비잔틴 결함 허용 | 분산 합의 | [consensus.md#byzantine-pbft](consensus.md#byzantine-pbft) |
+| leader-election | Leader Election (Bully / Ring) | 리더 선출 | 분산 합의 | [consensus.md#leader-election](consensus.md#leader-election) |
 | lamport-clock | Lamport Clock | 램포트 시계 | 분산 알고리즘 | [distributed.md#lamport-clock](distributed.md#lamport-clock) |
 | vector-clock | Vector Clock | 벡터 시계 | 분산 알고리즘 | [distributed.md#vector-clock](distributed.md#vector-clock) |
 | hybrid-logical-clock | Hybrid Logical Clock (HLC) | 하이브리드 논리 시계 | 분산 알고리즘 | [distributed.md#hybrid-logical-clock](distributed.md#hybrid-logical-clock) |
@@ -216,6 +242,8 @@
 | crdt-lww-set | CRDT — LWW-Set | 마지막 쓰기 우선 집합 CRDT | 분산 알고리즘 | [distributed.md#crdt-lww-set](distributed.md#crdt-lww-set) |
 | consistent-hashing | Consistent Hashing | 일관적 해싱 | 분산 알고리즘 | [distributed.md#consistent-hashing](distributed.md#consistent-hashing) |
 | quorum | Quorum (R+W>N) | 정족수 합의 | 분산 알고리즘 | [distributed.md#quorum](distributed.md#quorum) |
+| chandy-lamport | Chandy-Lamport Distributed Snapshot | 찬디-램포트 분산 스냅샷 | 분산 알고리즘 | [distributed.md#chandy-lamport](distributed.md#chandy-lamport) |
+| phi-accrual | Phi Accrual Failure Detector | 파이 누적 장애 감지기 | 분산 알고리즘 | [distributed.md#phi-accrual](distributed.md#phi-accrual) |
 | cas | CAS (Compare-And-Swap) | 비교 후 교환 | 동시성/락 | [concurrent.md#cas](concurrent.md#cas) |
 | ll-sc | LL-SC (Load-Linked / Store-Conditional) | LL-SC | 동시성/락 | [concurrent.md#ll-sc](concurrent.md#ll-sc) |
 | rcu | RCU (Read-Copy-Update) | 읽기-복제-갱신 | 동시성/락 | [concurrent.md#rcu](concurrent.md#rcu) |
@@ -226,6 +254,8 @@
 | seqlock | Seqlock | 시퀀스 락 | 동시성/락 | [concurrent.md#seqlock](concurrent.md#seqlock) |
 | memory-barriers | Memory Barriers | 메모리 배리어 | 동시성/락 | [concurrent.md#memory-barriers](concurrent.md#memory-barriers) |
 | aba-problem | ABA Problem 해법 | ABA 문제 해법 | 동시성/락 | [concurrent.md#aba-problem](concurrent.md#aba-problem) |
+| two-phase-locking | Two-Phase Locking + Deadlock Detection | 2단계 잠금 + 교착 검출 | 동시성/락 | [concurrent.md#two-phase-locking](concurrent.md#two-phase-locking) |
+| queue-spinlock | Queue-based Spinlocks (Ticket / MCS / CLH) | 큐 기반 스핀락 | 동시성/락 | [concurrent.md#queue-spinlock](concurrent.md#queue-spinlock) |
 | lexing | Lexing / Tokenization | 토큰화 | 파서/컴파일러 | [parsing.md#lexing](parsing.md#lexing) |
 | ll-k | LL(k) Parsing | LL(k) 파싱 | 파서/컴파일러 | [parsing.md#ll-k](parsing.md#ll-k) |
 | lr-1 | LR(1) Parsing | LR(1) 파싱 | 파서/컴파일러 | [parsing.md#lr-1](parsing.md#lr-1) |
@@ -236,6 +266,8 @@
 | ast-traversal | AST Traversal | AST 순회 | 파서/컴파일러 | [parsing.md#ast-traversal](parsing.md#ast-traversal) |
 | ssa | SSA Form | 정적 단일 할당 | 파서/컴파일러 | [parsing.md#ssa](parsing.md#ssa) |
 | register-allocation | Register Allocation | 레지스터 할당 | 파서/컴파일러 | [parsing.md#register-allocation](parsing.md#register-allocation) |
+| compiler-optimization | Compiler Optimization Passes | 컴파일러 최적화 패스 | 파서/컴파일러 | [parsing.md#compiler-optimization](parsing.md#compiler-optimization) |
+| formal-language-theory | Formal Language Theory | 형식 언어 이론 | 파서/컴파일러 | [parsing.md#formal-language-theory](parsing.md#formal-language-theory) |
 | r-tree | R-Tree | R-트리 | 공간 인덱싱 | [spatial.md#r-tree](spatial.md#r-tree) |
 | r-star-tree | R*-Tree | R*-트리 | 공간 인덱싱 | [spatial.md#r-star-tree](spatial.md#r-star-tree) |
 | quadtree | QuadTree | 쿼드트리 | 공간 인덱싱 | [spatial.md#quadtree](spatial.md#quadtree) |
@@ -272,6 +304,9 @@
 | epoll-kqueue-iouring | epoll / kqueue / io_uring | I/O 멀티플렉싱 | OS 기초 | [os-foundations.md#epoll-kqueue-iouring](os-foundations.md#epoll-kqueue-iouring) |
 | page-replacement | Page Replacement (LRU / Clock / LFU / ARC) | 페이지 교체 알고리즘 | OS 기초 | [os-foundations.md#page-replacement](os-foundations.md#page-replacement) |
 | mesi-cache-coherence | MESI Cache Coherence | MESI 캐시 일관성 | OS 기초 | [os-foundations.md#mesi-cache-coherence](os-foundations.md#mesi-cache-coherence) |
+| disk-scheduling | Disk / I/O Scheduling (SCAN / C-SCAN / SSTF) | 디스크 스케줄링 | OS 기초 | [os-foundations.md#disk-scheduling](os-foundations.md#disk-scheduling) |
+| process-vs-thread | Process vs Thread Execution Model | 프로세스 vs 스레드 | OS 기초 | [os-foundations.md#process-vs-thread](os-foundations.md#process-vs-thread) |
+| virtual-memory | Virtual Memory (Paging / TLB / CoW) | 가상 메모리 | OS 기초 | [os-foundations.md#virtual-memory](os-foundations.md#virtual-memory) |
 | convolution-kernel | Convolution / Kernel Filtering | 합성곱 / 커널 필터링 | 이미지 처리 | [image-processing.md#convolution-kernel](image-processing.md#convolution-kernel) |
 | edge-detection | Edge Detection (Sobel / Canny / Laplacian) | 엣지 검출 | 이미지 처리 | [image-processing.md#edge-detection](image-processing.md#edge-detection) |
 | hough-transform | Hough Transform | 허프 변환 | 이미지 처리 | [image-processing.md#hough-transform](image-processing.md#hough-transform) |
@@ -288,6 +323,7 @@
 | mp3-aac | MP3 / AAC | 인지 기반 오디오 코덱 | 코덱·미디어 | [codecs.md#mp3-aac](codecs.md#mp3-aac) |
 | opus | Opus (RFC 6716) | Opus 오디오 코덱 | 코덱·미디어 | [codecs.md#opus](codecs.md#opus) |
 | entropy-coding | Entropy Coding (Arithmetic / Range / ANS) | 엔트로피 부호화 | 코덱·미디어 | [codecs.md#entropy-coding](codecs.md#entropy-coding) |
+| error-correcting-codes | Error Detection & Correction Codes | 오류 검출·정정 부호 | 코덱·미디어 | [codecs.md#error-correcting-codes](codecs.md#error-correcting-codes) |
 | fir-filter | FIR Filter | 유한 임펄스 응답 필터 | 신호 처리 | [signal-processing.md#fir-filter](signal-processing.md#fir-filter) |
 | iir-filter | IIR Filter | 무한 임펄스 응답 필터 | 신호 처리 | [signal-processing.md#iir-filter](signal-processing.md#iir-filter) |
 | stft | STFT | 단시간 푸리에 변환 | 신호 처리 | [signal-processing.md#stft](signal-processing.md#stft) |
@@ -296,6 +332,13 @@
 | kalman-filter | Kalman Filter | 칼만 필터 | 신호 처리 | [signal-processing.md#kalman-filter](signal-processing.md#kalman-filter) |
 | extended-kalman | Extended / Unscented Kalman | EKF / UKF | 신호 처리 | [signal-processing.md#extended-kalman](signal-processing.md#extended-kalman) |
 | autocorrelation | Auto/Cross-correlation | 자기/교차 상관 | 신호 처리 | [signal-processing.md#autocorrelation](signal-processing.md#autocorrelation) |
+| goertzel | Goertzel Algorithm | 괴르첼 알고리즘 | 신호 처리 | [signal-processing.md#goertzel](signal-processing.md#goertzel) |
+| complexity-classes | Computational Complexity Classes & NP-completeness | 복잡도 클래스·NP-완전성 | 계산 복잡도·분석 | [complexity.md#complexity-classes](complexity.md#complexity-classes) |
+| computability | Computability & Decidability | 계산 가능성·결정 가능성 | 계산 복잡도·분석 | [complexity.md#computability](complexity.md#computability) |
+| amortized-analysis | Amortized Analysis | 분할 상환 분석 | 계산 복잡도·분석 | [complexity.md#amortized-analysis](complexity.md#amortized-analysis) |
+| master-theorem | Master Theorem & Recurrence Solving | 마스터 정리·점화식 해법 | 계산 복잡도·분석 | [complexity.md#master-theorem](complexity.md#master-theorem) |
+| approximation-algorithms | Approximation Algorithms | 근사 알고리즘 | 계산 복잡도·분석 | [complexity.md#approximation-algorithms](complexity.md#approximation-algorithms) |
+| randomized-algorithms | Randomized Algorithms (Las Vegas / Monte Carlo) | 무작위 알고리즘 분류 | 계산 복잡도·분석 | [complexity.md#randomized-algorithms](complexity.md#randomized-algorithms) |
 
 ---
 
@@ -449,42 +492,43 @@
 
 ## 알고리즘 ID 인덱스
 
-273개 알고리즘의 전체 ID → 파일 매핑은 [#알고리즘-id-매핑](#알고리즘-id-매핑) 참조.
+292개 알고리즘의 전체 ID → 파일 매핑은 [#알고리즘-id-매핑](#알고리즘-id-매핑) 참조.
 프로그래밍 언어 reference 는 [`../languages/`](../languages/) 별도 카탈로그 참조.
 
 카테고리 진입점:
 
 | 카테고리 | 개수 | 파일 |
 |---------|------|------|
-| 정렬 | 16 | [./sorting.md](./sorting.md) |
+| 정렬 | 17 | [./sorting.md](./sorting.md) |
 | 탐색 | 13 | [./searching.md](./searching.md) |
-| 그래프 | 18 | [./graph.md](./graph.md) |
-| 동적 프로그래밍 | 12 | [./dynamic-programming.md](./dynamic-programming.md) |
+| 그래프 | 20 | [./graph.md](./graph.md) |
+| 동적 프로그래밍 | 13 | [./dynamic-programming.md](./dynamic-programming.md) |
 | 분할 정복 | 5 | [./divide-conquer.md](./divide-conquer.md) |
 | 탐욕 | 5 | [./greedy.md](./greedy.md) |
 | 백트래킹 | 5 | [./backtracking.md](./backtracking.md) |
 | 문자열 | 11 | [./string.md](./string.md) |
-| 수학 | 14 | [./math.md](./math.md) |
-| 자료구조 | 9 | [./data-structures.md](./data-structures.md) |
+| 수학 | 16 | [./math.md](./math.md) |
+| 자료구조 | 17 | [./data-structures.md](./data-structures.md) |
 | 계산 기하 | 7 | [./geometry.md](./geometry.md) |
 | 네트워크 플로우 | 4 | [./flow.md](./flow.md) |
-| 매칭 | 3 | [./matching.md](./matching.md) |
-| 암호/해시 | 6 | [./crypto.md](./crypto.md) |
+| 매칭 | 4 | [./matching.md](./matching.md) |
+| 암호/해시 | 12 | [./crypto.md](./crypto.md) |
 | 압축 | 5 | [./compression.md](./compression.md) |
 | 게임/AI | 5 | [./game-ai.md](./game-ai.md) |
-| 머신러닝 | 13 | [./ml.md](./ml.md) |
+| 머신러닝 | 15 | [./ml.md](./ml.md) |
 | 확률/스트림 | 4 | [./probabilistic.md](./probabilistic.md) |
-| 분산 합의 | 3 | [./consensus.md](./consensus.md) |
-| 분산 알고리즘 | 12 | [./distributed.md](./distributed.md) |
-| 동시성/락 알고리즘 | 10 | [./concurrent.md](./concurrent.md) |
-| 파서/컴파일러 | 10 | [./parsing.md](./parsing.md) |
+| 분산 합의 | 5 | [./consensus.md](./consensus.md) |
+| 분산 알고리즘 | 14 | [./distributed.md](./distributed.md) |
+| 동시성/락 알고리즘 | 12 | [./concurrent.md](./concurrent.md) |
+| 파서/컴파일러 | 12 | [./parsing.md](./parsing.md) |
 | 공간 인덱싱 | 8 | [./spatial.md](./spatial.md) |
 | 검색·랭킹 | 8 | [./search-systems.md](./search-systems.md) |
 | 부하 분산 | 8 | [./load-balancing.md](./load-balancing.md) |
-| OS 기초 | 12 | [./os-foundations.md](./os-foundations.md) |
+| OS 기초 | 15 | [./os-foundations.md](./os-foundations.md) |
 | 이미지 처리 | 8 | [./image-processing.md](./image-processing.md) |
-| 코덱·미디어 | 8 | [./codecs.md](./codecs.md) |
-| 신호 처리 | 8 | [./signal-processing.md](./signal-processing.md) |
+| 코덱·미디어 | 9 | [./codecs.md](./codecs.md) |
+| 신호 처리 | 9 | [./signal-processing.md](./signal-processing.md) |
+| 계산 복잡도·분석 | 6 | [./complexity.md](./complexity.md) |
 
 각 카테고리 md 의 `## 알고리즘 목차` 표에서 알고리즘별 anchor 점프 가능.
 
@@ -527,3 +571,138 @@
 | lru-cache | lru | data-structures.md |
 | breadth-first-search | bfs | graph.md |
 | depth-first-search | dfs | graph.md |
+| nth-element | quickselect | sorting.md |
+| kth-smallest | quickselect | sorting.md |
+| median-of-medians | quickselect | sorting.md |
+| selection-problem | quickselect | sorting.md |
+| bfprt | quickselect | sorting.md |
+| priority-queue | binary-heap | data-structures.md |
+| min-heap | binary-heap | data-structures.md |
+| max-heap | binary-heap | data-structures.md |
+| d-ary-heap | binary-heap | data-structures.md |
+| kuhn-munkres | hungarian | matching.md |
+| assignment-problem | hungarian | matching.md |
+| ecdsa | ecc | crypto.md |
+| ed25519 | ecc | crypto.md |
+| ecdh | ecc | crypto.md |
+| x25519 | ecc | crypto.md |
+| eddsa | ecc | crypto.md |
+| elliptic-curve | ecc | crypto.md |
+| dh | diffie-hellman | crypto.md |
+| dhe | diffie-hellman | crypto.md |
+| ecdhe | diffie-hellman | crypto.md |
+| key-agreement | diffie-hellman | crypto.md |
+| random-forest | decision-tree | ml.md |
+| gradient-boosting | decision-tree | ml.md |
+| xgboost | decision-tree | ml.md |
+| lightgbm | decision-tree | ml.md |
+| gbm | decision-tree | ml.md |
+| catboost | decision-tree | ml.md |
+| gauss-jordan | gaussian-elimination | math.md |
+| row-reduction | gaussian-elimination | math.md |
+| rref | gaussian-elimination | math.md |
+| discrete-cosine-transform | dct | math.md |
+| idct | dct | math.md |
+| mdct | dct | math.md |
+| convex-hull-trick | dp-optimizations | dynamic-programming.md |
+| cht | dp-optimizations | dynamic-programming.md |
+| knuth-optimization | dp-optimizations | dynamic-programming.md |
+| divide-and-conquer-dp | dp-optimizations | dynamic-programming.md |
+| li-chao-tree | dp-optimizations | dynamic-programming.md |
+| hld | heavy-light-decomposition | graph.md |
+| heavy-path-decomposition | heavy-light-decomposition | graph.md |
+| centroid-decomp | centroid-decomposition | graph.md |
+| persistent-segment-tree | persistent-data-structures | data-structures.md |
+| path-copying | persistent-data-structures | data-structures.md |
+| treap | treap-splay | data-structures.md |
+| splay-tree | treap-splay | data-structures.md |
+| cartesian-tree | treap-splay | data-structures.md |
+| open-addressing | hash-collision-resolution | data-structures.md |
+| separate-chaining | hash-collision-resolution | data-structures.md |
+| cuckoo-hashing | hash-collision-resolution | data-structures.md |
+| robin-hood-hashing | hash-collision-resolution | data-structures.md |
+| linear-probing | hash-collision-resolution | data-structures.md |
+| rope | rope-gap-buffer | data-structures.md |
+| gap-buffer | rope-gap-buffer | data-structures.md |
+| piece-table | rope-gap-buffer | data-structures.md |
+| fibonacci-heap | advanced-heaps | data-structures.md |
+| binomial-heap | advanced-heaps | data-structures.md |
+| pairing-heap | advanced-heaps | data-structures.md |
+| order-statistic-tree | order-statistics-tree | data-structures.md |
+| interval-tree | order-statistics-tree | data-structures.md |
+| augmented-bst | order-statistics-tree | data-structures.md |
+| veb | van-emde-boas | data-structures.md |
+| veb-tree | van-emde-boas | data-structures.md |
+| y-fast-trie | van-emde-boas | data-structures.md |
+| distributed-snapshot | chandy-lamport | distributed.md |
+| global-snapshot | chandy-lamport | distributed.md |
+| marker-algorithm | chandy-lamport | distributed.md |
+| phi-accrual-failure-detector | phi-accrual | distributed.md |
+| accrual-failure-detector | phi-accrual | distributed.md |
+| pbft | byzantine-pbft | consensus.md |
+| byzantine-fault-tolerance | byzantine-pbft | consensus.md |
+| bft | byzantine-pbft | consensus.md |
+| byzantine-generals | byzantine-pbft | consensus.md |
+| bully-algorithm | leader-election | consensus.md |
+| ring-election | leader-election | consensus.md |
+| coordinator-election | leader-election | consensus.md |
+| 2pl | two-phase-locking | concurrent.md |
+| deadlock-detection | two-phase-locking | concurrent.md |
+| wait-for-graph | two-phase-locking | concurrent.md |
+| strict-2pl | two-phase-locking | concurrent.md |
+| ticket-lock | queue-spinlock | concurrent.md |
+| mcs-lock | queue-spinlock | concurrent.md |
+| clh-lock | queue-spinlock | concurrent.md |
+| mcs | queue-spinlock | concurrent.md |
+| clh | queue-spinlock | concurrent.md |
+| sstf | disk-scheduling | os-foundations.md |
+| c-scan | disk-scheduling | os-foundations.md |
+| elevator-algorithm | disk-scheduling | os-foundations.md |
+| thread-model | process-vs-thread | os-foundations.md |
+| green-thread | process-vs-thread | os-foundations.md |
+| virtual-thread | process-vs-thread | os-foundations.md |
+| paging | virtual-memory | os-foundations.md |
+| tlb | virtual-memory | os-foundations.md |
+| copy-on-write | virtual-memory | os-foundations.md |
+| demand-paging | virtual-memory | os-foundations.md |
+| chacha20 | chacha20-poly1305 | crypto.md |
+| poly1305 | chacha20-poly1305 | crypto.md |
+| xchacha20 | chacha20-poly1305 | crypto.md |
+| sha3 | sha-3 | crypto.md |
+| keccak | sha-3 | crypto.md |
+| shake | sha-3 | crypto.md |
+| blake2 | blake2-blake3 | crypto.md |
+| blake3 | blake2-blake3 | crypto.md |
+| scrypt | scrypt-pbkdf2 | crypto.md |
+| pbkdf2 | scrypt-pbkdf2 | crypto.md |
+| svd | pca-svd | ml.md |
+| principal-component-analysis | pca-svd | ml.md |
+| goertzel-algorithm | goertzel | signal-processing.md |
+| data-flow-analysis | compiler-optimization | parsing.md |
+| dead-code-elimination | compiler-optimization | parsing.md |
+| constant-folding | compiler-optimization | parsing.md |
+| chomsky-hierarchy | formal-language-theory | parsing.md |
+| pumping-lemma | formal-language-theory | parsing.md |
+| cyk | formal-language-theory | parsing.md |
+| crc | error-correcting-codes | codecs.md |
+| hamming-code | error-correcting-codes | codecs.md |
+| checksum | error-correcting-codes | codecs.md |
+| np-complete | complexity-classes | complexity.md |
+| np-hard | complexity-classes | complexity.md |
+| p-vs-np | complexity-classes | complexity.md |
+| cook-levin | complexity-classes | complexity.md |
+| halting-problem | computability | complexity.md |
+| rice-theorem | computability | complexity.md |
+| turing-machine | computability | complexity.md |
+| decidability | computability | complexity.md |
+| potential-method | amortized-analysis | complexity.md |
+| accounting-method | amortized-analysis | complexity.md |
+| aggregate-analysis | amortized-analysis | complexity.md |
+| recurrence-solving | master-theorem | complexity.md |
+| akra-bazzi | master-theorem | complexity.md |
+| approximation-ratio | approximation-algorithms | complexity.md |
+| ptas | approximation-algorithms | complexity.md |
+| fptas | approximation-algorithms | complexity.md |
+| las-vegas | randomized-algorithms | complexity.md |
+| monte-carlo | randomized-algorithms | complexity.md |
+| randomized-algorithm | randomized-algorithms | complexity.md |

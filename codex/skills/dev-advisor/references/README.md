@@ -16,7 +16,7 @@
 | advisor 9 모드 + lookup 예시 10 (A~J) | [references/examples.md](examples.md) |
 | 언어별 코드 템플릿 | [references/code_templates.md](code_templates.md) |
 | advisor 9 모드 산출물 마크다운 스켈레톤 | [references/output_templates.md](output_templates.md) |
-| 미시 원칙 <!--counts:micro-->18<!--/--> 부록 (DRY/KISS/YAGNI/LoD/SoC/Tell-Don't-Ask/Composition/SSoT + Conway/Hyrum/Postel/Brooks 등) | [references/principles/micro-principles.md](principles/micro-principles.md) |
+| 미시 원칙 <!--counts:micro-->20<!--/--> 부록 (DRY/KISS/YAGNI/LoD/SoC/Tell-Don't-Ask/Composition/SSoT + Conway/Hyrum/Postel/Brooks 등) | [references/principles/micro-principles.md](principles/micro-principles.md) |
 
 ## 디렉토리
 
@@ -24,11 +24,11 @@
 
 ### 6 카탈로그 (도메인 데이터)
 
-- `patterns/` — <!--counts:patterns-->529<!--/--> 디자인·아키텍처 패턴 (55 카테고리)
-- `algorithms/` — <!--counts:algorithms-->250<!--/--> 알고리즘 (32 카테고리)
+- `patterns/` — <!--counts:patterns-->543<!--/--> 디자인·아키텍처 패턴 (55 카테고리)
+- `algorithms/` — <!--counts:algorithms-->292<!--/--> 알고리즘 (32 카테고리)
 - `languages/` — <!--counts:languages-->75<!--/--> 프로그래밍 언어
 - `security/` — <!--counts:security-->106<!--/--> 보안 항목 (15 파일)
-- `principles/` — <!--counts:principles-->206<!--/--> SW 공학 원칙 + <!--counts:micro-->18<!--/--> 미시 부록
+- `principles/` — <!--counts:principles-->211<!--/--> SW 공학 원칙 + <!--counts:micro-->20<!--/--> 미시 부록
 - `quality/` — <!--counts:quality-->20<!--/--> QA/QC 품질 항목 (QA 10 + QC 10)
 
 ### Workflows (advisor 9 모드 절차·산출물 — Progressive Disclosure)

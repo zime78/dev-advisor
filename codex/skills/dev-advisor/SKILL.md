@@ -1,6 +1,6 @@
 ---
 name: dev-advisor
-description: 앱 개발 어드바이저 — 6중 카탈로그(529 패턴 / 250 알고리즘 / 75 언어 / 106 보안 / 206 원칙 / 20 품질 + 18 부록). **9 모드** — recommend / validate / refactor / maintain / security-audit / qa / qc / research / audit (`--mode=serial\|parallel`, legacy aliases full / swarm). 호출 — `/dev-advisor <mode>`, `/pattern <id>`, `/algorithm <id>`, `/language <id>`, `/security <id>`, `/principle <id>`, `/quality <id>`. 코드/모듈/API 입력 시 advisor 모드 우선 라우팅.
+description: 앱 개발 어드바이저 — 6중 카탈로그(543 패턴 / 292 알고리즘 / 75 언어 / 106 보안 / 211 원칙 / 20 품질 + 20 부록). **9 모드** — recommend / validate / refactor / maintain / security-audit / qa / qc / research / audit (`--mode=serial\|parallel`, legacy aliases full / swarm). 호출 — `/dev-advisor <mode>`, `/pattern <id>`, `/algorithm <id>`, `/language <id>`, `/security <id>`, `/principle <id>`, `/quality <id>`. 코드/모듈/API 입력 시 advisor 모드 우선 라우팅.
 argument-hint: "<recommend|validate|refactor|maintain|security-audit|qa|qc|research|audit|full|swarm|--help|pattern|algorithm|language|security|principle|quality> [input]"
 ---
 
@@ -25,20 +25,20 @@ argument-hint: "<recommend|validate|refactor|maintain|security-audit|qa|qc|resea
 
 | 도메인 | 디렉토리 | 항목 수 | 용도 |
 |---|---|--:|---|
-| Patterns   | `references/patterns/`   | <!--counts:patterns-->529<!--/--> | 디자인·아키텍처 의사결정 (55 카테고리) |
-| Algorithms | `references/algorithms/` | <!--counts:algorithms-->250<!--/--> | 자료구조·연산·분산·동시성 (32 카테고리) |
+| Patterns   | `references/patterns/`   | <!--counts:patterns-->543<!--/--> | 디자인·아키텍처 의사결정 (55 카테고리) |
+| Algorithms | `references/algorithms/` | <!--counts:algorithms-->292<!--/--> | 자료구조·연산·분산·동시성 (32 카테고리) |
 | Languages  | `references/languages/`  | <!--counts:languages-->75<!--/--> | 언어 선택·비교·분야별 추천 |
 | Security   | `references/security/`   | <!--counts:security-->106<!--/--> | 인증·인가·암호·API·모바일·AI·규제 (15 파일) |
-| Principles | `references/principles/` | <!--counts:principles-->206<!--/--> + <!--counts:micro-->18<!--/--> 부록 | SOLID / GRASP / ISO 25010 / 12-Factor / Code Smells + 확장 16 + 미시 18 |
+| Principles | `references/principles/` | <!--counts:principles-->211<!--/--> + <!--counts:micro-->20<!--/--> 부록 | SOLID / GRASP / ISO 25010 / 12-Factor / Code Smells + 확장 16 + 미시 18 |
 | Quality    | `references/quality/`    | <!--counts:quality-->20<!--/--> | QA 10 + QC 10 — 요구사항·테스트·릴리즈·게이트 |
 
-합계 **<!--counts:total-->1186<!--/--> 항목 + <!--counts:micro-->18<!--/--> 부록**.
+합계 **<!--counts:total-->1247<!--/--> 항목 + <!--counts:micro-->20<!--/--> 부록**.
 
 ## 호출 인터페이스
 
 ### 1. 카탈로그 lookup (6 도메인)
 
-| 명령 | 패턴 (<!--counts:patterns-->529<!--/-->) | 알고리즘 (<!--counts:algorithms-->250<!--/-->) | 언어 (<!--counts:languages-->75<!--/-->) | 보안 (<!--counts:security-->106<!--/-->) | 원칙 (<!--counts:principles-->206<!--/-->+<!--counts:micro-->18<!--/-->) | 품질 (<!--counts:quality-->20<!--/-->) |
+| 명령 | 패턴 (<!--counts:patterns-->543<!--/-->) | 알고리즘 (<!--counts:algorithms-->292<!--/-->) | 언어 (<!--counts:languages-->75<!--/-->) | 보안 (<!--counts:security-->106<!--/-->) | 원칙 (<!--counts:principles-->211<!--/-->+<!--counts:micro-->20<!--/-->) | 품질 (<!--counts:quality-->20<!--/-->) |
 |---|---|---|---|---|---|---|
 | `list` | `/pattern list` | `/algorithm list [cat]` | `/language list` | `/security list` | `/principle list` | `/quality list` |
 | `search` | `/pattern search 생성` | `/algorithm search 정렬` | `/language search 웹` | `/security search 인증` | `/principle search 결합도` | `/quality search release` |
@@ -103,11 +103,11 @@ advisor 9 모드는 트리거 조건 도달 시 Codex 전문 서브에이전트 
 
 | 도메인 | 진입점 |
 |---|---|
-| 패턴 (<!--counts:patterns-->529<!--/-->) | [`references/patterns/index.md`](references/patterns/index.md) |
-| 알고리즘 (<!--counts:algorithms-->250<!--/-->) | [`references/algorithms/index.md`](references/algorithms/index.md) |
+| 패턴 (<!--counts:patterns-->543<!--/-->) | [`references/patterns/index.md`](references/patterns/index.md) |
+| 알고리즘 (<!--counts:algorithms-->292<!--/-->) | [`references/algorithms/index.md`](references/algorithms/index.md) |
 | 언어 (<!--counts:languages-->75<!--/-->) | [`references/languages/index.md`](references/languages/index.md) · [`domains.md`](references/languages/domains.md) |
 | 보안 (<!--counts:security-->106<!--/-->) | [`references/security/index.md`](references/security/index.md) |
-| 원칙 (<!--counts:principles-->206<!--/-->+<!--counts:micro-->18<!--/-->) | [`references/principles/index.md`](references/principles/index.md) · [`micro-principles.md`](references/principles/micro-principles.md) |
+| 원칙 (<!--counts:principles-->211<!--/-->+<!--counts:micro-->20<!--/-->) | [`references/principles/index.md`](references/principles/index.md) · [`micro-principles.md`](references/principles/micro-principles.md) |
 | 품질 (<!--counts:quality-->20<!--/-->) | [`references/quality/index.md`](references/quality/index.md) · [`qa.md`](references/quality/qa.md) · [`qc.md`](references/quality/qc.md) |
 
 부가 자산:

@@ -549,3 +549,86 @@ fun processWithdrawal(account: Account, amount: Int) {
 - Charles Goodhart, *Problems of Monetary Management: The U.K. Experience* (1975) — Goodhart's Law 원전
 - Marilyn Strathern, *'Improving ratings': audit in the British University system*, European Review 5 (1997) — Goodhart 압축형 인용
 - Ward Cunningham — Cunningham's Law (구두 격언, Steven McGeady 인용)
+
+---
+
+<a id="fallacies-distributed-computing"></a>
+## Fallacies of Distributed Computing (분산 컴퓨팅의 오류 8가지)
+
+**원전**: L. Peter Deutsch (Sun Microsystems, 1994)가 처음 7개를 정식화, James Gosling이 8번째(network is homogeneous)를 추가; Sun Fellow Bill Joy & Tom Lyon이 초기 4개 기여. 분석·확산은 Arnon Rotem-Gal-Oz, *Fallacies of Distributed Computing Explained* (2006). Deutsch가 Xerox PARC에서 작업하던 1991~1992년경 발상이라는 회고도 있으나, Sun에서의 1994년 정식화가 표준 인용.
+**한 줄 정의**: "Essentially everyone, when they first build a distributed application, makes the following eight assumptions. All prove to be false in the long run and all cause big trouble and painful learning experiences." (Deutsch & Gosling)
+
+**의도**: 네트워크로 연결된 분산 시스템을 처음 설계하는 거의 모든 개발자가 무의식적으로 가정하는 8가지 명제 — 모두 *장기적으로 거짓*이며 반드시 장애·데이터 손실·성능 붕괴로 이어진다. 단일 프로세스 안에서 당연하던 함수 호출의 보장(즉시성·신뢰성·무비용)을 네트워크 경계 너머에서도 유효하다고 착각하는 것이 핵심 오류다. 8가지를 명시적 체크리스트로 다뤄 *방어적 설계*(타임아웃·재시도·서킷 브레이커·암호화·관측성)를 강제하는 데 의의가 있다.
+
+**8가지 오류와 현실·대응**:
+
+1. **The network is reliable (네트워크는 신뢰할 수 있다)** — 현실: 패킷 손실·라우터 장애·케이블 단선·split-brain은 항상 발생한다. 대응: 타임아웃 + 재시도(exponential backoff + jitter), idempotency key로 중복 요청 안전화, at-least-once 전송 가정, 데드레터 큐.
+2. **Latency is zero (지연은 0이다)** — 현실: 빛의 속도는 물리적 하한이며 대륙 간 RTT는 100ms 이상. 함수 호출처럼 원격 호출을 남발하면 N+1 round-trip이 누적 폭증. 대응: chatty → chunky 인터페이스(배치/coarse-grained), 데이터 지역성(co-location), 캐싱, 비동기·파이프라이닝.
+3. **Bandwidth is infinite (대역폭은 무한하다)** — 현실: 링크 용량은 유한하고 페이로드 비대화는 혼잡·큐잉 지연을 부른다. 대응: 압축, 페이지네이션/필터링(필요 필드만 — GraphQL·field mask), 프로토콜 효율화(Protobuf/Avro 같은 바이너리), 백프레셔.
+4. **The network is secure (네트워크는 안전하다)** — 현실: 도청·MITM·재전송·스푸핑이 상존. 대응: TLS/mTLS 전구간 암호화, 인증·인가(OAuth2/JWT), 입력 검증, zero-trust(경계 신뢰 폐기), 비밀 관리(secret rotation).
+5. **Topology doesn't change (토폴로지는 변하지 않는다)** — 현실: 오토스케일·배포·노드 교체·IP 변경으로 토폴로지는 끊임없이 변한다. 대응: 하드코딩 주소 금지, 서비스 디스커버리(DNS/Consul/Eureka), 동적 로드밸런싱, 헬스체크 기반 라우팅.
+6. **There is one administrator (관리자는 한 명이다)** — 현실: 다중 팀·다중 클라우드·서드파티 API가 얽혀 단일 통제점이 없다. 대응: 버전드 API + 후방 호환, 명시적 SLA/계약, 분산 추적(distributed tracing)으로 책임 경계 가시화, 변경 조율 프로토콜(deprecation 정책).
+7. **Transport cost is zero (전송 비용은 0이다)** — 현실: 직렬화/역직렬화 CPU, 네트워크 대역폭 요금(특히 클라우드 egress), 마샬링 오버헤드가 실재한다. 대응: 페이로드 최소화, 효율적 직렬화 포맷, egress 비용 인식 설계(데이터 지역성), 호출 횟수 자체 감축.
+8. **The network is homogeneous (네트워크는 균질하다)** — 현실: 서로 다른 OS·하드웨어·프로토콜·엔디안·문자셋·버전이 혼재한다. 대응: 표준 상호운용 포맷(JSON/Protobuf), 명시적 스키마·버전 협상, 인코딩 정규화(UTF-8), 벤더 중립 프로토콜.
+
+**적용 사례**:
+- 마이크로서비스 간 동기 HTTP 호출 체인에 타임아웃·재시도·서킷 브레이커(Resilience4j/Hystrix/Envoy)를 기본 장착 — 오류 1·2 대응
+- gRPC + Protobuf + field mask로 페이로드를 최소화하고 스트리밍으로 round-trip 축소 — 오류 2·3·7·8 대응
+- Service Mesh(Istio/Linkerd)로 mTLS·서비스 디스커버리·재시도·관측을 인프라 레벨에서 횡단 제공 — 오류 4·5·6 통합 대응
+- 모든 쓰기 API에 idempotency key 강제 + at-least-once 메시징(Kafka/SQS) — 오류 1 대응
+- 분산 추적(OpenTelemetry)으로 호출 그래프·지연·실패 지점을 가시화 — 오류 2·6 진단
+
+**반례·오해**:
+- "현대 클라우드/5G라서 네트워크가 충분히 빠르고 안정적이다"는 오해 — 가용성은 올랐지만 *물리 법칙(지연)·유한성(대역폭)·부분 실패(reliability)* 는 사라지지 않는다. 오히려 분산 규모가 커지며 부분 실패 확률은 증가
+- "8개를 다 막으려고 모든 호출에 재시도·서킷·암호화를 거는 것"은 과잉 — 재시도가 비멱등 연산에 적용되면 중복 부작용을 유발하고, 무분별한 재시도는 retry storm(폭주)을 일으킨다. *멱등성 보장이 선행*되어야 재시도가 안전
+- "RPC 프레임워크가 추상화해주니 로컬 호출처럼 써도 된다"는 것이 오류의 근원 — 투명 분산(transparent distribution)은 환상이며, 원격 호출은 명시적으로 *원격답게* 다뤄야 한다 (Waldo et al., *A Note on Distributed Computing*, 1994가 같은 결론)
+- 단일 노드/단일 프로세스 애플리케이션에는 적용되지 않는다 — 네트워크 경계가 존재할 때만 유효한 법칙
+
+**관련 표준/원칙**:
+- [Postel's Law](#postel-law) — 오류 8(균질성 거짓)·오류 1에 대한 견고성 대응; 다양한 구현 환경 수용
+- [Hyrum's Law](#hyrum-law) — 분산 API의 관찰 가능 동작(지연·에러·순서)에 사용자가 의존 → 오류 6(단일 관리자 부재)과 결합 시 변경 위험 가중
+- [Conway's Law](#conway-law) — 오류 6(관리자 다수)의 조직적 뿌리; 분산 시스템 경계가 팀·소통 구조를 반영
+- [Brooks's Law](#brooks-law) — 커뮤니케이션 경로 n(n-1)/2 폭증은 분산 노드 간 round-trip 폭증(오류 2)과 동형 구조
+- [KISS](#kiss-keep-it-simple-stupid-단순함-원칙) — 불필요한 분산화는 8가지 오류 표면적을 키운다; 분산이 필수가 아니면 모놀리스가 우월
+- [Resilience Patterns] — Circuit Breaker·Bulkhead·Retry·Timeout·Backpressure는 8가지 오류의 직접 방어 패턴군
+
+---
+
+<a id="end-to-end-argument"></a>
+## End-to-End Argument (단대단 논증)
+
+**원전**: J. H. Saltzer, D. P. Reed, D. D. Clark, *End-to-End Arguments in System Design*, ACM Transactions on Computer Systems 2(4) (November 1984), pp. 277–288 — 1981년 Second International Conference on Distributed Computing Systems 발표본을 확장
+**한 줄 정의**: "The function in question can completely and correctly be implemented only with the knowledge and help of the application standing at the endpoints of the communication system. Therefore, providing that questioned function as a feature of the communication system itself is not possible."
+
+**의도**: 어떤 기능(에러 복구, 중복 제거, 순서 보장, 암호화, 무결성 검증 등)은 통신의 *양 끝점(endpoint)에 있는 애플리케이션*만이 완전하고 정확하게 구현할 수 있다. 하위 계층(네트워크·전송 경로·중간 노드)이 그 기능을 제공해도 끝점은 어차피 한 번 더 검증해야 하므로, 하위 계층의 구현은 *그 자체로는 충분하지 않다*. 따라서 하위 계층에 기능을 두는 것은 (1) 끝점이 반드시 다시 확인해야 한다는 정확성 이유와 (2) 모든 응용이 그 비용을 강제로 부담한다는 효율 이유에서 일반적으로 정당화되지 않는다. **단, 하위 계층의 부분 구현이 *성능 최적화*(performance enhancement)로서 정당화될 수 있다** — 끝점 검증을 대체하는 것이 아니라 보완할 때에 한해서다.
+
+**핵심 논거 (논문의 file transfer 사례)**:
+- 두 호스트가 파일을 전송할 때, 디스크 읽기·메모리·OS·네트워크 카드 등 *어느 단계*에서도 비트가 손상될 수 있다. 네트워크 계층이 아무리 신뢰성 있는 전송을 보장해도, 디스크에서 메모리로 올리는 순간의 손상은 막지 못한다.
+- 따라서 *완전한* 정확성은 오직 끝점이 파일 전체를 읽어 체크섬을 검증할 때만 달성된다. 네트워크 계층의 신뢰성 보장은 이 끝점 검증을 *없앨 수 없다* — 끝점이 어차피 검증한다면 하위 계층의 완벽한 보장은 중복 비용일 뿐이다.
+- 하위 계층의 패킷 단위 재전송은 *전체를 다시 보내는 것보다 빠르게 만드는 성능 최적화*로서만 정당하다 (정확성의 원천이 아님).
+
+**적용 사례**:
+- **TCP 신뢰성**: 패킷 손실·순서 뒤바뀜·중복을 *끝점의 TCP 스택*이 시퀀스 번호·ACK·재전송으로 처리한다. IP(하위 계층)는 best-effort 전달만 하며, 신뢰성은 끝점이 책임진다.
+- **종단간 암호화(E2EE)**: Signal·WhatsApp·iMessage는 *송수신 끝점*에서만 평문을 다룬다. 중간 서버·TLS 종단 프록시가 신뢰성·암호화를 제공해도 끝점은 신뢰하지 않고 직접 암복호화한다 — 중간 노드 침해 시에도 기밀성이 유지된다.
+- **smart endpoints, dumb pipes** (마이크로서비스 격언, *Building Microservices* 맥락): 메시지 라우팅·변환·비즈니스 로직을 ESB 같은 똑똑한 미들웨어가 아니라 끝점 서비스에 두고, 통신 채널(메시지 브로커)은 단순 전달만 담당한다.
+- **인터넷의 dumb network 설계 철학**: 네트워크 코어는 단순하게(라우팅만), 지능은 끝점에 — 이 원리가 인터넷이 임의의 새 응용(웹·VoIP·스트리밍)을 코어 변경 없이 수용한 확장성의 근원이다.
+- **애플리케이션 레벨 무결성·재시도**: 멱등 키(idempotency key) 기반 재시도, 응답 본문 체크섬 검증 등은 네트워크가 "성공"이라 보고해도 끝점이 최종 정합성을 책임지는 형태.
+
+**위반 사례 / 안티패턴**:
+- 하위 계층(메시지 브로커·네트워크 어플라이언스)이 "exactly-once 전달"을 보장한다고 믿고 끝점에서 멱등성·중복 제거를 생략 — 끝점 장애·재시작 시 중복이 새어 들어온다 (완전한 exactly-once는 끝점 협력 없이는 불가).
+- TLS(전송 구간 암호화)만으로 기밀성이 끝났다고 보고 끝점 저장·로깅 단계의 평문 노출을 방치 — TLS는 *구간* 보안일 뿐 *종단간* 보안이 아니다.
+- ESB·스마트 미들웨어에 비즈니스 라우팅·검증 로직을 누적시켜 통신 인프라가 도메인 변경에 결합되는 구조 (smart pipes 안티패턴).
+- 하위 계층의 부분 신뢰성 보장을 *정확성의 근거*로 오인해 끝점 검증을 제거 — 본 원칙이 명시적으로 금지하는 오용.
+
+**반례·오해**:
+- "하위 계층은 절대 기능을 가지면 안 된다"는 오해. 논문은 *성능 최적화로서의 부분 구현은 정당*하다고 명시한다. 무선 링크의 link-layer 재전송(높은 손실률 환경에서 TCP 재전송보다 효율적)이 대표 예 — 끝점 검증을 대체하지 않고 보완하는 한 허용된다.
+- "끝점이 처리하니 하위 계층은 무조건 dumb이 최선"이라는 단순화도 부정확. Reed·Saltzer·Clark 자신이 후속 논의에서 비용·성능 트레이드오프에 따라 하위 계층 최적화가 합리적일 수 있음을 인정했다 (active networking·CDN·QoS 논쟁의 출발점).
+- "smart endpoints dumb pipes = 미들웨어 전면 금지"라는 오해. 단순 전달·버퍼링·내구성(durability) 같은 *도메인 중립적* 기능은 파이프에 두어도 무방하다 — 금지 대상은 *비즈니스 의미를 가진 지능*이다.
+- E2E argument가 "성능 무관 순수 정확성 원칙"이라는 오해. 실제 논문의 절반은 *효율 논거* — 모든 응용에 불필요한 기능을 하위 계층이 강제하면 그 기능이 필요 없는 응용까지 비용을 치른다는 점이 핵심 동기다.
+
+**관련 표준/원칙**:
+- [Postel's Law](#postel-law) — 둘 다 Jon Postel/인터넷 설계 계보. Postel이 *경계에서의 관용/엄격* 을 다룬다면 E2E는 *기능을 어느 계층에 둘 것인가* 를 다룬다 (상보적 인터넷 설계 원리)
+- [Single Source of Truth](#ssot) — 정확성(무결성)의 권위 있는 검증 위치를 끝점 하나로 고정한다는 점에서 공명
+- [SoC](#separation-of-concerns-soc-관심사-분리) — 통신 채널의 관심사(전달)와 응용의 관심사(정확성·보안)를 계층 분리
+- [DIP](solid.md#5-dependency-inversion-principle-dip-의존-역전-원칙) — dumb pipes는 추상화된 전달 메커니즘에 의존하고 끝점이 정책을 소유 (제어 위치 역전과 유사한 구도)
+- [Defensive Programming] — 끝점에서 하위 계층을 신뢰하지 않고 재검증하는 자세는 외부 경계 방어 코딩의 분산 시스템 버전

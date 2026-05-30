@@ -24,6 +24,8 @@
 | [2-sat](#2-sat) | 2-SAT | 2-Satisfiability | 높음 |
 | [eulerian-path](#eulerian-path) | Eulerian Path / Circuit | 오일러 경로/회로 (Hierholzer) | 중간 |
 | [stoer-wagner](#stoer-wagner) | Min Cut — Stoer-Wagner | 전역 최소 컷 | 높음 |
+| [heavy-light-decomposition](#heavy-light-decomposition) | Heavy-Light Decomposition (HLD) | 헤비-라이트 분해 | 높음 |
+| [centroid-decomposition](#centroid-decomposition) | Centroid Decomposition | 센트로이드 분할 | 높음 |
 
 ---
 
@@ -1618,3 +1620,198 @@ fun stoerWagner(graph: Array<IntArray>): Int {
 
 **관련 알고리즘**: Max Flow Min Cut, Karger's
 
+---
+
+<a id="heavy-light-decomposition"></a>
+## 19. Heavy-Light Decomposition (HLD) (헤비-라이트 분해)
+
+**목적**: 트리의 경로/서브트리 쿼리(합·최댓값·갱신)를 O(log² n)에 처리하기 위해 트리를 heavy 체인들로 분해하고 Segment Tree와 결합
+
+**시간 복잡도**: 전처리 O(n), 경로 쿼리/갱신 O(log² n) (체인 O(log n) × Segment Tree O(log n))
+
+**공간 복잡도**: O(n)
+
+**특징**:
+- 각 정점에서 서브트리 크기가 가장 큰 자식으로 가는 간선을 heavy edge, 나머지를 light edge로 분류
+- light edge를 따라 내려가면 서브트리 크기가 절반 이하로 줄어들므로 루트→정점 경로의 light edge 개수는 최대 O(log n)
+- heavy edge가 연결된 연속 구간(체인)을 DFS 순서로 배열에 평탄화해 Segment Tree/Fenwick Tree 한 개로 인덱싱
+- 두 정점 간 경로는 최대 O(log n)개의 연속 체인 구간으로 분해되고, 각 구간을 Segment Tree로 질의
+- 분해 과정에서 두 정점을 같은 체인으로 끌어올리는 동작이 LCA 계산을 겸함
+
+**장점**:
+- 트리 경로 합/최댓값/갱신을 정적 자료구조(Segment Tree)로 통일해 처리
+- 정점 가중치와 간선 가중치 모두 지원 (간선은 자식 정점에 가중치를 부여하는 방식)
+- 서브트리 쿼리도 DFS 진입 시각 기반 연속 구간으로 동일 Segment Tree에서 해결 가능
+
+**단점**:
+- 구현이 복잡하고 인덱스 관리(heavy/체인 head/position) 실수가 잦음
+- 경로 쿼리가 O(log² n)으로, 단일 LCA만 필요하면 Binary Lifting(O(log n))이 더 단순·빠름
+- 트리 구조 변경(간선 삽입/삭제)에는 적합하지 않음 — 동적 트리는 Link-Cut Tree 필요
+
+**활용 예시**:
+- 트리 위 두 정점 경로의 합/최댓값/최솟값 쿼리
+- 경로 위 모든 정점/간선 값 일괄 갱신 (lazy propagation 결합)
+- 네트워크 토폴로지에서 경로 비용 집계, 계통도 조상 구간 질의
+
+**난이도**: 높음 | **사용 빈도**: ★★☆☆☆
+
+**Kotlin 코드**:
+```kotlin
+// 정점 가중치 경로 합 쿼리용 HLD (Segment Tree 결합)
+class HeavyLightDecomposition(private val n: Int, private val adj: Array<MutableList<Int>>) {
+    private val parent = IntArray(n) { -1 }
+    private val depth = IntArray(n)
+    private val heavy = IntArray(n) { -1 }   // 각 정점의 heavy child
+    private val size = IntArray(n)
+    private val head = IntArray(n)            // 정점이 속한 체인의 head
+    private val pos = IntArray(n)             // Segment Tree 내 위치
+    private var cur = 0
+    private val seg = LongArray(4 * n)        // 합 Segment Tree
+
+    private fun dfsSize(u: Int): Int {        // 서브트리 크기 + heavy child 계산
+        size[u] = 1
+        var maxSub = 0
+        for (v in adj[u]) if (v != parent[u]) {
+            parent[v] = u; depth[v] = depth[u] + 1
+            val s = dfsSize(v); size[u] += s
+            if (s > maxSub) { maxSub = s; heavy[u] = v }
+        }
+        return size[u]
+    }
+
+    private fun decompose(u: Int, h: Int) {  // 체인 분해 + 평탄화
+        head[u] = h; pos[u] = cur++
+        if (heavy[u] != -1) decompose(heavy[u], h)        // heavy child는 같은 체인
+        for (v in adj[u]) if (v != parent[u] && v != heavy[u]) decompose(v, v)
+    }
+
+    fun build(root: Int, weight: LongArray) {
+        dfsSize(root); decompose(root, root)
+        for (u in 0 until n) update(1, 0, n - 1, pos[u], weight[u])
+    }
+
+    private fun update(node: Int, l: Int, r: Int, idx: Int, value: Long) {
+        if (l == r) { seg[node] = value; return }
+        val m = (l + r) / 2
+        if (idx <= m) update(2 * node, l, m, idx, value) else update(2 * node + 1, m + 1, r, idx, value)
+        seg[node] = seg[2 * node] + seg[2 * node + 1]
+    }
+
+    private fun query(node: Int, l: Int, r: Int, ql: Int, qr: Int): Long {
+        if (qr < l || r < ql) return 0
+        if (ql <= l && r <= qr) return seg[node]
+        val m = (l + r) / 2
+        return query(2 * node, l, m, ql, qr) + query(2 * node + 1, m + 1, r, ql, qr)
+    }
+
+    fun pathSum(a: Int, b: Int): Long {       // a~b 경로 합 (LCA 자동 처리)
+        var u = a; var v = b; var res = 0L
+        while (head[u] != head[v]) {          // 서로 다른 체인이면 깊은 head를 끌어올림
+            if (depth[head[u]] < depth[head[v]]) { val t = u; u = v; v = t }
+            res += query(1, 0, n - 1, pos[head[u]], pos[u]); u = parent[head[u]]
+        }
+        if (depth[u] > depth[v]) { val t = u; u = v; v = t }
+        res += query(1, 0, n - 1, pos[u], pos[v])   // 같은 체인의 LCA~v 구간
+        return res
+    }
+}
+```
+
+**관련 알고리즘**: Segment Tree, LCA, Binary Lifting, Fenwick Tree
+
+---
+
+<a id="centroid-decomposition"></a>
+## 20. Centroid Decomposition (센트로이드 분할)
+
+**목적**: 트리의 무게중심(centroid)을 재귀적으로 제거하며 분할정복하여, 모든 정점쌍 경로를 O(n log n) 깊이의 센트로이드 트리로 분해해 경로 카운팅/거리 쿼리를 해결
+
+**시간 복잡도**: O(n log n) (구축) — 작업당 O(n) × log n 레벨
+
+**공간 복잡도**: O(n) (인접 리스트 + 보조 배열) / 센트로이드 트리 저장 시 O(n)
+
+**특징**:
+- 센트로이드: 제거 시 남는 모든 서브트리 크기가 ≤ n/2 인 정점 (모든 트리에 1~2개 존재)
+- 센트로이드를 제거 → 분리된 서브트리마다 재귀 → 재귀 깊이가 O(log n) 으로 보장됨
+- 모든 경로는 "정점쌍의 LCA에 해당하는 센트로이드"를 정확히 한 번 통과 → 경로를 센트로이드 기준으로 분류 가능
+- 한 센트로이드를 지나는 경로 = (한 서브트리 경로) + (다른 서브트리 경로). 같은 서브트리 쌍은 중복 제거(inclusion-exclusion)로 차감
+- 분할정복 on tree의 대표 기법. 정적 트리(간선 불변) 쿼리에 적합
+
+**장점**:
+- 트리 위 분할정복으로 O(n²) 경로 문제를 O(n log n)으로 단축
+- 센트로이드 트리 깊이가 O(log n) 이라 lift/누적 쿼리에 활용 가능
+- "길이 정확히 k 경로 수", "거리 ≤ k 쌍 수" 등 거리 기반 집계에 강력
+
+**단점**:
+- 구현 난도 높음 (서브트리 크기 재계산, 중복 차감, 방문 표시 관리)
+- 동적(간선 추가/삭제) 트리에는 부적합 — 재구축 비용 큼
+- 가중 거리·복잡한 합산은 부속 자료구조(Fenwick/Segment Tree) 결합 필요
+
+**활용 예시**:
+- 길이 정확히 k인 경로의 개수 세기
+- 두 정점 거리 ≤ d 인 쌍의 수, 경로 통계 집계
+- 트리 위 최근접/거리 쿼리(센트로이드 트리에 거리 캐싱)
+- 분할정복 기반 트리 DP 문제
+
+**난이도**: 높음 | **사용 빈도**: ★★☆☆☆
+
+**Kotlin 코드**:
+```kotlin
+// 길이가 정확히 k(간선 수)인 경로의 개수를 센트로이드 분할로 계산
+class CentroidDecomposition(private val n: Int, private val k: Int) {
+    private val adj = Array(n) { mutableListOf<Int>() }
+    private val removed = BooleanArray(n)
+    private val subSize = IntArray(n)
+    private val cnt = IntArray(k + 1)   // 현재 센트로이드 기준 거리별 누적 개수
+    var answer = 0L; private set
+
+    fun addEdge(u: Int, v: Int) { adj[u].add(v); adj[v].add(u) }
+
+    private fun calcSize(u: Int, parent: Int): Int {
+        subSize[u] = 1
+        for (w in adj[u]) if (w != parent && !removed[w])
+            subSize[u] += calcSize(w, u)
+        return subSize[u]
+    }
+
+    private fun findCentroid(u: Int, parent: Int, treeSize: Int): Int {
+        for (w in adj[u]) if (w != parent && !removed[w])
+            if (subSize[w] > treeSize / 2) return findCentroid(w, u, treeSize)
+        return u
+    }
+
+    // 거리 d(0..k)별 정점 수를 cnt 에 모으되, add=true 면 누적 / false 면 제거
+    private fun collect(u: Int, parent: Int, depth: Int, add: Boolean) {
+        if (depth > k) return
+        cnt[depth] += if (add) 1 else -1
+        for (w in adj[u]) if (w != parent && !removed[w])
+            collect(w, u, depth + 1, add)
+    }
+
+    // 한 서브트리의 깊이 d 정점이 (k - d) 짝과 이루는 경로 수 합산
+    private fun countPairs(u: Int, parent: Int, depth: Int): Long {
+        if (depth > k) return 0L
+        var res = cnt[k - depth].toLong()
+        for (w in adj[u]) if (w != parent && !removed[w])
+            res += countPairs(w, u, depth + 1)
+        return res
+    }
+
+    private fun decompose(entry: Int) {
+        val total = calcSize(entry, -1)
+        val c = findCentroid(entry, -1, total)
+        removed[c] = true
+        cnt[0] = 1  // 센트로이드 자신(거리 0)
+        for (w in adj[c]) if (!removed[w]) {
+            answer += countPairs(w, c, 1)  // 이전 서브트리들과의 쌍만 카운트(중복 방지)
+            collect(w, c, 1, true)         // 그 후 현재 서브트리를 누적
+        }
+        for (d in 0..k) cnt[d] = 0          // 다음 센트로이드 위해 초기화
+        for (w in adj[c]) if (!removed[w]) decompose(w)
+    }
+
+    fun solve(): Long { answer = 0L; decompose(0); return answer }
+}
+```
+
+**관련 알고리즘**: Merge Sort, LCA, DFS, Segment Tree

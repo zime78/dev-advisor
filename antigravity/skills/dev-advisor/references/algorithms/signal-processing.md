@@ -21,6 +21,7 @@ Digital Signal Processing 정평 있는 8 알고리즘. [`math.md#fast-fourier-t
 | [kalman-filter](#kalman-filter) | Kalman Filter | Estimation | sensor fusion | 높음 |
 | [extended-kalman](#extended-kalman) | EKF / UKF | Estimation | nonlinear | 높음 |
 | [autocorrelation](#autocorrelation) | Auto/Cross-correlation | Similarity | lag detection | 중간 |
+| [goertzel](#goertzel) | Goertzel Algorithm | 괴르첼 알고리즘 | 중간 |
 
 **관련 카탈로그**:
 - [math.md](math.md) — FFT 본체, Newton-Raphson, 수치 해석
@@ -1175,3 +1176,79 @@ fun autocorrFft(x: DoubleArray): DoubleArray {
 - **Hilbert Transform** — analytic signal, envelope/phase 추출
 
 추가가 필요하면 카탈로그 신설 절차에 따라 `index.md` 와 본 파일을 함께 갱신한다.
+
+---
+
+<a id="goertzel"></a>
+## 9. Goertzel Algorithm (괴르첼 알고리즘)
+
+**목적**: 전체 FFT 없이 특정 단일 주파수 빈(bin)의 DFT 성분 크기를 효율적으로 계산
+
+**시간 복잡도**: O(N) - bin 1개당 (N: 샘플 수)
+
+**공간 복잡도**: O(1)
+
+**특징**:
+- 1958년 Gerald Goertzel이 발표한 단일 주파수 DFT 알고리즘
+- 2차 IIR 필터 형태로 동작 (재귀 단계는 실수 계수 1개만 사용)
+- 관심 주파수가 소수일 때 전체 FFT(O(N log N))보다 빠름
+- 목표 주파수에 대응하는 정수 빈 k = round(N * f_target / f_sample) 선택
+- 재귀로 상태 s[n]을 누적한 뒤 마지막에 한 번만 복소 변환 → 크기 계산
+
+**장점**:
+- bin 1개당 O(N), 적은 수의 주파수만 필요하면 FFT보다 저렴
+- 상태 변수 2개만 유지하므로 메모리 O(1), 임베디드/MCU에 적합
+- 샘플을 스트리밍으로 받으며 점진적으로 계산 가능
+
+**단점**:
+- 검사할 주파수 빈 개수가 많아지면 FFT가 점근적으로 유리
+- 빈은 본질적으로 이산 → 목표 주파수가 빈 중심에서 벗어나면 스펙트럼 누설(leakage) 발생
+- 주파수 해상도는 N과 샘플레이트에 종속 (Δf = f_sample / N)
+
+**활용 예시**:
+- DTMF(전화 키패드) 톤 검출 — 8개 표준 주파수만 검사
+- 실시간 특정 주파수 존재 여부 판정 (호출음·신호 톤 감지)
+- 계측기의 협대역 신호 크기 측정
+
+**난이도**: 중간 | **사용 빈도**: ★★★☆☆
+
+**Kotlin 코드**:
+```kotlin
+import kotlin.math.cos
+import kotlin.math.sqrt
+
+// samples: 입력 신호, targetFreq: 검출 대상 주파수(Hz), sampleRate: 샘플레이트(Hz)
+// 반환: 해당 주파수 빈의 크기(magnitude)
+fun goertzel(samples: DoubleArray, targetFreq: Double, sampleRate: Double): Double {
+    val n = samples.size
+    // 목표 주파수에 가장 가까운 정수 빈 인덱스 k
+    val k = Math.round(n * targetFreq / sampleRate).toInt()
+    val omega = 2.0 * Math.PI * k / n
+    val coeff = 2.0 * cos(omega)          // 2차 IIR 재귀 계수
+
+    var s1 = 0.0  // s[n-1]
+    var s2 = 0.0  // s[n-2]
+    for (x in samples) {
+        val s0 = x + coeff * s1 - s2      // 재귀: 실수 곱셈 1회
+        s2 = s1
+        s1 = s0
+    }
+
+    // 마지막에 한 번만 복소 결과로 변환해 크기 계산
+    val real = s1 - s2 * cos(omega)
+    val imag = s2 * Math.sin(omega)
+    return sqrt(real * real + imag * imag)
+}
+
+// 크기의 제곱만 필요할 때(임계값 비교용) — sqrt·sin 생략으로 더 저렴
+fun goertzelPower(samples: DoubleArray, targetFreq: Double, sampleRate: Double): Double {
+    val n = samples.size
+    val k = Math.round(n * targetFreq / sampleRate).toInt()
+    val coeff = 2.0 * cos(2.0 * Math.PI * k / n)
+    var s1 = 0.0; var s2 = 0.0
+    for (x in samples) { val s0 = x + coeff * s1 - s2; s2 = s1; s1 = s0 }
+    return s1 * s1 + s2 * s2 - coeff * s1 * s2   // |X[k]|^2
+}
+```
+
+**관련 알고리즘**: [FFT](math.md#fast-fourier-transform), [IIR Filter](#iir-filter), [STFT](#stft)

@@ -18,6 +18,7 @@
 | [tree-dp](#tree-dp) | Tree DP | 트리 DP | 중간 |
 | [digit-dp](#digit-dp) | Digit DP | 자릿수 DP | 높음 |
 | [sos-dp](#sos-dp) | SOS DP (Sum over Subsets) | 부분집합 합 | 높음 |
+| [dp-optimizations](#dp-optimizations) | DP Optimizations (Convex Hull Trick / Knuth / D&C DP) | DP 최적화 기법 | 높음 |
 
 ---
 
@@ -1201,3 +1202,75 @@ fun sosInverse(dp: IntArray): IntArray {
 
 **관련 알고리즘**: Zeta/Mobius Transform, Subset Sum Convolution
 
+---
+
+<a id="dp-optimizations"></a>
+## 13. DP Optimizations (Convex Hull Trick / Knuth / D&C DP) (DP 최적화 기법)
+
+**목적**: 점화식의 전이(transition) 비용을 줄여 O(n²) DP를 O(n log n) 또는 O(n)으로 가속하는 기법 모음
+
+**시간 복잡도**: 기법별 — CHT O(n) (단조) / O(n log n) (Li Chao·동적), Knuth O(n²) (기존 O(n³)에서), D&C DP O(kn log n) (기존 O(kn²)에서)
+
+**공간 복잡도**: O(n) ~ O(n²) (DP 테이블 차원에 의존)
+
+**특징**:
+- Convex Hull Trick(CHT): `dp[i] = min_j(a[j]·x[i] + b[j])` 형태의 선형 전이를 직선들의 하한 포락선(lower envelope)으로 관리. 기울기 단조 + 쿼리 단조면 deque로 amortized O(1) 전이
+- Knuth 최적화: 비용이 사각 부등식(quadrangle inequality, QI)과 단조성을 만족하면 최적 분할점이 `opt[i][j-1] ≤ opt[i][j] ≤ opt[i+1][j]` 범위로 좁혀져 구간 DP가 O(n³)→O(n²)
+- Divide & Conquer DP: 최적 결정점 `opt(i)`가 i에 대해 단조 증가할 때(monotonicity), 분할 정복으로 각 층을 O(n log n)에 계산 → O(kn²)→O(kn log n)
+- Li Chao Tree: 기울기·쿼리가 단조가 아닐 때도 임의 순서로 직선/선분을 삽입하고 한 점 최솟값을 O(log C)에 질의하는 CHT 일반화 자료구조
+- 핵심 전제는 비용 함수의 볼록성(convexity)·QI·결정 단조성이며, 성립 여부 증명이 적용의 선결 조건
+
+**장점**:
+- 제약이 큰 입력(n ≥ 10⁵)에서 기존 이차/삼차 DP를 실행 가능 범위로 단축
+- CHT·Li Chao는 자료구조로 모듈화되어 다양한 선형 전이에 재사용 가능
+- D&C DP는 구현이 비교적 짧고 분할 정복 골격이 명료
+
+**단점**:
+- 적용 조건(볼록성/QI/단조성) 검증이 까다롭고, 조건 불성립 시 오답
+- CHT의 deque 버전은 기울기·쿼리 단조 가정에 의존(깨지면 Li Chao 필요)
+- 부동소수·오버플로(직선 교점, 곱셈) 처리에 주의 필요
+
+**활용 예시**:
+- 작업/케이블 분할 비용 최소화, 수열 분할 DP (D&C DP, Knuth)
+- 이동·운송 비용 누적 최적화 (CHT)
+- 최적 BST·구간 병합 비용 (Knuth 최적화)
+- 비단조 기울기를 갖는 선형 전이 일반화 (Li Chao Tree)
+
+**난이도**: 높음 | **사용 빈도**: ★★☆☆☆
+
+**Kotlin 코드**:
+```kotlin
+// Convex Hull Trick (기울기 내림차순 삽입 + 쿼리 단조) — amortized O(n)
+// dp[i] = min_j ( slope[j] * x + intercept[j] ) 형태 전이 가속
+class ConvexHullTrick {
+    private val slopes = ArrayDeque<Long>()      // 직선 기울기 (내림차순)
+    private val intercepts = ArrayDeque<Long>()  // 직선 절편
+
+    // 교점 비교: 직선3이 직선1·직선2의 교점을 덮어 직선2를 불필요하게 만드는가
+    private fun bad(m1: Long, b1: Long, m2: Long, b2: Long, m3: Long, b3: Long): Boolean =
+        (b3 - b1) * (m1 - m2) <= (b2 - b1) * (m1 - m3)  // 교차 곱(오버플로 주의)
+
+    // 기울기 단조 감소 순서로 직선 추가
+    fun addLine(m: Long, b: Long) {
+        var nm = m; var nb = b
+        while (slopes.size >= 2) {
+            val s = slopes.size
+            if (bad(slopes[s - 2], intercepts[s - 2], slopes[s - 1], intercepts[s - 1], nm, nb)) {
+                slopes.removeLast(); intercepts.removeLast()
+            } else break
+        }
+        slopes.addLast(nm); intercepts.addLast(nb)
+    }
+
+    // x가 증가하는 순서로만 호출 시 deque 앞에서 amortized O(1)
+    fun query(x: Long): Long {
+        while (slopes.size >= 2 &&
+            slopes[0] * x + intercepts[0] >= slopes[1] * x + intercepts[1]) {
+            slopes.removeFirst(); intercepts.removeFirst()
+        }
+        return slopes[0] * x + intercepts[0]
+    }
+}
+```
+
+**관련 알고리즘**: Edit Distance (DP), LCS, Matrix Chain Multiplication, Segment Tree

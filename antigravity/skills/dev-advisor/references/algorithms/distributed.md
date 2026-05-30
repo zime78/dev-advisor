@@ -18,6 +18,8 @@
 | [crdt-lww-set](#crdt-lww-set) | CRDT LWW-Set | LWW-셋 | 중간 |
 | [consistent-hashing](#consistent-hashing) | Consistent Hashing | 일관 해싱 | 중간 |
 | [quorum](#quorum) | Quorum (R+W>N) | 쿼럼 | 중간 |
+| [chandy-lamport](#chandy-lamport) | Chandy-Lamport Distributed Snapshot | 찬디-램포트 분산 스냅샷 | 높음 |
+| [phi-accrual](#phi-accrual) | Phi Accrual Failure Detector | 파이 누적 장애 감지기 | 중간 |
 
 ---
 
@@ -1027,3 +1029,170 @@ class QuorumClient<K, V>(
 **관련 알고리즘**: Read Repair, Hinted Handoff, Paxos, Raft (Strong Quorum)
 
 ---
+
+<a id="chandy-lamport"></a>
+## 13. Chandy-Lamport Distributed Snapshot (찬디-램포트 분산 스냅샷)
+
+**목적**: 실행을 멈추지 않고 분산 시스템의 일관된 전역 상태(consistent global state) — 각 프로세스 상태 + 각 채널의 in-flight 메시지 — 를 기록한다
+
+**시간 복잡도**: O(E) 메시지 — 각 채널(방향)당 marker 1회 전송 (E = 채널 수)
+
+**공간 복잡도**: O(P + M) — P개 프로세스 상태 + 채널에 기록되는 in-flight 메시지 M개
+
+**특징**:
+- Chandy & Lamport, 1985 (ACM TOCS) 제안. FIFO 신뢰 채널을 가정한다
+- 임의의 프로세스가 자신의 상태를 기록한 뒤 모든 나가는 채널로 marker를 보내며 스냅샷을 개시(initiate)
+- 어떤 채널 c에서 marker를 처음 받으면 c의 채널 상태를 "빈 집합"으로 확정하고, 자신 상태를 기록한 뒤 모든 나가는 채널로 marker 전달
+- 이미 자신 상태를 기록한 후 채널 c에서 marker를 받으면, 그 채널의 상태 = (상태 기록 시점 ~ marker 도착 사이에 c로 들어온 메시지들)로 확정
+- 결과 스냅샷은 실제 한 순간엔 없었을 수 있으나 어떤 일관된 실행과 구분 불가(consistent cut)하다 — 인과 순서를 위배하지 않음
+
+**장점**:
+- 정상 연산을 중단(stop-the-world)하지 않고 동시에 스냅샷 수집 가능
+- 메시지 오버헤드가 채널 수에 선형(O(E))으로 가볍다
+- 여러 프로세스가 독립적으로 동시에 개시해도 동작 (단일 코디네이터 불필요)
+
+**단점**:
+- FIFO 채널 가정 필수 — 비-FIFO/메시지 유실 환경에선 그대로 적용 불가
+- 채널·프로세스 장애(crash)나 동적 토폴로지를 기본형은 다루지 못함
+- 강연결(모든 프로세스 도달 가능) 가정이 깨지면 일부 프로세스가 marker를 못 받아 스냅샷 미완성
+
+**활용 예시**:
+- 분산 체크포인트/복구 (예: Apache Flink의 비동기 배리어 스냅샷이 변형 채택)
+- 안정 속성(stable property) 탐지 — 분산 데드락 탐지, 종료(termination) 탐지, 가비지 컬렉션
+- 분산 디버깅·전역 불변식 검사용 일관된 상태 캡처
+
+**난이도**: 높음 | **사용 빈도**: ★★☆☆☆
+
+**Kotlin 코드**:
+```kotlin
+// 단일 프로세스 노드의 Chandy-Lamport 스냅샷 로직 (FIFO 채널 가정)
+class SnapshotNode(val id: Int, val outChannels: List<Int>) {
+    var localState: String = "init"          // 기록될 프로세스 상태
+    private var recorded = false              // 자신 상태 기록 여부
+    private val markerSeen = mutableSetOf<Int>()              // marker 받은 채널
+    private val channelState = mutableMapOf<Int, MutableList<String>>() // 채널별 기록 메시지
+    private val recording = mutableSetOf<Int>()              // 현재 기록 중인 채널
+
+    // marker를 모든 나가는 채널로 전송 (네트워크 계층은 외부에서 주입)
+    fun recordOwnState(send: (to: Int, marker: Boolean, msg: String?) -> Unit) {
+        localState = "snap@$id"              // 현재 상태 스냅샷
+        recorded = true
+        outChannels.forEach { c -> recording.add(c); send(c, true, null) }
+    }
+
+    // src 채널에서 marker 수신 처리
+    fun onMarker(src: Int, send: (to: Int, marker: Boolean, msg: String?) -> Unit) {
+        markerSeen.add(src)
+        if (!recorded) {
+            channelState[src] = mutableListOf()   // 이 채널은 빈 상태로 확정
+            recordOwnState(send)                  // 첫 marker -> 자신 상태 기록 + 전파
+        } else {
+            recording.remove(src)                 // 이후 marker -> 해당 채널 기록 종료
+        }
+    }
+
+    // src 채널에서 일반 메시지 수신 처리
+    fun onMessage(src: Int, msg: String) {
+        if (recorded && src in recording) {       // 상태 기록 후 ~ marker 전까지의 in-flight
+            channelState.getOrPut(src) { mutableListOf() }.add(msg)
+        }
+        // 애플리케이션 메시지 처리는 별도로 계속 진행
+    }
+
+    fun isComplete() = recorded && recording.isEmpty()
+    fun snapshot() = localState to channelState
+}
+```
+
+**관련 알고리즘**: Lamport Timestamp, Vector Clock, Two-Phase Commit
+
+---
+
+<a id="phi-accrual"></a>
+## 14. Phi Accrual Failure Detector (파이 누적 장애 감지기)
+
+**목적**: heartbeat 도착 간격을 확률 분포로 모델링해 의심도 φ(연속값)를 산출, 노드 장애 여부를 적응적으로 판단
+
+**시간 복잡도**: O(1) heartbeat 갱신 / O(1) φ 조회 (sliding window 통계 누적)
+
+**공간 복잡도**: O(W) - W: 도착 간격 sampling window 크기
+
+**특징**:
+- 도착 간격(inter-arrival time)을 정규분포 등으로 모델링하고, 마지막 heartbeat 이후 경과 시간에 대한 미수신 확률 P_later 를 계산
+- 의심도 φ = -log10(P_later) — 시간이 흐를수록 단조 증가하는 연속값 (binary up/down 대신 신뢰도 척도 제공)
+- φ 가 임계값 Φ(threshold)를 넘으면 장애로 판정 — 애플리케이션이 false-positive 허용도에 맞춰 Φ 조정 가능
+- 네트워크 지연 변동(jitter)에 적응 — 간격 분산이 크면 φ 가 천천히 상승해 자동으로 관대해짐
+- Hayashibara et al. (2004) 제안, Akka Cluster·Apache Cassandra gossip 장애 감지에 채택
+
+**장점**:
+- adaptive threshold — 고정 타임아웃과 달리 실제 네트워크 상황(평균·분산)에 따라 민감도 자동 조정
+- 연속값 φ 제공으로 애플리케이션마다 다른 신뢰-속도 트레이드오프 설정 가능
+- accrual 설계상 감지 로직과 판정 정책(임계값) 분리 — 모니터링·해석이 용이
+
+**단점**:
+- 분포 가정(주로 정규/지수)이 실제 도착 패턴과 어긋나면 정확도 저하
+- 초기 sample 부족 시 추정 불안정 — warm-up 구간 필요
+- GC pause·일시적 전체 지연 시 동시 false-positive 위험 (window·Φ 튜닝 필요)
+
+**활용 예시**:
+- Akka Cluster 멤버십 장애 감지 (`akka.remote.PhiAccrualFailureDetector`)
+- Apache Cassandra 노드 간 gossip 기반 장애 판정
+- 분산 시스템 heartbeat 모니터링 일반
+- 마이크로서비스 health-check 의 적응형 타임아웃
+
+**난이도**: 중간 | **사용 빈도**: ★★★☆☆
+
+**Kotlin 코드**:
+```kotlin
+import kotlin.math.ln
+import kotlin.math.sqrt
+import kotlin.math.exp
+
+// 도착 간격을 정규분포로 근사해 의심도 phi 를 산출하는 Phi Accrual 장애 감지기
+class PhiAccrualFailureDetector(
+    private val windowSize: Int = 1000,
+    private val minStdMillis: Double = 100.0 // 분산 하한 (jitter 안전장치)
+) {
+    private val intervals = ArrayDeque<Double>()
+    private var sum = 0.0
+    private var sumSq = 0.0
+    private var lastHeartbeatMillis = -1L
+
+    // heartbeat 수신 시 호출 — 직전 수신과의 간격을 window 에 누적
+    fun heartbeat(nowMillis: Long) {
+        if (lastHeartbeatMillis >= 0) {
+            val interval = (nowMillis - lastHeartbeatMillis).toDouble()
+            intervals.addLast(interval); sum += interval; sumSq += interval * interval
+            if (intervals.size > windowSize) {
+                val old = intervals.removeFirst(); sum -= old; sumSq -= old * old
+            }
+        }
+        lastHeartbeatMillis = nowMillis
+    }
+
+    // 경과 시간이 도착 간격 분포상 얼마나 비정상인지를 phi = -log10(P_later) 로 반환
+    fun phi(nowMillis: Long): Double {
+        if (lastHeartbeatMillis < 0 || intervals.isEmpty()) return 0.0
+        val n = intervals.size
+        val mean = sum / n
+        val variance = (sumSq / n) - (mean * mean)
+        val std = maxOf(sqrt(maxOf(variance, 0.0)), minStdMillis)
+        val elapsed = (nowMillis - lastHeartbeatMillis).toDouble()
+        val pLater = 1.0 - cdf(elapsed, mean, std) // 아직 미수신일 확률
+        return -log10(maxOf(pLater, 1e-10))
+    }
+
+    fun isAvailable(nowMillis: Long, threshold: Double = 8.0): Boolean =
+        phi(nowMillis) < threshold
+
+    // 정규분포 누적분포함수 (로지스틱 근사)
+    private fun cdf(x: Double, mean: Double, std: Double): Double {
+        val y = (x - mean) / std
+        return 1.0 / (1.0 + exp(-y * (1.5976 + 0.070566 * y * y)))
+    }
+
+    private fun log10(x: Double) = ln(x) / ln(10.0)
+}
+```
+
+**관련 알고리즘**: SWIM (Gossip Failure Detection), Gossip Protocol, Heartbeat Failure Detector, Vector Clock

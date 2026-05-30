@@ -830,3 +830,225 @@ val ds = HikariDataSource(cfg)
 ```
 
 **관련 패턴**: [HTTP versions](#http-versions), [TLS Handshake](#tls-handshake), [TCP vs UDP](#tcp-udp), [reliability.md#timeout](reliability.md), [data-access.md](data-access.md)
+
+---
+
+<a id="osi-tcpip-model"></a>
+
+## 13. OSI / TCP-IP Layering Model (OSI / TCP-IP 계층 모델)
+
+**목적/정의**: 네트워크 통신을 책임이 분리된 계층 스택으로 분해하여, 각 계층이 바로 위·아래 계층과만 정해진 인터페이스로 상호작용하도록 만드는 참조 모델. OSI 7계층 모델 (ISO/IEC 7498-1) 은 개념·교육·진단의 공통 어휘를 제공하고, 실제 인터넷이 구현하는 것은 TCP/IP 4계층 모델 (RFC 1122 *Requirements for Internet Hosts*) 입니다. 이 카탈로그의 TCP/UDP·TLS·HTTP·DNS 가 "어느 계층에 속하고 어디서 만나는가" 를 정리하는 지도.
+
+**메커니즘**:
+- **OSI 7계층 (위→아래)** 과 각 계층 책임:
+  | # | OSI 계층 | 책임 (PDU 단위) | 대표 프로토콜/요소 |
+  |---|---|---|---|
+  | 7 | Application | 사용자 대면 프로토콜 의미론 (data) | HTTP, DNS, SMTP, gRPC |
+  | 6 | Presentation | 직렬화·인코딩·암호화·압축 | TLS, MIME, JSON/Protobuf, gzip |
+  | 5 | Session | 세션 수립·재개·동기화 | TLS 세션 재개, RPC 세션 |
+  | 4 | Transport | end-to-end 전달·다중화·신뢰성 (segment/datagram) | TCP, UDP, QUIC* |
+  | 3 | Network | 논리 주소·라우팅 (packet) | IP, ICMP, BGP, IPsec |
+  | 2 | Data Link | 인접 노드 frame 전달·MAC (frame) | Ethernet, Wi-Fi (802.11), ARP, PPP |
+  | 1 | Physical | 비트의 전기/광/전파 전송 (bit) | 동축/광케이블, 802.3 PHY, 무선 |
+- **TCP/IP 4계층 ↔ OSI 매핑**: Application(OSI 5~7) / Transport(OSI 4) / Internet(OSI 3) / Link(OSI 1~2). TCP/IP 는 Presentation·Session 을 별도 계층으로 두지 않고 Application 안에서 처리 — 그래서 TLS 는 "OSI 로는 6/5, TCP/IP 로는 Application 과 Transport 사이" 라는 애매함이 생깁니다 (QUIC* 이 transport+crypto 를 합치는 이유와 직결).
+- **Encapsulation (송신, 위→아래)**: 각 계층이 위 계층의 PDU 를 payload 로 받아 자기 헤더(+필요 시 trailer) 를 붙입니다. 예: HTTP 요청 → TLS record → TCP segment (src/dst port, seq) → IP packet (src/dst IP, TTL) → Ethernet frame (src/dst MAC, FCS trailer) → bit stream.
+- **Decapsulation (수신, 아래→위)**: 역순으로 각 계층이 자기 헤더를 떼어내고 payload 를 상위로 올립니다. 각 헤더의 다음-계층 식별 필드 (Ethernet `EtherType=0x0800`, IP `Protocol=6`, TCP `dst port=443`) 가 어느 상위 핸들러로 보낼지 결정 — 이것이 demultiplexing.
+- **계층 경계의 식별자**: Physical=없음 / Data Link=MAC(48bit) / Network=IP / Transport=port(16bit) / Application=URL·hostname. 한 계층은 자기 식별자만 알면 되고 위/아래는 불투명(opaque) — 이것이 계층화의 핵심 추상화.
+
+**장점**:
+- 관심사 분리 — 한 계층 구현을 교체해도 (Ethernet→Wi-Fi, TCP→QUIC) 인접 인터페이스만 지키면 나머지 계층 무영향
+- 공통 어휘 — "L4 로드밸런서 vs L7 로드밸런서", "L3 라우팅", "L2 스위칭" 처럼 진단·설계 대화가 정확해짐
+- 상호운용성 — 벤더·OS·언어가 달라도 각 계층 표준만 따르면 통신 성립
+
+**단점·트레이드오프**:
+- OSI 7계층은 이상적 모델일 뿐 실제 구현과 1:1 이 아님 — TLS, QUIC 처럼 여러 계층을 가로지르는 프로토콜이 흔해 6/5 계층 구분이 모호
+- 엄격한 계층화는 오버헤드 (계층마다 헤더·복사·context switch) → 고성능 영역은 의도적으로 계층을 위반 (kernel bypass, DPDK, RDMA, QUIC 의 transport+crypto 통합)
+- 계층 누수 (leaky abstraction) — MTU/MSS, Nagle, NAT 등 하위 계층 특성이 상위 성능에 새어 나옴
+
+**활용 예시**:
+- 방화벽/로드밸런서 분류: L3/4 (IP·port 기반, 빠름) vs L7 (HTTP path/header 기반, 유연) — AWS NLB(L4) vs ALB(L7)
+- 트러블슈팅 사다리: ping(L3) → telnet/nc port(L4) → curl -v(L7 TLS+HTTP) 순으로 계층을 좁혀 가며 원인 격리
+- 패킷 분석: Wireshark 가 frame→IP→TCP→TLS→HTTP 로 decapsulation 한 결과를 계층 트리로 표시
+- 캡슐화 응용: VPN/터널링 (IPsec, WireGuard, VXLAN) 은 한 계층 패킷을 다른 계층 payload 로 다시 감싸는 것
+
+**난이도**: 중간
+
+**Kotlin / pseudo-code 예제**:
+```kotlin
+// 의사코드 — encapsulation: 상위 PDU 를 하위가 헤더로 감싼다 (송신, 위→아래)
+data class Pdu(val header: ByteArray, val payload: ByteArray, val trailer: ByteArray = ByteArray(0)) {
+    fun bytes(): ByteArray = header + payload + trailer
+}
+
+fun encapsulate(httpRequest: ByteArray): ByteArray {
+    val tls  = Pdu(header = tlsRecordHeader(),            payload = httpRequest)        // L6: TLS record
+    val tcp  = Pdu(header = tcpHeader(srcPort = 51000, dstPort = 443, seq = 1L),
+                   payload = tls.bytes())                                               // L4: segment
+    val ip   = Pdu(header = ipHeader(proto = 6 /*TCP*/, ttl = 64),
+                   payload = tcp.bytes())                                               // L3: packet
+    val frame = Pdu(header  = ethHeader(etherType = 0x0800 /*IPv4*/),
+                    payload = ip.bytes(),
+                    trailer = fcs(ip.bytes()))                                          // L2: frame (+trailer)
+    return frame.bytes()                                                               // L1: bit stream 으로 송출
+}
+
+// decapsulation: 다음-계층 식별 필드로 demultiplex (수신, 아래→위)
+fun dispatch(ipProtocol: Int, dstPort: Int): String = when {
+    ipProtocol == 6  && dstPort == 443 -> "L4 TCP -> L6 TLS -> L7 HTTP"   // HTTPS
+    ipProtocol == 17 && dstPort == 53  -> "L4 UDP -> L7 DNS"              // DNS over UDP
+    ipProtocol == 1                    -> "L3 ICMP (ping)"                // transport 없음
+    else                               -> "unknown next-layer handler"
+}
+```
+
+**관련 패턴**: [TCP vs UDP](#tcp-udp) (Transport / L4), [TLS Handshake](#tls-handshake) (Presentation·Session / L6~5), [HTTP versions](#http-versions) (Application / L7), [DNS Patterns](#dns-patterns) (Application / L7)
+
+---
+
+<a id="ip-routing"></a>
+
+## 14. IP Routing & Forwarding (IP 라우팅 / 포워딩)
+
+**목적/정의**: 패킷이 발신지에서 목적지까지 도달하기 위해, 각 라우터가 (1) **forwarding** — 들어온 패킷을 어느 인터페이스로 내보낼지 결정하고, (2) **routing** — 그 forwarding table 을 어떻게 채울지 경로 정보를 교환·계산하는 두 단계로 나뉩니다. forwarding 은 패킷 단위 data plane (빠름, 하드웨어), routing 은 control plane (느림, 프로토콜). 핵심 결정 규칙은 **longest-prefix match (LPM)**, 주소 체계는 **CIDR / subnet / netmask**. 라우팅 프로토콜은 도메인(AS) 내부 IGP (RIP / OSPF / IS-IS) 와 도메인 간 EGP (BGP) 로 나뉩니다.
+
+**메커니즘**:
+- **IP forwarding + longest-prefix match (LPM)**: 목적지 IP 와 forwarding table 의 모든 prefix 를 비교해 **가장 긴 (가장 구체적인) prefix** 가 매칭되는 entry 의 next-hop 으로 전달. 예: `10.1.0.0/16` 과 `10.1.2.0/24` 가 모두 매칭되면 `/24` 우선. `0.0.0.0/0` 은 default route (모두 매칭, prefix 길이 0 → 최후순위)
+- **Subnet / CIDR / netmask**: IP = network prefix + host. netmask `255.255.255.0` ↔ CIDR `/24` ↔ host 254 개. CIDR (RFC 4632) 는 classful (A/B/C) 폐지 후 임의 길이 prefix 로 주소 집약(aggregation) 가능 → 라우팅 테이블 크기 억제
+- **Distance-Vector (RIP, RFC 2453)**: 각 라우터가 "목적지까지 거리(hop count)" 벡터를 이웃에게만 주기적 전파 (Bellman-Ford). 전체 topology 모름. hop 16 = 무한대(도달 불가) → 소규모 한정. **count-to-infinity** 문제를 split horizon / poison reverse 로 완화
+- **Link-State (OSPF RFC 2328 / IS-IS ISO 10589)**: 각 라우터가 자신의 link 상태(LSA)를 영역 전체에 flooding → 모두가 동일한 topology DB 보유 → **Dijkstra SPF** 로 각자 최단 경로 독립 계산. 빠른 수렴, area 로 계층화하여 확장
+- **BGP (path-vector, EGP, RFC 4271)**: AS(Autonomous System) 간 경로 교환. metric 이 아니라 **AS_PATH (거쳐온 AS 목록)** 로 경로 비교 + loop 방지. policy (LOCAL_PREF, MED, AS_PATH prepend) 기반 결정 → 기술적 최단이 아니라 비즈니스/계약 우선. TCP 179 위 동작, eBGP(AS 간) / iBGP(AS 내) 구분
+- **도메인 간 vs 내부**: IGP(OSPF/IS-IS/RIP) 는 한 AS **내부** 최단 경로 최적화, BGP 는 AS **사이** 도달성·정책 — 인터넷은 IGP 다수가 BGP 로 묶인 구조
+
+**장점**:
+- LPM: 구체적 경로 우선 + default route fallback 으로 거대한 인터넷을 작은 테이블로 표현
+- Link-State (OSPF/IS-IS): 전체 topology 인식 → 빠른 수렴, loop 적음, area 계층화로 대규모 확장
+- Distance-Vector (RIP): 구현·설정 단순, 소규모 망에 충분
+- BGP: policy 표현력으로 multi-homing / traffic engineering / 계약 관계 반영, 인터넷 규모(100만+ prefix) 운용
+
+**단점·트레이드오프**:
+- Distance-Vector: count-to-infinity, 느린 수렴, hop 15 한계 → 대규모 부적합
+- Link-State: LSA flooding + SPF 계산의 CPU/메모리 비용, 설정 복잡, area 설계 필요
+- BGP: 수렴 느림(수십 초~분), 설정 오류가 전 세계 영향(route leak / hijack — 2008 Pakistan→YouTube, 2021 Facebook 장애), RPKI/ROA 미배포 시 origin 검증 약함
+- LPM: 라인레이트 검색 위해 TCAM/trie 등 특수 하드웨어 필요
+
+**활용 예시**:
+- RIP: 소규모 LAN, 교육·레거시 (Cisco/Juniper 기본 비활성에 가까움)
+- OSPF: 기업 캠퍼스/데이터센터 IGP 표준, 멀티벤더
+- IS-IS: 대형 ISP / 통신사 백본 (IP 비의존 CLNS 기반이라 확장성 선호)
+- BGP: 인터넷 AS 간 라우팅 전부, 클라우드(AWS Direct Connect / Transit Gateway), CDN anycast announce ([CDN / Edge](#cdn-edge) 참고), Kubernetes(Calico/Cilium 의 BGP 모드)
+- LPM/CIDR: 모든 라우터·L3 스위치·Linux `ip route`, VPC 서브넷 설계
+
+**난이도**: 높음
+
+**Kotlin / pseudo-code 예제**:
+```kotlin
+// longest-prefix match — forwarding table 핵심 (선형 스캔 버전; 실제는 trie/TCAM)
+data class Route(val prefix: Int, val maskLen: Int, val nextHop: String)
+
+// "10.1.2.0/24" 같은 prefix 를 32-bit Int 로
+fun ipToInt(ip: String): Int =
+    ip.split(".").fold(0) { acc, oct -> (acc shl 8) or oct.toInt() }
+
+// CIDR maskLen → netmask (예: 24 -> 0xFFFFFF00)
+fun maskOf(len: Int): Int = if (len == 0) 0 else (-1 shl (32 - len))
+
+fun lookup(table: List<Route>, dst: String): Route? {
+    val d = ipToInt(dst)
+    return table
+        .filter { (d and maskOf(it.maskLen)) == (it.prefix and maskOf(it.maskLen)) } // 매칭되는 모든 prefix
+        .maxByOrNull { it.maskLen }   // ← longest prefix 승리 (가장 구체적)
+}
+
+val fib = listOf(
+    Route(ipToInt("0.0.0.0"),   0,  "default-gw"),  // default route, 최후순위
+    Route(ipToInt("10.1.0.0"),  16, "router-A"),
+    Route(ipToInt("10.1.2.0"),  24, "router-B"),     // 더 구체적
+)
+// 10.1.2.7 -> /24 매칭 + /16 매칭 + /0 매칭 → maskLen 최대인 router-B 선택
+println(lookup(fib, "10.1.2.7")?.nextHop)   // router-B
+println(lookup(fib, "8.8.8.8")?.nextHop)    // default-gw (오직 /0 매칭)
+```
+
+**관련 패턴**: [DNS Patterns](#dns-patterns), [CDN / Edge](#cdn-edge), [TCP vs UDP](#tcp-udp), [NAT Traversal](#nat-traversal)
+
+---
+
+<a id="reliable-data-transfer"></a>
+
+## 15. Reliable Data Transfer / ARQ (신뢰성 데이터 전송 / ARQ)
+
+**목적/정의**: 손실·중복·순서 뒤바뀜이 가능한 비신뢰 채널 위에서 무손실·순서 보장 전달을 구축하는 핵심 원리. ARQ (Automatic Repeat reQuest) 는 sequence number + ACK/NAK + timeout 재전송으로 신뢰성을 달성합니다. Stop-and-Wait → Go-Back-N → Selective Repeat 로 발전했으며, sliding window 흐름 제어와 결합되어 TCP (RFC 9293) 신뢰성·flow control 의 직접적 기반이 됩니다. Kurose & Ross 의 `rdt 1.0~3.0` 점진 모델로 정평.
+
+**메커니즘**:
+- **Sequence number (seq)**: 각 패킷에 고유 번호 부여 → 수신측이 중복 검출·순서 복원. **Cumulative ACK** (ACK n = "n 까지 다 받음") 또는 selective ACK 사용
+- **ACK / NAK / timeout**: 송신측은 ACK 수신까지 패킷 보관, RTO (Retransmission Timeout) 만료 시 재전송. NAK 는 명시적 손실 통보(생략 시 timeout 만 의존)
+- **Stop-and-Wait (rdt 3.0)**: 한 번에 1 패킷만 전송 후 ACK 대기. 1-bit seq (0/1) 로 충분. 단순하나 utilization = `L/R / (RTT + L/R)` 로 RTT 큰 link 에서 처참
+- **Go-Back-N (GBN)**: window 크기 N 만큼 ACK 없이 연속 전송. cumulative ACK. 손실 발생 시 **해당 패킷부터 window 끝까지 전부 재전송** → 수신 버퍼 불필요(out-of-order 폐기)하나 손실 시 재전송 낭비
+- **Selective Repeat (SR)**: 개별 패킷 단위 ACK + 손실 패킷만 재전송. 수신측이 out-of-order 패킷을 버퍼링. seq 공간 ≥ 2 × window 필요(미달 시 ambiguity). 효율 최고, 복잡도·버퍼 비용 증가
+- **Sliding window flow control**: 송신 window(`swnd`) + 수신 window(`rwnd`) 로 receiver overflow 방지. 송신 가능량 = `min(cwnd, rwnd)` (TCP 는 congestion window 와 결합)
+- **utilization 향상**: window 를 키워 RTT 한 번에 N 패킷 in-flight → 이상적으로 `N·L/R / (RTT + L/R)`
+
+**장점**:
+- 비신뢰 채널 위에 무손실·순서 보장이라는 강한 추상화 제공
+- pipelining (GBN/SR) 으로 link utilization 을 Stop-and-Wait 대비 N 배 향상
+- sliding window 로 빠른 송신측이 느린 수신측을 압도하지 않도록 흐름 제어
+
+**단점·트레이드오프**:
+- Stop-and-Wait: RTT 지배 환경에서 utilization 극저 (대역 낭비)
+- GBN: 단일 손실에 window 전체 재전송 → 손실률 높은 link 에서 비효율
+- SR: 수신 버퍼 + per-packet 타이머 + seq 공간 제약(≥2×window) 으로 구현 복잡
+- 고정 RTO 는 가변 RTT 에 취약 → 적응형 RTO (Jacobson/Karels: `SRTT`, `RTTVAR`) 필요
+- 신뢰성 자체는 congestion control 과 별개 — window 만 키우면 혼잡 유발
+
+**활용 예시**:
+- TCP: cumulative ACK + sliding window + 적응형 RTO + fast retransmit (SR 성향의 SACK, RFC 2018) 의 혼합
+- QUIC (RFC 9002): 단조 증가 packet number + ACK ranges 로 SR 스타일 loss detection
+- KCP / RUDP / ENet: UDP 위 ARQ 변형 (앞 항목 참조)
+- 데이터링크: HDLC, LAPB 의 GBN/SR window
+- 애플리케이션 레벨 at-least-once 메시징의 ACK/재전송 의미론
+
+**난이도**: 높음
+
+**Kotlin / pseudo-code 예제**:
+```kotlin
+// Selective Repeat 송신측 핵심 — sliding window + per-packet timer + 개별 ACK
+class SelectiveRepeatSender(
+    private val windowSize: Int,          // N: in-flight 상한
+    private val rtoMs: Long = 200,
+) {
+    private data class InFlight(var sentAt: Long, val payload: ByteArray, var acked: Boolean = false)
+
+    private val window = LinkedHashMap<Long, InFlight>() // seq -> 상태
+    private var nextSeq = 0L                              // 다음 부여할 seq
+    private var sendBase = 0L                             // 가장 오래된 unacked seq
+
+    /** window 에 여유가 있으면 즉시 전송, 아니면 호출측이 backpressure */
+    fun trySend(data: ByteArray, now: Long, transmit: (Long, ByteArray) -> Unit): Boolean {
+        if (nextSeq >= sendBase + windowSize) return false // window full → flow control
+        window[nextSeq] = InFlight(sentAt = now, payload = data)
+        transmit(nextSeq, data)
+        nextSeq++
+        return true
+    }
+
+    /** 개별 ACK 처리 (SR: 누적이 아니라 해당 seq 만 ack) */
+    fun onAck(seq: Long) {
+        window[seq]?.acked = true
+        // sendBase 를 연속 acked 구간만큼 전진 → window slide
+        while (window[sendBase]?.acked == true) window.remove(sendBase++)
+    }
+
+    /** RTO 만료된 패킷만 선택 재전송 (GBN 과 달리 window 전체가 아님) */
+    fun onTick(now: Long, transmit: (Long, ByteArray) -> Unit) {
+        for ((seq, f) in window) {
+            if (!f.acked && now - f.sentAt >= rtoMs) {
+                transmit(seq, f.payload)               // 해당 패킷만 재전송
+                f.sentAt = now
+            }
+        }
+    }
+}
+// Go-Back-N 대비: onAck 가 cumulative 이고, onTick 이 sendBase 부터 nextSeq 까지 전부 재전송이면 GBN.
+```
+
+**관련 패턴**: [TCP vs UDP](#tcp-udp), [TCP Congestion Control](#tcp-congestion-control), [Reliable UDP / KCP / RUDP](#reliable-udp), [QUIC / HTTP/3](#quic-http3)

@@ -9,6 +9,7 @@
 | [bipartite-matching](#bipartite-matching) | Bipartite Matching | 이분 매칭 (Augmenting Path DFS) | 중간 |
 | [hopcroft-karp](#hopcroft-karp) | Hopcroft-Karp | 홉크로프트-카프 | 높음 |
 | [stable-marriage](#stable-marriage) | Stable Marriage (Gale-Shapley) | 안정 매칭 | 중간 |
+| [hungarian](#hungarian) | Hungarian (Kuhn-Munkres) | 헝가리안 할당 | 높음 |
 
 ---
 
@@ -264,5 +265,77 @@ fun stableMarriage(
 ```
 
 **관련 알고리즘**: Hungarian, Bipartite Matching
+
+---
+
+<a id="hungarian"></a>
+## 4. Hungarian (Kuhn-Munkres, 헝가리안 할당)
+
+**목적**: n×n 비용 행렬에서 총 비용 최소(또는 이익 최대)가 되는 일대일 할당(assignment) 찾기
+
+**시간 복잡도**: O(n³)
+
+**공간 복잡도**: O(n²)
+
+**특징**:
+- 이분 그래프 최소 비용 완전 매칭의 전용 다항 알고리즘 (Kuhn 1955, Munkres 1957)
+- 행/열 라벨(potential)과 tight edge 로 증가 경로 탐색
+- MCMF(최소 비용 최대 유량)로도 풀 수 있으나 정사각 할당엔 헝가리안이 더 단순·빠름
+- 최대화 문제는 비용을 (max - cost)로 변환
+
+**장점**:
+- 할당 문제에 대한 최적해 보장, O(n³) 다항 시간
+- 구현이 정형화되어 있고 안정적
+
+**단점**:
+- 비정사각/불균형은 더미 행·열 패딩 필요
+- 대규모(n 수천+)에선 auction / 네트워크 심플렉스가 유리
+
+**활용 예시**:
+- 작업-기계, 배달원-주문 배차 비용 최소화
+- 다중 객체 추적(MOT)의 detection-track 연결
+- 광고 슬롯-입찰 매칭
+
+**난이도**: 높음 | **사용 빈도**: ★★★☆☆
+
+**Kotlin 코드**:
+```kotlin
+// O(n^3) Hungarian — cost[i][j] 최소 할당. potential 기반 (Jonker-Volgenant 계열)
+fun hungarian(cost: Array<IntArray>): Pair<Int, IntArray> {
+    val n = cost.size
+    val INF = Int.MAX_VALUE / 2
+    val u = IntArray(n + 1)   // 행 potential
+    val v = IntArray(n + 1)   // 열 potential
+    val p = IntArray(n + 1)   // 열 j 에 매칭된 행 (1-based)
+    val way = IntArray(n + 1)
+    for (i in 1..n) {
+        p[0] = i
+        var j0 = 0
+        val minv = IntArray(n + 1) { INF }
+        val used = BooleanArray(n + 1)
+        do {
+            used[j0] = true
+            val i0 = p[j0]; var delta = INF; var j1 = -1
+            for (j in 1..n) if (!used[j]) {
+                val cur = cost[i0 - 1][j - 1] - u[i0] - v[j]
+                if (cur < minv[j]) { minv[j] = cur; way[j] = j0 }
+                if (minv[j] < delta) { delta = minv[j]; j1 = j }
+            }
+            for (j in 0..n) {
+                if (used[j]) { u[p[j]] += delta; v[j] -= delta }
+                else minv[j] -= delta
+            }
+            j0 = j1
+        } while (p[j0] != 0)
+        do { val j1 = way[j0]; p[j0] = p[j1]; j0 = j1 } while (j0 != 0)
+    }
+    val assignment = IntArray(n)              // assignment[j-1] = 행 index (0-based)
+    var total = 0
+    for (j in 1..n) { assignment[j - 1] = p[j] - 1; total += cost[p[j] - 1][j - 1] }
+    return total to assignment
+}
+```
+
+**관련 알고리즘**: Bipartite Matching, Hopcroft-Karp, Min-Cost Max-Flow
 
 ---

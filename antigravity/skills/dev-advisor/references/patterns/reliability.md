@@ -353,3 +353,56 @@ class RemoteCacheClient(private val ambassador: String = "http://127.0.0.1:6380"
 ```
 
 **관련 패턴**: Sidecar, Proxy, Adapter
+
+---
+
+<a id="steady-state-fail-fast"></a>
+## 10. Steady State / Fail Fast (정상 상태 유지 / 빠른 실패)
+
+**목적**: 시스템이 사람 개입 없이 장시간 안정적으로 동작하도록 자원 누적을 막고(Steady State), 처리 불가한 요청은 자원을 잡기 전에 즉시 거부(Fail Fast)하여 안정성을 확보합니다. Michael Nygard 의 *Release It!* 안정성 패턴.
+
+**특징**:
+- Steady State: 자원 누수 방지, 오래된 데이터 정리(purging), 로그 순환(log rotation)으로 무한 증가 차단
+- Fail Fast: 요청 시작 시점에 의존성/자원/파라미터를 미리 검증해 실패를 앞당김
+- 자원을 점유한 뒤 뒤늦게 실패하는 "slow fail" 을 피해 점유 시간 최소화
+- "사람이 만지면 시스템이 불안정해진다" 전제 — 자동 정리로 야간 운영 부하 제거
+
+**장점**:
+- 메모리/디스크/커넥션의 단조 증가로 인한 점진적 장애(crash, OOM, disk full) 예방
+- Fail Fast 로 스레드/커넥션을 오래 잡지 않아 부하 시 자원 고갈 회피
+- 빠른 거부 응답이 호출 측의 무의미한 대기를 줄여 cascading failure 완화
+
+**단점**:
+- purge/rotation 임계치(보존 기간, 배치 크기)를 잘못 잡으면 과삭제 또는 누적
+- Fail Fast 의 사전 검증 로직이 본 로직과 중복/누락될 수 있음
+- 일시적 의존성 장애에도 즉시 거부하면 Retry 와 충돌 — 책임 경계 설계 필요
+
+**활용 예시**:
+- 세션/캐시 만료 데이터 주기적 배치 삭제, 로그/임시파일 rotation 및 보존정책
+- 요청 진입 시 커넥션풀 여유·circuit 상태·필수 파라미터 선검증 후 빠른 거부
+- Resilience4j Bulkhead 가득참 / 큐 한계 초과 시 즉시 reject (Load Shedding 과 결합)
+
+**난이도**: 중간 | **사용 빈도**: ★★★★☆
+
+**Kotlin 예제**:
+```kotlin
+// Steady State: 만료 데이터 주기적 purge + 로그 보존정책
+class SteadyStateMaintainer(private val retentionDays: Long = 7) {
+    fun purgeExpired(now: Instant) {
+        db.execute("DELETE FROM session WHERE created_at < ?", now.minus(retentionDays, ChronoUnit.DAYS))
+        logDir.rotateAndDeleteOlderThan(retentionDays) // 로그 순환
+    }
+}
+
+// Fail Fast: 자원을 잡기 전에 선검증 → 즉시 거부 (slow fail 회피)
+class OrderService(private val pool: ConnectionPool, private val breaker: CircuitBreaker) {
+    fun place(req: OrderRequest): Result<Order> {
+        require(req.items.isNotEmpty()) { "empty order" }     // 파라미터 선검증
+        if (breaker.isOpen()) return Result.failure(Rejected("downstream open")) // 빠른 실패
+        if (!pool.hasIdle()) return Result.failure(Rejected("pool exhausted"))    // 자원 점유 전 거부
+        return pool.borrow().use { conn -> Result.success(conn.insert(req)) }
+    }
+}
+```
+
+**관련 패턴**: Circuit Breaker, Bulkhead, Timeout

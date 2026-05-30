@@ -562,7 +562,7 @@ User: /dev-advisor research "LLM code generation evaluation"
 ### 6. Hand-off 후보
 - 매핑 신뢰도 MED — 카탈로그 lookup 직접 권장 기준(HIGH) 미만
 - 추가 탐색 옵션: `/dev-advisor research "HumanEval pass@k benchmark"` (검색어 재정제)
-- 구현/분석 위임: `spawn_agent(agent_type="document-specialist", message="LLM code generation evaluation 논문 5편 정리 및 비교")`
+- 구현/분석 위임: `spawn_agent(agent_type="researcher", message="LLM code generation evaluation 논문 5편 정리 및 비교")`
 ```
 
 ---
@@ -590,11 +590,11 @@ User: /dev-advisor research "비존재하는키워드xyz123"
 1. **검색어 재정제**: 한국어 → 영어 변환, 약어 풀어쓰기, 카탈로그 ID 사용
 2. **연도 범위 확장**: `--years 2010-2026`
 3. **카탈로그 lookup 먼저**: `/pattern search <키워드>` 또는 `/principle search <키워드>`
-4. **document-specialist 에이전트 위임**: 외부 학술 사이트 다중 소스 교차 검증
+4. **researcher 에이전트 위임**: 외부 학술 사이트 다중 소스 교차 검증
 
 추천 다음 명령:
 - `/dev-advisor research "<재정제된 검색어>"`
-- `spawn_agent(agent_type="document-specialist", message="<query> 학술 논문 5편 정리")`
+- `spawn_agent(agent_type="researcher", message="<query> 학술 논문 5편 정리")`
 
 검색 로그:
 - arXiv: 0건
@@ -655,7 +655,7 @@ User: /dev-advisor research "neural architecture search"
 
 ### 6. Hand-off 후보
 - 2-source 결과 — S2 복구 후 `/dev-advisor research "neural architecture search"` 재실행 권장
-- 또는: `spawn_agent(agent_type="document-specialist", message="neural architecture search 학술 논문 5편 정리")`
+- 또는: `spawn_agent(agent_type="researcher", message="neural architecture search 학술 논문 5편 정리")`
 ```
 
 ---

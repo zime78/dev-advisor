@@ -112,22 +112,22 @@ check_research_mode() {
     fail "[11-10] examples.md 파일 없음"
   fi
 
-  # 11-11. handoff.md 에 3 에이전트 + OMX/xhigh 정책 명시
+  # 11-11. handoff.md 에 Codex research hand-off 역할 + spawn_agent 정책 명시
   if [ -f "${handoff_file}" ]; then
     local handoff_missing=0 agent
-    for agent in 'document-specialist' 'analyst' 'scientist'; do
+    for agent in 'researcher' 'analyst'; do
       if ! grep -q "${agent}" "${handoff_file}"; then
         handoff_missing=$((handoff_missing + 1))
       fi
     done
     local omx_policy_count
-    omx_policy_count=$(grep -cE 'xhigh|OMX|spawn_agent' "${handoff_file}" 2>/dev/null || echo 0)
+    omx_policy_count=$(grep -cE 'Codex|spawn_agent' "${handoff_file}" 2>/dev/null || echo 0)
     if [ "${handoff_missing}" -eq 0 ] && [ "${omx_policy_count}" -ge 1 ]; then
-      ok "[11-11] handoff.md 3 에이전트 등록 + OMX/xhigh 정책 ${omx_policy_count}회"
+      ok "[11-11] handoff.md Codex research hand-off 역할 등록 + 정책 ${omx_policy_count}회"
     elif [ "${handoff_missing}" -gt 0 ]; then
-      fail "[11-11] handoff.md 누락 에이전트: ${handoff_missing}/3"
+      fail "[11-11] handoff.md 누락 Codex research 역할: ${handoff_missing}/2"
     else
-      fail "[11-11] handoff.md OMX/xhigh 정책 미명시"
+      fail "[11-11] handoff.md Codex/spawn_agent 정책 미명시"
     fi
   else
     fail "[11-11] handoff.md 파일 없음"

@@ -14,15 +14,15 @@
 #   This is idempotent and safe to run repeatedly. No fragile free-text regex.
 #
 # Markers (HTML comments — invisible in rendered markdown):
-#   <!--counts:patterns-->529<!--/-->
-#   <!--counts:algorithms-->256<!--/-->
+#   <!--counts:patterns-->543<!--/-->
+#   <!--counts:algorithms-->292<!--/-->
 #   <!--counts:languages-->75<!--/-->
 #   <!--counts:security-->106<!--/-->
-#   <!--counts:principles-->206<!--/-->
+#   <!--counts:principles-->211<!--/-->
 #   <!--counts:quality-->20<!--/-->
-#   <!--counts:micro-->18<!--/-->
-#   <!--counts:total-->1192<!--/-->
-#   <!--counts:total-with-micro-->1210<!--/-->
+#   <!--counts:micro-->20<!--/-->
+#   <!--counts:total-->1247<!--/-->
+#   <!--counts:total-with-micro-->1267<!--/-->
 #
 # NOTE: Compatible with bash 3.2 (macOS system bash). Uses parallel arrays
 # instead of associative arrays (`declare -A`) which require bash 4+.

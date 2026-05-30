@@ -37,7 +37,7 @@
 3. **기준 매핑** — sources.md 3 API 호출 전략 + mapping-algorithm.md 카탈로그 cross-ref
 4. **분석/판정** — 논문 매트릭스 8~10행 작성 (제목 / 저자 / 연도 / 인용수 / 출처 / abstract / 카탈로그 cross-ref)
 5. **근거 산출 (필수)** — 6 필드 + 3-source 교차 검증
-6. **검증/후속 계획** — degraded mode 배너 (0건/한국어/장애 시) + `document-specialist` / `analyst` / `scientist` hand-off
+6. **검증/후속 계획** — degraded mode 배너 (0건/한국어/장애 시) + `researcher` / `analyst` hand-off
 
 ## 5단계 6 필드 공통 템플릿 (필수)
 
@@ -64,8 +64,7 @@
 
 ## OMX hand-off 후보
 
-> research 모드 hand-off 대상은 **모두 xhigh 역할 우선** — 외부 학술 분석/비교/통계 정확도를 위한 정책.
+> research 모드 hand-off 대상은 Codex에 실제 등록된 `researcher` / `analyst` 역할만 사용한다.
 
-- 0건 / 한국어 검색 / 외부 학술 문서 다중 소스 → `document-specialist`
-- 다수의 비교/요약 분석 → `analyst`
-- 데이터 분석 성격 (인용수 분포, 시간 추이) → `scientist`
+- 0건 / 한국어 검색 / 외부 학술 문서 다중 소스 → `researcher`
+- 다수의 비교/요약/통계 분석 → `analyst`

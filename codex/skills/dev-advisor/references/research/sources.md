@@ -523,7 +523,7 @@ curl -s "https://api.openalex.org/topics/T12490" \
 | **arXiv 직렬 throttled** | arXiv 요청은 동일 API 내 병렬 금지. API 간(arXiv + OpenAlex 동시) 병렬은 허용 |
 | **arXiv 동일 쿼리 1일 캐시** | 세션 내 in-memory dedup으로 동일 쿼리 중복 호출 방지 |
 | **S2 429 처리** | 429 응답 시 지수 백오프 재시도 (최대 3회). 3회 초과 시 degraded mode (§fallback.md) |
-| **개별 API timeout 5s** | WebFetch 개별 호출 timeout 5초. 초과 시 해당 소스 건너뛰고 partial result |
+| **개별 API timeout 5s** | Codex web 도구 개별 호출 timeout 5초. 초과 시 해당 소스 건너뛰고 partial result |
 | **총 검색 timeout 20s** | 3 API 합산 총 20초. 초과 시 수신된 결과만으로 출력 |
 | **rate-limit aware 필수** | LLM 런타임이 자동으로 rate limit을 지켜준다고 가정 금지 |
 

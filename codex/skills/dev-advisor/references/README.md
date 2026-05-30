@@ -10,7 +10,7 @@
 
 | 분할 전 SKILL.md.bak 섹션 | 분할 후 위치 |
 |---|---|
-| 알고리즘 32 카테고리 표 | [references/algorithms/index.md](algorithms/index.md) |
+| 알고리즘 30 카테고리 표 | [references/algorithms/index.md](algorithms/index.md) |
 | 언어 자동 감지 13 패턴 표 | [references/languages/index.md](languages/index.md) |
 | OMX 에이전트 hand-off 상세 계약 | [references/handoff.md](handoff.md) |
 | advisor 9 모드 + lookup 예시 10 (A~J) | [references/examples.md](examples.md) |
@@ -25,7 +25,7 @@
 ### 6 카탈로그 (도메인 데이터)
 
 - `patterns/` — <!--counts:patterns-->543<!--/--> 디자인·아키텍처 패턴 (55 카테고리)
-- `algorithms/` — <!--counts:algorithms-->292<!--/--> 알고리즘 (32 카테고리)
+- `algorithms/` — <!--counts:algorithms-->292<!--/--> 알고리즘 (30 카테고리)
 - `languages/` — <!--counts:languages-->75<!--/--> 프로그래밍 언어
 - `security/` — <!--counts:security-->106<!--/--> 보안 항목 (15 파일)
 - `principles/` — <!--counts:principles-->211<!--/--> SW 공학 원칙 + <!--counts:micro-->20<!--/--> 미시 부록

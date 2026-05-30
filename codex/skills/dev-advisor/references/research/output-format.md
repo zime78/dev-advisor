@@ -121,8 +121,8 @@
 
 - 카탈로그 매핑 신뢰도 HIGH ≥ 3 → 카탈로그 lookup 후속 (`/algorithm <id>`, `/pattern <id>` 등)
 - 코드 구현 요청 동반 → `spawn_agent(agent_type="executor", message="...")`
-- 검색어 모호 / 0건 → `spawn_agent(agent_type="document-specialist", message="...")`
-- 심층 비교 분석 요청 → `spawn_agent(agent_type="analyst", message="...")` 또는 `scientist`
+- 검색어 모호 / 0건 → `spawn_agent(agent_type="researcher", message="...")`
+- 심층 비교·통계 분석 요청 → `spawn_agent(agent_type="analyst", message="...")`
 - 카탈로그 매핑 충돌 (한 논문이 여러 카탈로그 ID로 매핑) → `spawn_agent(agent_type="architect", message="...")`
 
 ---
@@ -148,12 +148,12 @@
 1. **검색어 재정제**: 한국어 → 영어 변환, 약어 풀어쓰기, 카탈로그 ID 사용
 2. **연도 범위 확장**: `--years 2010-2026`
 3. **카탈로그 lookup 먼저**: `/pattern search <키워드>` 또는 `/principle search <키워드>`
-4. **document-specialist 에이전트 위임**: 외부 학술 사이트 다중 소스 교차 검증
+4. **researcher 에이전트 위임**: 외부 학술 사이트 다중 소스 교차 검증
 
 추천 다음 명령:
 - `/dev-advisor research "<재정제된 검색어>"`
 - `/pattern search <키워드>`
-- `spawn_agent(agent_type="document-specialist", message="<query> 학술 논문 5편 정리")`
+- `spawn_agent(agent_type="researcher", message="<query> 학술 논문 5편 정리")`
 
 ---
 
@@ -192,7 +192,7 @@
 
 **3-of-3 불가** (전체 장애):
 ```markdown
-> ❌ **API 전체 응답 불가**. 검색 결과 없음 포맷(§3)으로 전환. document-specialist 위임 권장.
+> ❌ **API 전체 응답 불가**. 검색 결과 없음 포맷(§3)으로 전환. researcher 위임 권장.
 ```
 
 ### 4.2 Degraded Mode별 컬럼 처리
@@ -398,7 +398,7 @@ research 모드 출력은 다음 무료 정책 규칙을 준수한다.
 
 ## 10. arXiv Atom XML 파싱 주의사항 (§4.4.1 PLAN)
 
-arXiv API는 JSON이 아닌 **Atom 1.0 XML** 형식으로 응답한다. WebFetch로 수신한 응답을 파싱할 때 다음 사항을 준수한다.
+arXiv API는 JSON이 아닌 **Atom 1.0 XML** 형식으로 응답한다. Codex web 도구로 수신한 응답을 파싱할 때 다음 사항을 준수한다.
 
 ### 10.1 주요 Atom 1.0 필드 매핑
 
@@ -425,7 +425,7 @@ arXiv 응답 루트에 다음 네임스페이스가 선언된다. 파싱 시 `ar
 
 ### 10.3 arXiv rate-limit 준수 (ToU)
 
-arXiv ToU: **3초당 1요청, 단일 연결**. Codex가 WebFetch로 arXiv를 호출할 때:
+arXiv ToU: **3초당 1요청, 단일 연결**. Codex가 Codex web 도구로 arXiv를 호출할 때:
 
 - 동일 API 내 다중 query를 병렬로 날리지 않는다 (ToU 위반).
 - API 간 병렬은 허용: arXiv 1건 + OpenAlex 1건은 동시 실행 가능.

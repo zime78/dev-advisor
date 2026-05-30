@@ -154,7 +154,7 @@ python3 scripts/lookup-catalog.py pattern search singleton
 - [ ] 약어 풀어쓰기 완료
 - [ ] 불필요한 관사/전치사 제거 (a, the, of, in 등은 arXiv API에서 noise)
 - [ ] 핵심 기술 용어 2~5개로 집중 (10단어 초과 쿼리는 관련성 저하)
-- [ ] 공백은 `+` 또는 `%20` URL 인코딩 적용 (WebFetch 호출 시)
+- [ ] 공백은 `+` 또는 `%20` URL 인코딩 적용 (Codex web 도구 호출 시)
 
 ---
 
@@ -584,11 +584,11 @@ def relevance_score(paper, bias: str = "balanced") -> float:
 - 매트릭스에 ⚠️ 배너 표시: `single-source mode — cross-verification unavailable`.
 - 신뢰성 필드에 단일 소스 한계를 명시한다.
 
-**단계 4: document-specialist 에이전트 위임**
+**단계 4: researcher 에이전트 위임**
 
 ```
 spawn_agent(
-  agent_type="document-specialist",
+  agent_type="researcher",
   message="<query> 관련 학술 논문 5편을 Google Scholar, ACM DL, IEEE Xplore 등 다중 소스에서 조사하여 제목/저자/연도/인용수/DOI를 정리해주세요."
 )
 ```
@@ -610,13 +610,13 @@ spawn_agent(
 1. **검색어 재정제** — 자동 시도: `<원본>` → `<정제된 쿼리>`
 2. **연도 범위 확장** — 재시도: `--years 2010-2026`
 3. **단일 소스 fallback** — arXiv만 검색: `--source arxiv`
-4. **document-specialist 위임** — 외부 학술 DB 다중 검색
+4. **researcher 위임** — 외부 학술 DB 다중 검색
 
 추천 명령:
 - `/dev-advisor research "<정제된 검색어>"`
 - `/dev-advisor research "<query>" --years 2010-2026`
 - `/dev-advisor research "<query>" --source arxiv`
-- `spawn_agent(agent_type="document-specialist", message="<query> 학술 논문 5편 정리")`
+- `spawn_agent(agent_type="researcher", message="<query> 학술 논문 5편 정리")`
 ```
 
 ---
@@ -640,11 +640,11 @@ spawn_agent(
 어시스턴트 턴 시작
 │
 ├── [병렬 시작]
-│   ├── arXiv WebFetch  (직렬 throttled 3s/req, timeout 5s)
-│   └── OpenAlex WebFetch  (직렬, timeout 5s)
+│   ├── arXiv Codex web 도구  (직렬 throttled 3s/req, timeout 5s)
+│   └── OpenAlex Codex web 도구  (직렬, timeout 5s)
 │
 ├── [arXiv/OpenAlex 완료 후]
-│   └── Semantic Scholar WebFetch  (직렬, timeout 5s)
+│   └── Semantic Scholar Codex web 도구  (직렬, timeout 5s)
 │       [key 없으면 shared throttling — backoff 준비]
 │
 ├── [전체 응답 수집 완료]
@@ -665,7 +665,7 @@ def fetch_with_backoff(url: str, max_retries: int = 3) -> Response:
     """
     wait = 1
     for attempt in range(max_retries):
-        response = WebFetch(url)
+        response = codex_web_fetch(url)
         if response.status_code in (429, 503):
             if attempt < max_retries - 1:
                 time.sleep(wait)

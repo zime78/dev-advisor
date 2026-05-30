@@ -2,7 +2,7 @@
   "fixture_id": "zero-result-01-nonexistent",
   "description": "3-source 모두 200 응답 + 결과 0건 — 0건 대응 출력 및 재정제 제안 검증",
   "query": "비존재하는키워드xyz123",
-  "expected_behavior": "검색 결과 없음 안내 + 검색어 재정제 제안 3가지 + document-specialist hand-off 옵션 제공",
+  "expected_behavior": "검색 결과 없음 안내 + 검색어 재정제 제안 3가지 + researcher hand-off 옵션 제공",
   "api_responses": {
     "arxiv": {
       "http_status": 200,
@@ -39,7 +39,7 @@
       "검색어 범위 축소 (복합어 → 핵심 단어 1-2개)",
       "유사 개념 동의어 검색 (예: 다른 표기법·약어)"
     ],
-    "handoff_option": "document-specialist에게 위임하여 broader context 탐색 가능"
+    "handoff_option": "researcher에게 위임하여 broader context 탐색 가능"
   },
   "expected_validation": {
     "HR-05_zero_result_handling": "PASS",

@@ -41,7 +41,7 @@ lookup보다 길다. 이 문서는 **수용 가능한 latency 목표**, **rate-l
 
 - **p50**: 연속 10회 호출 중 5번째 값 (mock fixture dry-run 포함)
 - **p95**: 연속 20회 호출 중 19번째 값
-- **개별 API timeout**: `WebFetch` 호출 시작~응답 수신 완료까지의 wall-clock 시간
+- **개별 API timeout**: `Codex web 도구` 호출 시작~응답 수신 완료까지의 wall-clock 시간
 - **총 timeout**: research 모드 진입~최종 출력 마지막 바이트까지의 wall-clock 시간
 
 ### 2.2 회귀 경보 기준
@@ -56,9 +56,9 @@ lookup보다 길다. 이 문서는 **수용 가능한 latency 목표**, **rate-l
 
 | 소스 | 사용 도구 | 응답 포맷 | 파싱 책임 | 동시성 |
 |------|----------|----------|----------|:------:|
-| **arXiv** | `WebFetch` | **Atom 1.0 XML** (JSON 아님 — 주의) | Codex inline XML parsing | **직렬 throttled** |
-| **Semantic Scholar** | `WebFetch` + `fields=` 파라미터 명시 | JSON | Codex inline JSON parsing | **직렬** |
-| **OpenAlex** | `WebFetch` + `User-Agent: mailto:...` 헤더 (옵션) | JSON | Codex inline JSON parsing | **직렬** (🆓 완전 무료) |
+| **arXiv** | Codex web 도구 | **Atom 1.0 XML** (JSON 아님 — 주의) | Codex inline XML parsing | **직렬 throttled** |
+| **Semantic Scholar** | Codex web 도구 + `fields=` 파라미터 명시 | JSON | Codex inline JSON parsing | **직렬** |
+| **OpenAlex** | Codex web 도구 + `User-Agent: mailto:...` 헤더 (옵션) | JSON | Codex inline JSON parsing | **직렬** (🆓 완전 무료) |
 
 ### 3.1 arXiv 응답 포맷 주의사항
 
@@ -152,11 +152,11 @@ GET https://api.openalex.org/works
 단일 어시스턴트 턴 실행 순서:
 
   [동시 호출 가능]
-  arXiv WebFetch(q1)  ──────────────── 최대 5s
-  OpenAlex WebFetch(q1) ────────────── 최대 5s
+  arXiv Codex web 도구(q1)  ──────────────── 최대 5s
+  OpenAlex Codex web 도구(q1) ────────────── 최대 5s
           ↓ (두 응답 수신 후)
   [직렬 호출]
-  Semantic Scholar WebFetch(q1) ─────── 최대 5s
+  Semantic Scholar Codex web 도구(q1) ─────── 최대 5s
           ↓
   중복 제거 + 매트릭스 생성 ─────────── < 1s
           ↓
@@ -173,15 +173,15 @@ GET https://api.openalex.org/works
 | 규칙 | 내용 |
 |------|------|
 | 동일 API 내 다중 쿼리 | **직렬 + 3초 간격** (arXiv 쿼리 2개 → 첫 번째 완료 후 3초 대기 → 두 번째) |
-| 병렬 호출 금지 | arXiv 2개 이상을 동시에 WebFetch 호출하는 것은 **ToU 위반** |
+| 병렬 호출 금지 | arXiv 2개 이상을 동시에 Codex web 도구로 호출하는 것은 **ToU 위반** |
 | 동일 쿼리 하루 1회 | §6 캐싱 정책 in-memory cache로 회피 |
 | 에러 시 backoff | 429 응답 → exponential backoff (§4.5) |
 
 ```
 arXiv 다중 쿼리 예시 (올바른 순서):
-  1. WebFetch(arXiv, q="transformer attention") → 응답 수신
+  1. Codex web 도구(arXiv, q="transformer attention") → 응답 수신
   2. sleep(3s)  ← 필수
-  3. WebFetch(arXiv, q="self-attention mechanism") → 응답 수신
+  3. Codex web 도구(arXiv, q="self-attention mechanism") → 응답 수신
 ```
 
 ### 4.3 Semantic Scholar — 직렬
@@ -229,7 +229,7 @@ arXiv 다중 쿼리 예시 (올바른 순서):
 | **2-of-3 정상** (arXiv 실패) | **max 10s** (실패 timeout 5s 포함) | `⚠️ degraded mode: arXiv unavailable` 배너 |
 | **2-of-3 정상** (OA 실패) | **max 10s** (실패 timeout 5s 포함) | `⚠️ degraded mode: OpenAlex unavailable` 배너 |
 | **1-of-3 정상** | **max 5s** (나머지 2개 timeout 5s는 병렬) | `⚠️⚠️ severe degradation` 배너 + 신뢰성 LOW |
-| **0-of-3 정상** | **< 5s** (fast-fail) | §6.2 0건 대응 + document-specialist hand-off |
+| **0-of-3 정상** | **< 5s** (fast-fail) | §6.2 0건 대응 + researcher hand-off |
 | **cache hit** | **< 1s** | 캐시 응답 + "cached — last fetched X minutes ago" |
 
 ### 5.1 총 timeout 20s 초과 시
@@ -305,11 +305,11 @@ arXiv 다중 쿼리 예시 (올바른 순서):
 
 ```
 시간축 (초):
-0s  ─── arXiv WebFetch 시작
-    ─── OpenAlex WebFetch 시작 (동시)
+0s  ─── arXiv Codex web 도구 시작
+    ─── OpenAlex Codex web 도구 시작 (동시)
 3s  ─── arXiv 응답 수신 (평균)
 4s  ─── OpenAlex 응답 수신 (평균)
-4s  ─── Semantic Scholar WebFetch 시작 (arXiv + OA 완료 후)
+4s  ─── Semantic Scholar Codex web 도구 시작 (arXiv + OA 완료 후)
 7s  ─── S2 응답 수신 (평균)
 7.5s ── 중복 제거 + 매트릭스 생성 완료
 8s  ─── 출력 완료 ← p50 목표 달성
@@ -319,11 +319,11 @@ arXiv 다중 쿼리 예시 (올바른 순서):
 
 ```
 시간축 (초):
-0s  ─── arXiv WebFetch 시작
-    ─── OpenAlex WebFetch 시작 (동시)
+0s  ─── arXiv Codex web 도구 시작
+    ─── OpenAlex Codex web 도구 시작 (동시)
 5s  ─── arXiv timeout (실패로 처리)
 5s  ─── OpenAlex 응답 수신 (or 동시 timeout)
-5s  ─── S2 WebFetch 시작
+5s  ─── S2 Codex web 도구 시작
 8s  ─── S2 응답 수신
 9s  ─── 매트릭스 생성 + degraded 배너 출력 ← p50 < 10s
 ```
@@ -381,7 +381,7 @@ def arxiv_fetch(query: str) -> dict:
         if elapsed < 3.0:
             time.sleep(3.0 - elapsed)  # 3초 간격 보장
     ARXIV_LAST_CALL_TS = time.time()
-    # ... WebFetch 호출
+    # ... Codex web 도구 호출
 ```
 
 ### 8.2 Exponential Backoff Helper
@@ -442,7 +442,7 @@ bash scripts/verify-references.sh --check performance
 
 내부 동작:
 1. `references/research/fixtures/` 에서 정상 케이스 15개 로드
-2. mock 응답으로 research 모드 실행 (실제 WebFetch 차단)
+2. mock 응답으로 research 모드 실행 (실제 Codex web 도구 차단)
 3. p50 / p95 측정 → 임계 비교
 
 ### 9.2 Latency 임계 검증
@@ -468,16 +468,16 @@ bash scripts/verify-references.sh --check performance
 성능 저하 순서로 정의된 3-tier fallback (PLAN §13.4):
 
 ```
-1차: WebFetch (3 API 직접 호출)
+1차: Codex web 도구 (3 API 직접 호출)
      ├─ 정상: p50 < 8s
      └─ 실패 (도구 미지원 / TLS / rate limit hit)
           ↓
-2차: Bash + curl 직접 호출
+2차: terminal curl 직접 호출
      ├─ 정상: p50 < 12s (추가 프로세스 fork overhead)
      ├─ 응답 신뢰성 사용자 검증 필수
      └─ 실패 (네트워크 차단 등)
           ↓
-3차: document-specialist 에이전트 위임 (xhigh)
+3차: researcher 에이전트 위임
      ├─ 에이전트 spin-up 시간 포함 → p50 > 20s 가능
      └─ 사용자에게 "에이전트 위임 중" 명시
 ```

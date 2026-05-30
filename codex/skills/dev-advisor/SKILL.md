@@ -26,10 +26,10 @@ argument-hint: "<recommend|validate|refactor|maintain|security-audit|qa|qc|resea
 | 도메인 | 디렉토리 | 항목 수 | 용도 |
 |---|---|--:|---|
 | Patterns   | `references/patterns/`   | <!--counts:patterns-->543<!--/--> | 디자인·아키텍처 의사결정 (55 카테고리) |
-| Algorithms | `references/algorithms/` | <!--counts:algorithms-->292<!--/--> | 자료구조·연산·분산·동시성 (32 카테고리) |
+| Algorithms | `references/algorithms/` | <!--counts:algorithms-->292<!--/--> | 자료구조·연산·분산·동시성 (30 카테고리) |
 | Languages  | `references/languages/`  | <!--counts:languages-->75<!--/--> | 언어 선택·비교·분야별 추천 |
 | Security   | `references/security/`   | <!--counts:security-->106<!--/--> | 인증·인가·암호·API·모바일·AI·규제 (15 파일) |
-| Principles | `references/principles/` | <!--counts:principles-->211<!--/--> + <!--counts:micro-->20<!--/--> 부록 | SOLID / GRASP / ISO 25010 / 12-Factor / Code Smells + 확장 16 + 미시 18 |
+| Principles | `references/principles/` | <!--counts:principles-->211<!--/--> + <!--counts:micro-->20<!--/--> 부록 | SOLID / GRASP / ISO 25010 / 12-Factor / Code Smells + 확장 원칙 + 미시 20 |
 | Quality    | `references/quality/`    | <!--counts:quality-->20<!--/--> | QA 10 + QC 10 — 요구사항·테스트·릴리즈·게이트 |
 
 합계 **<!--counts:total-->1247<!--/--> 항목 + <!--counts:micro-->20<!--/--> 부록**.
@@ -67,7 +67,7 @@ argument-hint: "<recommend|validate|refactor|maintain|security-audit|qa|qc|resea
 `data-advisor` 는 dev-advisor 와 **별도 스킬**(DMBOK KA 기반 데이터 관리 카탈로그, lookup-only, advisor 모드 없음)이다. dev-advisor 만 호출되어도 아래 **DMBOK 데이터 관리 주제**가 입력에 감지되면 `data-advisor` 로 hand-off 한다. 대상 reference (cross-skill 상대경로): [`db-fundamentals.md`](../data-advisor/references/principles/db-fundamentals.md) (KA2) · [`mdm.md`](../data-advisor/references/patterns/mdm.md) (KA7) · [`data-warehousing.md`](../data-advisor/references/patterns/data-warehousing.md) (KA8) · [`data-quality.md`](../data-advisor/references/patterns/data-quality.md) (KA10) · [`db-indexes.md`](../data-advisor/references/algorithms/db-indexes.md) · [`db-storage-engines.md`](../data-advisor/references/algorithms/db-storage-engines.md) · [`db-query-optimizer.md`](../data-advisor/references/algorithms/db-query-optimizer.md) (KA3).
 
 - **[필수-조건: DMBOK 데이터 관리 주제 감지]** 다음 트리거 키워드가 입력/컨텍스트에 있으면 `data-advisor` 로 hand-off 한다 — `MDM`/`마스터 데이터`/`골든 레코드`/`Survivorship`/`Match-Merge` (KA7) · `데이터 웨어하우스`/`DWH`/`Kimball`/`Star`/`Snowflake`/`SCD`/`Fact Table`/`OLAP`/`Lakehouse`/`dbt` (KA8) · `데이터 품질`/`DQ`/`Data Lineage`/`Data Catalog`/`Stewardship`/`OpenLineage` (KA10) · `CAP`/`PACELC`/`격리 수준`/`ACID`/`BASE`/`복제`/`파티셔닝`/`정규화` (KA2) · `B+Tree`/`LSM Tree`/`WAL`/`MVCC`/`Buffer Pool`/`쿼리 옵티마이저`/`EXPLAIN ANALYZE`/`db-indexes`/`db-storage-engines` (KA3) · `DMBOK`.
-- **[필수]** hand-off 호출은 `/data <id>` · `/data list` · `/data search <kw>` 또는 `Skill(skill="data-advisor")` 로 한다. 단축 진입점 `/mdm`(KA7) · `/dwh`(KA8) · `/dq`(KA10) 도 동일 스킬로 매핑된다. `data-advisor` 는 도메인 prefix 없이 부명령을 직접 받는다 (예: `/data mdm-golden-record`).
+- **[필수]** hand-off 호출은 `/data <id>` · `/data list` · `/data search <kw>` 또는 `$data-advisor` 스킬 라우팅으로 한다. 단축 진입점 `/mdm`(KA7) · `/dwh`(KA8) · `/dq`(KA10) 도 동일 스킬로 매핑된다. `data-advisor` 는 도메인 prefix 없이 부명령을 직접 받는다 (예: `/data mdm-golden-record`).
 - **[권장]** dev-advisor 카탈로그([`patterns/data-modeling.md`](references/patterns/data-modeling.md) CAP 실무 패턴 · [`patterns/data-access.md`](references/patterns/data-access.md) OO 영속성 · [`algorithms/spatial.md`](references/algorithms/spatial.md)·[`algorithms/search-systems.md`](references/algorithms/search-systems.md) 공간/검색 · [`security/security-data-protection.md`](references/security/security-data-protection.md) 데이터 보안 · [`patterns/mlops.md`](references/patterns/mlops.md) ML/AI 파이프라인)와 겹치는 주제는 dev-advisor 에 유지하고, **순수 DMBOK 데이터 관리 어휘(KA2/3/7/8/10)** 만 `data-advisor` 로 넘긴다. (data-advisor `## Out-of-scope` 와 대칭)
 
 ## 워크플로우 (요약)
@@ -90,12 +90,12 @@ advisor 9 모드는 트리거 조건 도달 시 Codex 전문 서브에이전트 
 | `verifier` | Codex/OMX 역할 서브에이전트 | 변경 적용 후 회귀 확인 / autopilot 종료 직전 |
 | `designer` | Codex/OMX 역할 서브에이전트 | UI 컴포넌트 영향 ≥ 3 화면 / HCI·UX 평가 |
 | `planner` | Codex/OMX 역할 서브에이전트 | 다단계 추정·로드맵 / SDLC·CM 계획 |
-| `document-specialist` / `analyst` / `scientist` | Codex/OMX 역할 서브에이전트 | research 모드 외부 문서·비교·통계 분석 |
+| `researcher` / `analyst` | Codex/OMX 역할 서브에이전트 | research 모드 외부 문서·비교·통계 분석 |
 | `$ai-slop-cleaner` | 스킬 호출 | `maintain` Dispensables 비중 ≥ 40% |
-| **`data-advisor`** | **별도 스킬 호출** | **DMBOK 데이터 관리 주제(KA2/3/7/8/10) 감지 — 호출 `/data <id>` · `/mdm` · `/dwh` · `/dq` 또는 `Skill(skill="data-advisor")`** |
+| **`data-advisor`** | **별도 스킬 호출** | **DMBOK 데이터 관리 주제(KA2/3/7/8/10) 감지 — 호출 `/data <id>` · `/mdm` · `/dwh` · `/dq` 또는 `$data-advisor` 스킬 라우팅** |
 
 - **[필수]** 분석·설계·리뷰 성격 hand-off 는 역할명과 입력 JSON, 기대 산출 형식을 명시해 Codex/OMX 서브에이전트로 위임한다 (bare ID 금지).
-- **[필수]** `data-advisor` 는 Codex 서브에이전트가 아니라 **별도 스킬**이므로 스킬 호출(`/data ...` 또는 `Skill(skill="data-advisor")`)로 hand-off 한다.
+- **[필수]** `data-advisor` 는 Codex 서브에이전트가 아니라 **별도 스킬**이므로 스킬 호출(`/data ...` 또는 `$data-advisor`)로 hand-off 한다.
 
 ## 참조 문서
 

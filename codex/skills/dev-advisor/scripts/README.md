@@ -19,14 +19,14 @@ bash scripts/verify-references.sh --check today
 
 0. standalone/repo 모드 판별, `.counts.manifest` 동기화, 배포 제외 파일(`.DS_Store`, `__pycache__`, `*.pyc`) 금지, stale token 금지
 0B. patterns/security/principles/quality 실제 항목 합계와 manifest 직접 대조
-1. 카테고리별 anchor 수 == 헤더 수 (algorithms base 23 파일)
+1. 카테고리별 anchor 수 == 헤더 수 (algorithms core 22 파일)
 2. 전역 anchor unique
 3. index.md 알고리즘 ID 매핑 표 행 == <!--counts:algorithms-->292<!--/-->
-4. SKILL.md progressive disclosure 구조 (32 카테고리 진입점, 필수 섹션 헤더, 별칭 표)
+4. SKILL.md progressive disclosure 구조 (30 카테고리 진입점, 필수 섹션 헤더, 별칭 표)
 5. languages reference 무결성 (≥60 언어 파일, 레거시 잔존 표현 0건)
 6. languages 표준 14 섹션 헤더 spot-check (python/kotlin/rust/go/swift 누락 ≥ 2 면 fail)
    - languages 전체 품질 게이트: 75개 언어 파일 정확성, `## 관련 문서` 존재, Markdown 링크 3개 이상, 외부 공식 문서 후보 링크 2개 이상, `실사용 예제` 코드 블록 1개 이상, 예제 섹션 25단어 이상
-7. patterns base reference 무결성 (base/P0/P1/P2/P3 카테고리, 부분 합계 == 208; 전체 547은 10번과 합산)
+7. patterns base reference 무결성 (base/P0/P1/P2/P3 카테고리, 부분 합계 == 200; 전체 <!--counts:patterns-->543<!--/-->은 10번과 합산)
 8. security base reference 무결성 (base 13 보안 파일, base 합계 == 97; 전체 106은 10번과 합산)
 9. **principles reference 무결성** (base/P0/P1/P3 원칙 파일, 부분 합계 == 107; 전체 <!--counts:principles-->211<!--/--> + <!--counts:micro-->20<!--/--> 부록은 10번과 합산)
 10. Phase 2 확장 신규 카탈로그 anchor/header 일관성

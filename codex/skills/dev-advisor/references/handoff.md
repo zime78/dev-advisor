@@ -52,7 +52,7 @@ advisor 9 모드는 다음 트리거 조건 도달 시 Codex 전문 서브에이
 
 ### hand-off 호출 형식
 
-아래 형식은 Codex 서브에이전트 역할(`architect`, `code-reviewer`, `security-reviewer`, `verifier`, `designer`, `planner`)에만 적용한다. `$ai-slop-cleaner` 는 스킬 호출로 실행한다.
+아래 형식은 Codex 서브에이전트 역할(`architect`, `code-reviewer`, `security-reviewer`, `verifier`, `designer`, `planner`, `researcher`, `analyst`)에만 적용한다. `$ai-slop-cleaner` 는 스킬 호출로 실행한다.
 
 ```text
 spawn_agent(
@@ -69,10 +69,10 @@ spawn_agent(
 
 research 모드(`/dev-advisor research <topic>`)에서 외부 학술 API 호출 결과를 기반으로 다음 시나리오에서 hand-off:
 
-### `document-specialist`
+### `researcher`
 
-**OMX subagent**: `document-specialist`
-**모델 정책**: 외부 문서 검색은 분석 성격이므로 xhigh 계열 역할 우선
+**Codex subagent**: `researcher`
+**모델 정책**: 외부 문서 검색은 Codex에 등록된 `researcher` 역할의 기본 모델 정책을 따른다.
 
 **트리거**:
 - research 모드가 3-source 모두 0건 + 사용자가 재시도 요청
@@ -97,53 +97,38 @@ research 모드(`/dev-advisor research <topic>`)에서 외부 학술 API 호출 
 
 ### `analyst`
 
-**OMX subagent**: `analyst`
-**모델 정책**: 비교 분석 성격이므로 xhigh 계열 역할 우선
+**Codex subagent**: `analyst`
+**모델 정책**: 비교·통계 분석 성격이므로 Codex에 등록된 `analyst` 역할의 기본 모델 정책을 따른다.
 
 **트리거**:
 - research 결과 다수 논문(5~10편)의 심층 비교/요약 분석 요청
 - "이 두 논문 차이점 분석해줘" 같은 비교 질의
 - 카탈로그 항목과 검색 결과의 관계 분석
-
-**입력 계약**:
-- research 매트릭스 (Primary + Weak Evidence)
-- 6 필드 산출 (선택/판정, 근거, 대안 비교, ...)
-- 사용자의 분석 초점 (성능/메서드/적용 가능성/etc)
-
-**출력 계약**:
-- 비교 매트릭스 (논문 × 분석 축)
-- 합의 vs 이견 영역 식별
-- 사용자 의사결정에 도움이 되는 권고
-
-**후속**:
-- 사용자에게 보고 (executor 위임 X — analyst는 분석만)
-
-### `scientist`
-
-**OMX subagent**: `scientist`
-**모델 정책**: 데이터 분석 성격이므로 xhigh 계열 역할 우선
-
-**트리거**:
 - research 결과의 통계적 분석 요청 (인용수 분포, 시간 추이, 저자 네트워크)
 - "이 분야 trend 분석" 요청
 - 다년간 발표 추이 분석
 
 **입력 계약**:
-- research 매트릭스 (raw API 응답 포함)
+- research 매트릭스 (Primary + Weak Evidence)
+- 6 필드 산출 (선택/판정, 근거, 대안 비교, ...)
+- 사용자의 분석 초점 (성능/메서드/적용 가능성/etc)
 - 분석 대상 메트릭 (citation_count, year, venue, ...)
 - 시각화 옵션 (선택)
 
 **출력 계약**:
+- 비교 매트릭스 (논문 × 분석 축)
+- 합의 vs 이견 영역 식별
+- 사용자 의사결정에 도움이 되는 권고
 - 통계 요약 (mean/median/percentile)
 - 시간 추이 분석 (연도별 발표 수, 평균 인용수)
 - 의미 있는 패턴 (특정 venue 집중도, 저자 네트워크 등)
 
 **후속**:
-- 사용자에게 보고 (executor 위임 X — scientist는 분석만)
+- 사용자에게 보고 (executor 위임 X — analyst는 분석만)
 
 ### 공통 정책 (research 모드 hand-off)
 
-- 모든 3개 에이전트는 AGENTS.md OMX/ULW 분석·설계 정책에 따라 xhigh 계열 역할 우선
+- research 전용 hand-off는 Codex에 실제 등록된 `researcher` / `analyst` 역할만 사용한다.
 - 호출 형식: `spawn_agent(agent_type="<name>", message="<역할 + 입력 + 산출 형식>")`
 - bare ID 사용 금지 (pre-tool-enforcer 차단됨)
 - 무료 정책 절대 준수 — 에이전트가 추가 외부 API 호출 시에도 anonymous 동작 보장 요구

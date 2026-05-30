@@ -1,6 +1,6 @@
 # 미시 원칙 (Micro Principles)
 
-거시 원칙(SOLID/GRASP/ISO 25010/12-Factor)과 코드 스멜(Code Smells) 사이의 *간결한 격언* 18 항목. 짧지만 일상 코딩에서 가장 자주 인용되는 표준.
+거시 원칙(SOLID/GRASP/ISO 25010/12-Factor)과 코드 스멜(Code Smells) 사이의 *간결한 격언* 20 항목. 짧지만 일상 코딩에서 가장 자주 인용되는 표준.
 
 **구성**: 핵심 8 (DRY/KISS/YAGNI/LoD/SoC/Tell-Don't-Ask/Composition/SSoT) + 사회·조직·확장 10 (Conway / Inverse Conway / Hyrum / Postel / Brooks / Hollywood / Boy Scout / Pareto / Goodhart / Cunningham).
 

@@ -47,7 +47,7 @@ fixtures/
 
 - 쿼리: `비존재하는키워드xyz123`
 - 3-source 모두 HTTP 200이나 result_count=0
-- 예상 동작: 0건 안내 + 재정제 제안 3가지 + document-specialist hand-off 옵션
+- 예상 동작: 0건 안내 + 재정제 제안 3가지 + researcher hand-off 옵션
 - HR-05(0건 처리), HR-07(재정제 제안) PASS 검증
 
 ### schema-drift/01-s2-missing-tldr.json

@@ -1,6 +1,6 @@
 # SW 공학 원칙 레퍼런스
 
-소프트웨어 공학의 정평 있는 표준·원칙 15 카테고리. dev-advisor `recommend / validate / refactor / maintain / security-audit / qa / qc` 7 기본 모드의 표준 인용 source.
+소프트웨어 공학의 정평 있는 표준·원칙 24 카테고리. dev-advisor `recommend / validate / refactor / maintain / security-audit / qa / qc` 7 기본 모드의 표준 인용 source.
 
 ## 도메인 진입점
 
@@ -61,15 +61,6 @@
 
 **P1 소계**: 13 항목 (7 + 6)
 
-**총합**: **211 항목** (56 + 107 + 19 + 13 + 11)
-
-### 부록: 미시 원칙
-
-| 파일 | 항목 수 | 설명 |
-|------|--------:|------|
-| [micro-principles.md](micro-principles.md) | 20 | 핵심 8 (DRY / KISS / YAGNI / LoD / SoC / Tell-Don't-Ask / Composition over Inheritance / SSoT) + 사회·조직·확장 10 (Conway / Inverse Conway / Hyrum / Postel / Brooks / Hollywood-IoC / Boy Scout / Pareto / Goodhart / Cunningham). verify 주 카탈로그 206 항목 외 부록 |
-
-
 ### P4 신설 1 카테고리 (아키텍처 평가)
 
 | # | 파일 | 항목 수 | 표준 / 저자 | 주요 용도 |
@@ -77,6 +68,14 @@
 | 24 | [architecture-evaluation.md](architecture-evaluation.md) | 3 | Bass·Clements·Kazman — *Software Architecture in Practice* (SEI) | ATAM/SAAM/CBAM·품질속성 시나리오·아키텍처 전술 (architect / code-reviewer 기준 — 아키텍처 평가) |
 
 **P4 소계**: 3 항목
+
+**총합**: **211 항목** (56 + 107 + 19 + 13 + 11 + 3 + type-systems/performance-metrics 각 +1)
+
+### 부록: 미시 원칙
+
+| 파일 | 항목 수 | 설명 |
+|------|--------:|------|
+| [micro-principles.md](micro-principles.md) | 20 | 핵심 8 (DRY / KISS / YAGNI / LoD / SoC / Tell-Don't-Ask / Composition over Inheritance / SSoT) + 사회·조직·확장 12 (Conway / Inverse Conway / Hyrum / Postel / Brooks / Hollywood-IoC / Boy Scout / Pareto / Goodhart / Cunningham / Fallacies / End-to-End). verify 주 카탈로그 211 항목 외 부록 |
 
 ## 카테고리 선택 가이드
 
@@ -102,7 +101,7 @@
 | 개발 프로세스·생산성 측정 (DORA / SPACE / Trunk-Based) | [process-metrics.md](process-metrics.md) — Accelerate / SPACE |
 | 성능 수치 감각·복잡도 측정·Tail latency | [performance-metrics.md](performance-metrics.md) — Dean numbers / McCabe / Flame Graph |
 | 탄소 효율·에너지·하드웨어 효율 운영 | [sustainable-sw.md](sustainable-sw.md) — GSF / SCI (ISO 21031) |
-| 일상 코딩 격언 (DRY/KISS/YAGNI/Conway/Hyrum 등) | [micro-principles.md](micro-principles.md) — 18 미시 원칙 |
+| 일상 코딩 격언 (DRY/KISS/YAGNI/Conway/Hyrum 등) | [micro-principles.md](micro-principles.md) — 20 미시 원칙 |
 | SDLC 모델 선택 (Waterfall/V/Spiral/RUP/PRINCE2/PMBOK) | [sdlc-models.md](sdlc-models.md) — Royce / Boehm / Jacobson / AXELOS / PMI |
 | 대규모 애자일 프레임워크·팀 토폴로지 | [scaled-agile.md](scaled-agile.md) — SAFe / LeSS / Nexus / Spotify / DA / Team Topologies |
 | 윤리·AI 규제 (EU AI Act, GDPR 22조)·다크패턴 | [professional-ethics.md](professional-ethics.md) — ACM/IEEE 코드 / EU AI Act / Brignull |
@@ -115,7 +114,7 @@
 
 dev-advisor SKILL.md `## 호출 인터페이스` 와 동일하게 `list / search / <id>` 3 형태:
 
-- `/principle list` — 위 15 도메인 진입점 표
+- `/principle list` — 위 24 도메인 진입점 표
 - `/principle search <kw>` — 키워드 매칭 (예: `/principle search 결합도` → Low Coupling / Feature Envy)
 - `/principle <id>` — 단일 항목 본문 (예: `/principle srp`, `/principle high-cohesion`, `/principle code-smell-feature-envy`, `/principle linearizability`, `/principle dora-metrics`)
 
@@ -380,7 +379,7 @@ dev-advisor SKILL.md `## 호출 인터페이스` 와 동일하게 `list / search
 ## 무결성 검증
 
 `scripts/verify-references.sh` 의 CHECK 9 블록이 이 도메인을 검증:
-- **23 파일 존재** (`index.md` + 22 카테고리 md: solid / grasp / iso25010 / 12-factor / code-smells / type-systems / concurrency-theory / refactoring-techniques / sw-economics / evolutionary-arch / resilience-theory / documentation / process-metrics / performance-metrics / sustainable-sw / sdlc-models / scaled-agile / professional-ethics / standards-mapping / configuration-management / hci-methodology / formal-methods)
-- 항목 합계 **206** (`^## [0-9]+\.` 헤더 카운트)
-- 도메인별 카운트: solid=5, grasp=9, iso25010=8, 12-factor=12, code-smells=22, type-systems=10, concurrency-theory=10, refactoring-techniques=25, sw-economics=10, evolutionary-arch=8, resilience-theory=8, documentation=8, process-metrics=10, performance-metrics=10, sustainable-sw=8, sdlc-models=7, scaled-agile=6, professional-ethics=6, standards-mapping=7, configuration-management=6
-- **부록 검증** (별도 검사): `micro-principles.md` 존재 + **18** 항목 카운트 (`^## ` 헤더 — 표준 인용·매트릭스·분류 섹션 3 제외). 206 합계에는 포함되지 않음.
+- **25 파일 존재** (`index.md` + 24 카테고리 md: solid / grasp / iso25010 / 12-factor / code-smells / type-systems / concurrency-theory / refactoring-techniques / sw-economics / evolutionary-arch / resilience-theory / documentation / process-metrics / performance-metrics / sustainable-sw / sdlc-models / scaled-agile / professional-ethics / standards-mapping / configuration-management / hci-methodology / formal-methods / architecture-evaluation / micro-principles)
+- 항목 합계 **211** (`^## [0-9]+\.` 헤더 카운트, micro-principles 부록 제외)
+- 도메인별 카운트: solid=5, grasp=9, iso25010=8, 12-factor=12, code-smells=22, type-systems=11, concurrency-theory=10, refactoring-techniques=25, sw-economics=10, evolutionary-arch=8, resilience-theory=8, documentation=8, process-metrics=10, performance-metrics=11, sustainable-sw=8, sdlc-models=7, scaled-agile=6, professional-ethics=6, standards-mapping=7, configuration-management=6, hci-methodology=6, formal-methods=5, architecture-evaluation=3
+- **부록 검증** (별도 검사): `micro-principles.md` 존재 + **20** 항목 카운트 (`^## ` 헤더 — 표준 인용·매트릭스·분류 섹션 3 제외). 211 합계에는 포함되지 않음.

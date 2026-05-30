@@ -128,7 +128,7 @@ references/research/fixtures/
 |---------|:--------:|---------|
 | `normal/` | 15 | 전체 워크플로 정상 완료, 매트릭스 8~10행 출력, 카탈로그 매핑 신뢰도 HIGH/MED 비율 |
 | `partial-failure/` | 12 | §17.1 degraded mode 배너 출력, 사용 가능 소스의 결과만으로 매트릭스 구성 |
-| `zero-result/` | 5 | 0건 fast-fail 처리, document-specialist hand-off 안내 출력 |
+| `zero-result/` | 5 | 0건 fast-fail 처리, researcher hand-off 안내 출력 |
 | `schema-drift/` | 8 | 필드 누락 시 null 처리 + 검증 로그 기록, 비정상 타입 행 drop |
 | `korean-query/` | 5 | 한→영 정규화 후 영문 검색 실행, 정규화 후보 1~3개 제시 |
 | `retracted/` | 5 | `is_retracted: true` 행에 ⚠️ RETRACTED 명시, 매트릭스 포함 시 경고 표시 |
@@ -220,8 +220,8 @@ EXAMPLE_COUNT=$(grep -cE '예시 K|예시 L|예시 M|Example K|Example L|Example
   && echo "[PASS] 11-10: research examples K/L/M found (${EXAMPLE_COUNT})" \
   || { echo "[FAIL] 11-10: research examples K/L/M < 3"; FAIL=1; }
 
-# 11-11. handoff.md에 document-specialist/analyst/scientist 항목 존재 확인
-for AGENT in "document-specialist" "analyst" "scientist"; do
+# 11-11. handoff.md에 Codex research hand-off 역할 존재 확인
+for AGENT in "researcher" "analyst"; do
   grep -q "$AGENT" ~/.codex/skills/dev-advisor/references/handoff.md \
     && echo "[PASS] 11-11: ${AGENT} in handoff.md" \
     || { echo "[FAIL] 11-11: ${AGENT} NOT in handoff.md"; FAIL=1; }
